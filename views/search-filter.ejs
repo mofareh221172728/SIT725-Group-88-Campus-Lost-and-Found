@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Search & Filter' }) %>
+<body>
+<%- include('partials/nav', { active: 'search' }) %>
+
+<div class="screen-wrap">
+  <div class="screen-label">
+    <h2>5 — Search &amp; Filter View</h2>
+    <span class="tag">Type · category · building · date range · keyword</span>
+  </div>
+  <div class="device">
+    <div class="wf-navbar">
+      <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
+      <div class="wf-navlinks">
+        <a href="/browse" class="text-decoration-none" style="color:inherit;">Browse</a>
+        <a href="/my-reports" class="text-decoration-none" style="color:inherit;">My Reports</a>
+      </div>
+      <div class="wf-avatar"></div>
+    </div>
+    <div class="row g-0">
+      <div class="col-lg-3 p-3" style="border-right:1.5px solid var(--wf-line-strong);">
+        <div class="kicker mono mb-2">Filters</div>
+
+        <div class="field-wf mb-3">
+          <label>Type</label>
+          <div class="d-flex gap-2" data-toggle-group="filter-type">
+            <button type="button" class="chip-btn" data-toggle-option="lost">Lost</button>
+            <button type="button" class="chip-btn active" data-toggle-option="found">Found</button>
+            <button type="button" class="chip-btn" data-toggle-option="all">All</button>
+          </div>
+        </div>
+
+        <div class="field-wf mb-3">
+          <label for="filter-category">Category</label>
+          <select id="filter-category" class="select-wf">
+            <option>All categories</option>
+            <option>Electronics</option>
+            <option>Keys</option>
+            <option>Bags</option>
+            <option>Wallets / Cards</option>
+            <option>Clothing</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field-wf mb-3">
+          <label for="filter-building">Building / campus</label>
+          <select id="filter-building" class="select-wf">
+            <option>Waurn Ponds</option>
+            <option>Burwood</option>
+            <option>Geelong Waterfront</option>
+          </select>
+        </div>
+        <div class="field-wf mb-3">
+          <label>Date range</label>
+          <div class="d-flex gap-2">
+            <input type="date" class="input-wf-real" style="flex:1;" aria-label="From date">
+            <input type="date" class="input-wf-real" style="flex:1;" aria-label="To date">
+          </div>
+        </div>
+        <div class="field-wf mb-3">
+          <label for="filter-keyword">Keyword</label>
+          <input id="filter-keyword" type="text" class="input-wf-real" placeholder="e.g. keys, wallet…">
+        </div>
+        <button type="button" class="btn-wf-strong w-100" data-action="apply-filters">Apply filters</button>
+        <div class="text-center mt-2">
+          <button type="button" class="btn-link-wf" data-action="clear-filters">Clear all filters</button>
+        </div>
+      </div>
+
+      <div class="col-lg-9 p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="mono" style="font-size:.75rem; color:#5b5f66;">42 results</span>
+          <select class="select-wf-inline" aria-label="Sort results">
+            <option>Sort: Newest</option>
+            <option>Sort: Oldest</option>
+          </select>
+        </div>
+        <div class="row g-3">
+          <% for (let i = 0; i < 6; i++) { %>
+            <div class="col-md-4 col-6">
+              <a href="/item-detail" class="text-decoration-none text-dark" data-repeat="1"></a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Purpose: dedicated filter screen for FR-SF-01–05. "Apply filters" and "Clear all filters" are wired to real click behaviour (chips, selects and inputs reset on Clear).</div>
+</div>
+
+<%- include('partials/footer') %>
+</body>
+</html>

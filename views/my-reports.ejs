@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'My Reports' }) %>
+<body>
+<%- include('partials/nav', { active: 'myreports' }) %>
+
+<div class="screen-wrap">
+  <div class="screen-label">
+    <h2>6  My Reports View</h2>
+    <span class="tag">Personal dashboard · Items I Lost / Items I Found</span>
+  </div>
+  <div class="device">
+    <div class="wf-navbar">
+      <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
+      <div class="wf-navlinks">
+        <a href="/browse" class="text-decoration-none" style="color:inherit;">Browse</a>
+        <a href="/my-reports" class="text-decoration-none" style="color:inherit;">My Reports</a>
+      </div>
+      <div class="wf-avatar"></div>
+    </div>
+    <div class="p-4">
+      <div class="lorem-line w-40" style="height:16px; margin-bottom:16px;"></div>
+
+      <div class="kicker mono mb-2">Items I Found (3)</div>
+      <div class="box mb-4" style="border-radius:4px; overflow:hidden;">
+
+        <div class="d-flex align-items-center p-2 report-row" style="border-bottom:1px solid var(--wf-line);" data-resolved-label="Returned">
+          <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
+          <div class="flex-grow-1">
+            <div class="lorem-line w-40" style="margin:0 0 4px;"></div>
+            <span class="badge-wf badge-active status-badge">Active</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="/create-report" class="btn-wf" data-action="edit-report">Edit</a>
+            <button type="button" class="btn-wf" data-action="resolve-report">Resolve</button>
+            <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center p-2 report-row" style="border-bottom:1px solid var(--wf-line);" data-resolved-label="Returned">
+          <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
+          <div class="flex-grow-1">
+            <div class="lorem-line w-40" style="margin:0 0 4px;"></div>
+            <span class="badge-wf badge-resolved status-badge">Returned</span>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn-wf" data-action="edit-report" disabled>Edit</button>
+            <button type="button" class="btn-wf" data-action="resolve-report" disabled>Resolve</button>
+            <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center p-2 report-row" data-resolved-label="Returned">
+          <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
+          <div class="flex-grow-1">
+            <div class="lorem-line w-40" style="margin:0 0 4px;"></div>
+            <span class="badge-wf badge-active status-badge">Active</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="/create-report" class="btn-wf" data-action="edit-report">Edit</a>
+            <button type="button" class="btn-wf" data-action="resolve-report">Resolve</button>
+            <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="kicker mono mb-2">Items I Lost (2)</div>
+      <div class="box" style="border-radius:4px; overflow:hidden;">
+
+        <div class="d-flex align-items-center p-2 report-row" style="border-bottom:1px solid var(--wf-line);" data-resolved-label="Claimed">
+          <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
+          <div class="flex-grow-1">
+            <div class="lorem-line w-40" style="margin:0 0 4px;"></div>
+            <span class="badge-wf badge-claimed status-badge">Claimed</span>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn-wf" data-action="edit-report" disabled>Edit</button>
+            <button type="button" class="btn-wf" data-action="resolve-report" disabled>Resolve</button>
+            <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center p-2 report-row" data-resolved-label="Claimed">
+          <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
+          <div class="flex-grow-1">
+            <div class="lorem-line w-40" style="margin:0 0 4px;"></div>
+            <span class="badge-wf badge-active status-badge">Active</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="/create-report" class="btn-wf" data-action="edit-report">Edit</a>
+            <button type="button" class="btn-wf" data-action="resolve-report">Resolve</button>
+            <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Purpose: owner-only management surface. "Resolve" really flips the badge to Returned/Claimed and disables Edit/Resolve on that row; "Delete" removes the row after a confirm prompt (ties to NFR-09 owner-only check).</div>
+</div>
+
+<%- include('partials/footer') %>
+</body>
+</html>

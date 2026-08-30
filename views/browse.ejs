@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Main Browse' }) %>
+<body>
+<%- include('partials/nav', { active: 'browse' }) %>
+
+<div class="screen-wrap">
+  <div class="screen-label">
+    <h2>2  Main Browse View</h2>
+    <span class="tag">Tabs: Lost / Found · searchable feed</span>
+  </div>
+  <div class="device">
+    <div class="wf-navbar">
+      <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
+      <div class="wf-navlinks">
+        <a href="/browse" class="text-decoration-none" style="color:inherit;">Browse</a>
+        <a href="/my-reports" class="text-decoration-none" style="color:inherit;">My Reports</a>
+        <a href="/create-report" class="text-decoration-none" style="color:inherit;">+ Report Item</a>
+      </div>
+      <div class="wf-avatar"></div>
+    </div>
+
+    <div class="p-3">
+      <div class="d-flex gap-2 align-items-center mb-3">
+        <input type="text" class="input-wf-real flex-grow-1" style="max-width:420px;" placeholder='Search keyword… ("blue bottle")'>
+        <a href="/search-filter" class="btn-wf">Filters ⚙</a>
+      </div>
+
+      <div class="tabline mb-3" data-toggle-group="browse-tab">
+        <button type="button" class="tab-btn active" data-toggle-option="found">Found (128)</button>
+        <button type="button" class="tab-btn" data-toggle-option="lost">Lost (94)</button>
+        <button type="button" class="tab-btn" data-toggle-option="all">All</button>
+      </div>
+
+      <div class="row g-3">
+        <% for (let i = 0; i < 8; i++) { %>
+          <div class="col-md-3 col-6">
+            <a href="/item-detail" class="text-decoration-none text-dark" data-repeat="1"></a>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="d-flex justify-content-center gap-1 mt-4" data-toggle-group="browse-page">
+        <button type="button" class="pill-btn" disabled>‹</button>
+        <button type="button" class="pill-btn active" data-toggle-option="1">1</button>
+        <button type="button" class="pill-btn" data-toggle-option="2">2</button>
+        <button type="button" class="pill-btn" data-toggle-option="3">3</button>
+        <button type="button" class="pill-btn" disabled>…</button>
+        <button type="button" class="pill-btn" data-toggle-option="next">›</button>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Purpose: default landing feed after sign-in. Card = title, category, building, date reported, primary photo. Batches of 20/page per FR-VR-03.</div>
+</div>
+
+<%- include('partials/footer') %>
+</body>
+</html>
