@@ -23,7 +23,7 @@
         </div>
       </div>
 
-      <form class="row justify-content-center" action="/item-detail" method="get">
+      <form class="row justify-content-center" id="report-form"></form>
         <div class="col-lg-7">
           <div class="annot mb-3">The toggle above actually swaps the fields below between Lost-item and Found-item mode (US-01–US-05).</div>
 
@@ -107,7 +107,7 @@
 
           <div class="d-flex justify-content-end gap-2 mt-4">
             <a href="/browse" class="btn-wf">Cancel</a>
-            <button type="submit" class="btn-wf-strong">Submit Report</button>
+            <button type="submit" class="btn-wf-strong" form="report-form">Submit Report</button>
           </div>
         </div>
       </form>
