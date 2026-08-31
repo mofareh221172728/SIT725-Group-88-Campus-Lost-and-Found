@@ -2,23 +2,26 @@
 // Real button interactivity for the wireframes: tab switching, toggles,
 // filter feedback, and resolve/delete actions on My Reports.
 
-function cardHTML() {
+// FR-VR-01: each card must show item title, report type, category,
+// campus location, date reported, and primary photo.
+function cardHTML(type) {
+  const reportType = type === 'lost' ? 'Lost' : 'Found';
   return `
     <div class="card-wf">
       <div class="ph mb-2" style="height:110px; border-radius:3px;">photo</div>
-      <div class="d-flex justify-content-between align-items-start">
-        <div class="lorem-line w-60" style="margin:0;"></div>
+      <div class="flex justify-between items-center mb-1">
+        <span class="badge-wf" style="font-size:.58rem;">${reportType}</span>
         <span class="badge-wf badge-active" style="font-size:.58rem;">Active</span>
       </div>
-      <div class="lorem-line w-40" style="height:6px;"></div>
-      <div class="mono" style="font-size:.62rem; color:#9a9a95; margin-top:4px;">Bldg LC · 2 days ago</div>
+      <div class="lorem-line w-60" style="margin:0 0 4px;"></div>
+      <div class="mono" style="font-size:.62rem; color:#9a9a95;">Electronics · Bldg LC · 2 days ago</div>
     </div>`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   // Repeated wireframe cards on feed screens
   document.querySelectorAll('[data-repeat]').forEach((el) => {
-    el.innerHTML = cardHTML();
+    el.innerHTML = cardHTML(el.dataset.repeat);
   });
 
   // --- Generic exclusive toggle group (tabs, Lost/Found toggle, filter chips) ---
@@ -75,14 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- My Reports: Resolve marks a report resolved; Delete removes the row ---
+  // Section 2.4: only two report statuses are supported — Active and Resolved.
   document.querySelectorAll('[data-action="resolve-report"]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const row = btn.closest('.report-row');
       if (!row) return;
-      const label = row.dataset.resolvedLabel || 'Resolved';
       const badge = row.querySelector('.status-badge');
       if (badge) {
-        badge.textContent = label;
+        badge.textContent = 'Resolved';
         badge.classList.remove('badge-active');
         badge.classList.add('badge-resolved');
       }

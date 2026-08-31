@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Item Detail — Campus Lost and Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="switcher">
+  <div class="switcher-inner flex items-center gap-3">
+    <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
+    <ul class="switcher-links flex items-center gap-1 nowrap">
+      <li><a class="nav-link" href="index.html">Login</a></li>
+      <li><a class="nav-link" href="browse.html">Main</a></li>
+      <li><a class="nav-link" href="create-report.html">Create Report</a></li>
+      <li><a class="nav-link active" href="item-detail.html">Item Detail</a></li>
+      <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
+      <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="screen-wrap">
+  <div class="screen-label">
+    <h2>4 — Item Detail View</h2>
+    <span class="tag">Full details, photos, status, contact/collection info</span>
+  </div>
+  <div class="device">
+    <div class="wf-navbar">
+      <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
+      <div class="wf-navlinks"><a href="browse.html" class="no-underline">← Back to results</a></div>
+      <div class="wf-avatar"></div>
+    </div>
+    <div class="p-4">
+      <div class="grid grid-2">
+        <div>
+          <div class="ph" style="height:320px; border-radius:6px;">Primary photo</div>
+          <div class="flex gap-2 mt-2">
+            <div class="ph" style="width:70px; height:70px; border-radius:4px;">2</div>
+            <div class="ph" style="width:70px; height:70px; border-radius:4px;">3</div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="badge-wf">Found</span>
+            <span class="badge-wf badge-active">Active</span>
+          </div>
+          <div class="lorem-line w-80" style="height:18px;"></div>
+          <div class="lorem-line w-40" style="margin-top:10px;"></div>
+
+          <div class="grid" style="grid-template-columns:auto 1fr; gap:.35rem 1rem; margin-top:1rem;">
+            <div class="mono" style="font-size:.75rem; color:#5b5f66;">Category</div><div style="font-weight:700; font-size:.75rem;">Electronics</div>
+            <div class="mono" style="font-size:.75rem; color:#5b5f66;">Location found</div><div style="font-weight:700; font-size:.75rem;">Building LC, Level 2</div>
+            <div class="mono" style="font-size:.75rem; color:#5b5f66;">Date found</div><div style="font-weight:700; font-size:.75rem;">29 Aug 2026</div>
+            <div class="mono" style="font-size:.75rem; color:#5b5f66;">Date reported</div><div style="font-weight:700; font-size:.75rem;">30 Aug 2026</div>
+          </div>
+
+          <div class="box p-3 mt-3" style="border-radius:4px;">
+            <div class="lorem-line w-80"></div>
+            <div class="lorem-line w-60"></div>
+          </div>
+
+          <div class="box-strong p-3 mt-3" style="border-radius:4px;">
+            <div class="kicker mono">Collection instructions</div>
+            <div class="lorem-line w-60" style="height:12px;"></div>
+            <a href="mailto:reporter@deakin.edu.au" class="btn-wf-strong text-center w-100 mt-2" style="display:block;">Contact reporter →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footnote">Purpose: single source of truth for one report (FR-ID-01–04). Status badge reflects Active/Resolved (Section 2.4); contact panel shows email or drop-off location per FR-ID-04.</div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
