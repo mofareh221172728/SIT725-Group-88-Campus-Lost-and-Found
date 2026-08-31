@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- My Reports: Resolve marks a report resolved; Delete removes the row ---
-  // Section 2.4: only two report statuses are supported — Active and Resolved.
+  // Section 2.4: only two report statuses are supported - Active and Resolved.
   document.querySelectorAll('[data-action="resolve-report"]').forEach((btn) => {
     btn.addEventListener('click', () => {
       const row = btn.closest('.report-row');

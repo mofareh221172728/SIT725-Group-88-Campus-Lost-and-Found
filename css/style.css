@@ -19,7 +19,7 @@ body{
 a{ color:#2b6cb0; }
 
 /* =========================================================
-   Small local utility layer (plain CSS — flexbox/spacing
+   Small local utility layer (plain CSS - flexbox/spacing
    helpers, since no CSS framework is used per SRS Section 2.4)
    ========================================================= */
 .flex{ display:flex; }
@@ -48,7 +48,7 @@ a{ color:#2b6cb0; }
 .p-2{ padding:.5rem; } .p-3{ padding:1rem; } .p-4{ padding:1.5rem; }
 
 /* Native CSS Grid replaces the Materialize/Bootstrap column grid.
-   No library — just the browser's built-in grid layout. */
+   No library - just the browser's built-in grid layout. */
 .grid{ display:grid; gap:1rem; }
 .grid-2{ grid-template-columns:repeat(2, 1fr); }
 .grid-3{ grid-template-columns:repeat(3, 1fr); }
@@ -134,7 +134,7 @@ a{ color:#2b6cb0; }
   border:1px solid var(--wf-line-strong); border-radius:3px; padding:.15rem .4rem;
   background:#fff; color:#333;
 }
-/* Section 2.4: only two report statuses are supported — Active and Resolved. */
+/* Section 2.4: only two report statuses are supported - Active and Resolved. */
 .badge-active{ background:#e9f3ea; border-color:#3f7a4a; color:#2f5c37; }
 .badge-resolved{ background:#eceef4; border-color:#5b6485; color:#454d6b; }
 
@@ -227,7 +227,7 @@ a{ color:#2b6cb0; }
 }
 .btn-link-wf:hover{ color:#1c1e22; }
 
-/* Plain native form elements, styled directly — no form/UI library involved. */
+/* Plain native form elements, styled directly - no form/UI library involved. */
 .select-wf{
   border:1px solid var(--wf-line); border-radius:3px; padding:.5rem .6rem;
   font-size:.78rem; color:#4a4e57; background:#fbfbfa; width:100%;
