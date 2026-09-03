@@ -42,17 +42,32 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Create Report: swap Lost / Found field panels on toggle ---
-  const reportToggle = document.querySelector('[data-toggle-group="report-type"]');
-  if (reportToggle) {
-    reportToggle.addEventListener('toggle-change', (e) => {
-      const lostPanel = document.getElementById('panel-lost');
-      const foundPanel = document.getElementById('panel-found');
-      if (!lostPanel || !foundPanel) return;
-      const showLost = e.detail.value === 'lost';
-      lostPanel.classList.toggle('d-none', !showLost);
-      foundPanel.classList.toggle('d-none', showLost);
+const reportToggle = document.querySelector('[data-toggle-group="report-type"]');
+
+if (reportToggle) {
+  reportToggle.addEventListener('toggle-change', (e) => {
+    const lostPanel = document.getElementById('panel-lost');
+    const foundPanel = document.getElementById('panel-found');
+
+    if (!lostPanel || !foundPanel) return;
+
+    const showLost = e.detail.value === 'lost';
+
+    lostPanel.classList.toggle('d-none', !showLost);
+    foundPanel.classList.toggle('d-none', showLost);
+
+    const lostFields = lostPanel.querySelectorAll('input, select, textarea');
+    const foundFields = foundPanel.querySelectorAll('input, select, textarea');
+
+    lostFields.forEach((field) => {
+      field.required = showLost;
     });
-  }
+
+    foundFields.forEach((field) => {
+      field.required = !showLost;
+    });
+  });
+}
 
   // --- Search & Filter: Apply / Clear feedback ---
   const applyBtn = document.querySelector('[data-action="apply-filters"]');
@@ -103,4 +118,68 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+// --- Create Report: submit form to item API ---
+const reportForm = document.getElementById('report-form');
+
+if (reportForm) {
+  reportForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const activeTypeBtn = document.querySelector(
+      '[data-toggle-group="report-type"] [data-toggle-option].active'
+    );
+
+    const type = activeTypeBtn
+      ? activeTypeBtn.dataset.toggleOption
+      : 'found';
+
+    let reportData;
+
+    if (type === 'found') {
+      reportData = {
+        type: 'found',
+        title: document.getElementById('f-title').value.trim(),
+        category: document.getElementById('f-category').value,
+        date: document.getElementById('f-date').value,
+        location: document.getElementById('f-location').value.trim(),
+        description: document.getElementById('f-desc').value.trim()
+      };
+    } else {
+      reportData = {
+        type: 'lost',
+        title: document.getElementById('l-title').value.trim(),
+        category: document.getElementById('l-category').value,
+        date: document.getElementById('l-date').value,
+        location: document.getElementById('l-lastseen').value.trim(),
+        description: document.getElementById('l-desc').value.trim()
+      };
+    }
+
+    try {
+      const response = await fetch('/api/items', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(reportData)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.message || 'Unable to submit report.');
+        return;
+      }
+
+      alert('Report submitted successfully.');
+      reportForm.reset();
+
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      alert('Something went wrong. Please try again.');
+    }
+  });
+}
+
 });
