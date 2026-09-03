@@ -1,5 +1,5 @@
-const express = require('express');
-const path = require('path');
+const express = require("express");
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
@@ -14,32 +14,18 @@ app.use(express.static(__dirname));
 const items = [];
 
 // GET all items
-app.get('/api/items', (req, res) => {
+app.get("/api/items", (req, res) => {
   res.json(items);
 });
 
 // POST a new item
-app.post('/api/items', (req, res) => {
-  const {
-    type,
-    title,
-    category,
-    date,
-    location,
-    description
-  } = req.body;
+app.post("/api/items", (req, res) => {
+  const { type, title, category, date, location, description } = req.body;
 
   // Required field validation
-  if (
-    !type ||
-    !title ||
-    !category ||
-    !date ||
-    !location ||
-    !description
-  ) {
+  if (!type || !title || !category || !date || !location || !description) {
     return res.status(400).json({
-      message: 'All required fields must be provided.'
+      message: "All required fields must be provided.",
     });
   }
 
@@ -50,14 +36,14 @@ app.post('/api/items', (req, res) => {
     category,
     date,
     location,
-    description
+    description,
   };
 
   items.push(newItem);
 
   res.status(201).json({
-    message: 'Report created successfully.',
-    item: newItem
+    message: "Report created successfully.",
+    item: newItem,
   });
 });
 
