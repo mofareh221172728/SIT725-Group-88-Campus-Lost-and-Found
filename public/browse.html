@@ -47,15 +47,24 @@
       </div>
 
       <div class="tabline mb-3" data-toggle-group="browse-tab">
-        <button type="button" class="tab-btn" data-toggle-option="found">Found</button>
-        <button type="button" class="tab-btn" data-toggle-option="lost">Lost</button>
-        <button type="button" class="tab-btn active" data-toggle-option="all">All</button>
+        <button type="button" class="tab-btn active" data-toggle-option="found">Found (128)</button>
+        <button type="button" class="tab-btn" data-toggle-option="lost">Lost (94)</button>
+        <button type="button" class="tab-btn" data-toggle-option="all">All</button>
       </div>
 
       <div id="browse-status" class="browse-message" role="status" aria-live="polite">
         Loading reports…
       </div>
       <div id="report-grid" class="grid grid-4" aria-label="Active lost and found reports"></div>
+
+      <div class="flex justify-center gap-1 mt-4" data-toggle-group="browse-page">
+        <button type="button" class="pill-btn" disabled>‹</button>
+        <button type="button" class="pill-btn active" data-toggle-option="1">1</button>
+        <button type="button" class="pill-btn" data-toggle-option="2">2</button>
+        <button type="button" class="pill-btn" data-toggle-option="3">3</button>
+        <button type="button" class="pill-btn" disabled>…</button>
+        <button type="button" class="pill-btn" data-toggle-option="next">›</button>
+      </div>
     </div>
   </div>
 </div>
