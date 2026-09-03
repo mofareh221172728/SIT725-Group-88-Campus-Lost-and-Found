@@ -3,16 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Create Report - Campus Lost and Found</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="css/style.css" rel="stylesheet">
 </head>
+
 <body>
 
 <nav class="switcher">
   <div class="switcher-inner flex items-center gap-3">
-    <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
+
+    <span class="brand mono lh-1 text-center">
+      Campus<br>Lost &amp; Found
+    </span>
+
     <ul class="switcher-links flex items-center gap-1 nowrap">
       <li><a class="nav-link" href="index.html">Login</a></li>
       <li><a class="nav-link" href="browse.html">Main</a></li>
@@ -21,121 +28,403 @@
       <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
       <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
     </ul>
+
   </div>
 </nav>
 
+
 <div class="screen-wrap">
+
   <div class="screen-label">
     <h2>Create Report View</h2>
-    <span class="tag">Toggle: I Lost Something / I Found Something</span>
+    <span class="tag">
+      Toggle: I Lost Something / I Found Something
+    </span>
   </div>
+
+
   <div class="device">
+
     <div class="wf-navbar">
-      <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
-      <div class="wf-navlinks"><a href="browse.html" class="no-underline">← Back to Browse</a></div>
-      <div class="wf-avatar"></div>
-    </div>
-    <div class="p-4">
-      <div class="flex justify-center mb-4" data-toggle-group="report-type">
-        <div class="toggle-wf">
-          <button type="button" class="toggle-btn" data-toggle-option="lost">I Lost Something</button>
-          <button type="button" class="toggle-btn active" data-toggle-option="found">I Found Something</button>
-        </div>
+
+      <div class="wf-logo">
+        <span class="dot"></span>
+        Campus Lost &amp; Found
       </div>
 
-      <form class="center-col" action="item-detail.html" method="get">
+      <div class="wf-navlinks">
+        <a href="browse.html" class="no-underline">
+          ← Back to Browse
+        </a>
+      </div>
+
+      <div class="wf-avatar"></div>
+
+    </div>
+
+
+    <div class="p-4">
+
+      <!-- Lost / Found toggle -->
+
+      <div
+        class="flex justify-center mb-4"
+        data-toggle-group="report-type"
+      >
+
+        <div class="toggle-wf">
+
+          <button
+            type="button"
+            class="toggle-btn"
+            data-toggle-option="lost"
+          >
+            I Lost Something
+          </button>
+
+          <button
+            type="button"
+            class="toggle-btn active"
+            data-toggle-option="found"
+          >
+            I Found Something
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- REPORT FORM -->
+
+      <form id="report-form" class="center-col">
+
 
         <!-- FOUND ITEM FIELDS -->
+
         <div id="panel-found">
+
           <div class="field-wf mb-3">
-            <label for="f-title">Item title</label>
-            <input id="f-title" name="title" type="text" class="input-wf-real" placeholder="e.g. Black Sony headphones">
+
+            <label for="f-title">
+              Item title
+            </label>
+
+            <input
+              id="f-title"
+              name="title"
+              type="text"
+              class="input-wf-real"
+              placeholder="e.g. Black Sony headphones"
+              required
+            >
+
           </div>
+
+
           <div class="grid grid-2 mb-3">
+
             <div class="field-wf">
-              <label for="f-category">Category</label>
-              <select id="f-category" name="category" class="select-wf">
+
+              <label for="f-category">
+                Category
+              </label>
+
+              <select
+                id="f-category"
+                name="category"
+                class="select-wf"
+                required
+              >
+
                 <option>Electronics</option>
                 <option>Keys</option>
                 <option>Bags</option>
                 <option>Wallets / Cards</option>
                 <option>Clothing</option>
                 <option>Other</option>
+
               </select>
+
             </div>
+
+
             <div class="field-wf">
-              <label for="f-date">Date found</label>
-              <input id="f-date" name="dateFound" type="date" class="input-wf-real">
+
+              <label for="f-date">
+                Date found
+              </label>
+
+              <input
+                id="f-date"
+                name="dateFound"
+                type="date"
+                class="input-wf-real"
+                required
+              >
+
             </div>
+
           </div>
+
+
           <div class="field-wf mb-3">
-            <label for="f-location">Discovery location - campus / building / room</label>
-            <input id="f-location" name="location" type="text" class="input-wf-real" placeholder="Waurn Ponds · Building LC · Level 2">
+
+            <label for="f-location">
+              Discovery location - campus / building / room
+            </label>
+
+            <input
+              id="f-location"
+              name="location"
+              type="text"
+              class="input-wf-real"
+              placeholder="Waurn Ponds · Building LC · Level 2"
+              required
+            >
+
           </div>
+
+
           <div class="field-wf mb-3">
-            <label for="f-desc">Description</label>
-            <textarea id="f-desc" name="description" class="input-wf-real" rows="3" placeholder="Short context: what was found and where…"></textarea>
+
+            <label for="f-desc">
+              Description
+            </label>
+
+            <textarea
+              id="f-desc"
+              name="description"
+              class="input-wf-real"
+              rows="3"
+              placeholder="Short context: what was found and where…"
+              required
+            ></textarea>
+
           </div>
+
+
           <div class="field-wf mb-3">
-            <label>Photos (max 3)</label>
+
+            <label>
+              Photos (max 3)
+            </label>
+
             <div class="flex gap-2">
-              <button type="button" class="ph" style="width:88px; height:88px; border-radius:4px; border:1px dashed var(--wf-line); cursor:pointer;">+ Add</button>
-              <div class="ph opacity-50" style="width:88px; height:88px; border-radius:4px;">empty</div>
-              <div class="ph opacity-50" style="width:88px; height:88px; border-radius:4px;">empty</div>
+
+              <button
+                type="button"
+                class="ph"
+                style="
+                  width:88px;
+                  height:88px;
+                  border-radius:4px;
+                  border:1px dashed var(--wf-line);
+                  cursor:pointer;
+                "
+              >
+                + Add
+              </button>
+
+              <div
+                class="ph opacity-50"
+                style="
+                  width:88px;
+                  height:88px;
+                  border-radius:4px;
+                "
+              >
+                empty
+              </div>
+
+              <div
+                class="ph opacity-50"
+                style="
+                  width:88px;
+                  height:88px;
+                  border-radius:4px;
+                "
+              >
+                empty
+              </div>
+
             </div>
+
           </div>
+
+
           <div class="field-wf mb-3">
-            <label>Collection method</label>
-            <div class="flex gap-2 wrap" data-toggle-group="collection-method">
-              <button type="button" class="chip-btn active" data-toggle-option="dropoff">Drop at Security / Student Central</button>
-              <button type="button" class="chip-btn" data-toggle-option="email">Share my Deakin email</button>
+
+            <label>
+              Collection method
+            </label>
+
+            <div
+              class="flex gap-2 wrap"
+              data-toggle-group="collection-method"
+            >
+
+              <button
+                type="button"
+                class="chip-btn active"
+                data-toggle-option="dropoff"
+              >
+                Drop at Security / Student Central
+              </button>
+
+              <button
+                type="button"
+                class="chip-btn"
+                data-toggle-option="email"
+              >
+                Share my Deakin email
+              </button>
+
             </div>
+
           </div>
+
         </div>
+
 
         <!-- LOST ITEM FIELDS -->
+
         <div id="panel-lost" class="d-none">
+
           <div class="field-wf mb-3">
-            <label for="l-title">Item title</label>
-            <input id="l-title" name="title" type="text" class="input-wf-real" placeholder="e.g. Blue Nike water bottle">
+
+            <label for="l-title">
+              Item title
+            </label>
+
+            <input
+              id="l-title"
+              name="title"
+              type="text"
+              class="input-wf-real"
+              placeholder="e.g. Blue Nike water bottle"
+            >
+
           </div>
+
+
           <div class="grid grid-2 mb-3">
+
             <div class="field-wf">
-              <label for="l-category">Category</label>
-              <select id="l-category" name="category" class="select-wf">
+
+              <label for="l-category">
+                Category
+              </label>
+
+              <select
+                id="l-category"
+                name="category"
+                class="select-wf"
+              >
+
                 <option>Electronics</option>
                 <option>Keys</option>
                 <option>Bags</option>
                 <option>Wallets / Cards</option>
                 <option>Clothing</option>
                 <option>Other</option>
+
               </select>
+
             </div>
+
+
             <div class="field-wf">
-              <label for="l-date">Date lost</label>
-              <input id="l-date" name="dateLost" type="date" class="input-wf-real">
+
+              <label for="l-date">
+                Date lost
+              </label>
+
+              <input
+                id="l-date"
+                name="dateLost"
+                type="date"
+                class="input-wf-real"
+              >
+
             </div>
+
           </div>
+
+
           <div class="field-wf mb-3">
-            <label for="l-lastseen">Last-seen location - campus / building / room</label>
-            <input id="l-lastseen" name="lastSeen" type="text" class="input-wf-real" placeholder="Waurn Ponds · Library · Level 1">
+
+            <label for="l-lastseen">
+              Last-seen location - campus / building / room
+            </label>
+
+            <input
+              id="l-lastseen"
+              name="lastSeen"
+              type="text"
+              class="input-wf-real"
+              placeholder="Waurn Ponds · Library · Level 1"
+            >
+
           </div>
+
+
           <div class="field-wf mb-3">
-            <label for="l-desc">Description</label>
-            <textarea id="l-desc" name="description" class="input-wf-real" rows="3" placeholder="What it looks like, any identifying details…"></textarea>
+
+            <label for="l-desc">
+              Description
+            </label>
+
+            <textarea
+              id="l-desc"
+              name="description"
+              class="input-wf-real"
+              rows="3"
+              placeholder="What it looks like, any identifying details…"
+            ></textarea>
+
           </div>
+
         </div>
+
+
+        <!-- FORM BUTTONS -->
 
         <div class="flex justify-end gap-2 mt-4">
-          <a href="browse.html" class="btn-wf">Cancel</a>
-          <button type="submit" class="btn-wf-strong">Submit Report</button>
+
+          <a
+            href="browse.html"
+            class="btn-wf"
+          >
+            Cancel
+          </a>
+
+          <button
+            type="submit"
+            class="btn-wf-strong"
+          >
+            Submit Report
+          </button>
+
         </div>
+
+
       </form>
+
     </div>
+
   </div>
-  <div class="footnote">Purpose: single unified form (US-01–US-05). Toggle swaps field set between Lost and Found without navigating away.</div>
+
+
+  <div class="footnote">
+    Purpose: single unified form (US-01–US-05).
+    Toggle swaps field set between Lost and Found without navigating away.
+  </div>
+
 </div>
 
+
 <script src="js/main.js"></script>
+
 </body>
 </html>
