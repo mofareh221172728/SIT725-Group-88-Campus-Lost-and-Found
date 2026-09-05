@@ -1,0 +1,82 @@
+.report-container {
+    padding: 30px;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
+    font-size: .78rem;
+    color: #2b2b2b;
+}
+
+.switcher {
+    height: auto;
+    line-height: normal;
+}
+
+.switcher ul a {
+    line-height: inherit;
+}
+
+.mode-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.mode-btn {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.mode-btn.active {
+    color: #f5f5f5;
+    background-color: #5e5e5e !important;
+}
+
+.mode-btn:not(.active) {
+    background-color: #f5f5f5 !important;
+    color: #424242 !important;
+    box-shadow: none !important;
+}
+
+.report-container h5 {
+    font-family: 'Inter', sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    color: #1c1e22;
+    letter-spacing: -.01em;
+}
+
+.form-actions {
+    margin-top: 32px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.form-actions a.btn-flat {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .75rem;
+    text-transform: none;
+    letter-spacing: normal;
+    color: #333;
+}
+
+#btn-submit-report,
+#upload-photo-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .75rem;
+    text-transform: none;
+    letter-spacing: normal;
+    color: #f5f5f5;
+    background-color: #5e5e5e !important;
+}
+
+.d-none {
+    display: none !important;
+}
