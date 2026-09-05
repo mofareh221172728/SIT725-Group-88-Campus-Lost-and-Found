@@ -76,7 +76,7 @@
                     </button>
                 </div>
 
-                <form id="report-item-form">
+                <form id="report-item-form" novalidate>
                     <input type="hidden" id="report-type" name="type" value="found">
 
                     <!-- General Item Information -->
@@ -195,6 +195,7 @@
 
     <!-- Materialize JS and Form Logic -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="js/report-validation.js"></script>
     <script src="js/report-form.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
