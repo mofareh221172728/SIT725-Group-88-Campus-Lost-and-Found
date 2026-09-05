@@ -48,6 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
+            // Validate form
+            if (typeof validateReportForm === 'function') {
+                const validation = validateReportForm(form);
+                if (!validation.isValid) {
+                    alert(`Please fix the error(s) before submitting: \n${validation.errors.map(err => err.message).join('\n')}`);
+                    return;
+                }
+            }
+
             // Collect all form fields
             const reportData = {
                 type: typeInput.value,
