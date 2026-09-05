@@ -1,0 +1,88 @@
+name: Notify Teams
+
+on:
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  notify-teams:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Teams notification
+        env:
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+
+        run: |
+          jq -n \
+            --arg repo "$REPO" \
+            --arg pr_number "$PR_NUMBER" \
+            --arg pr_title "$PR_TITLE" \
+            --arg pr_url "$PR_URL" \
+            --arg pr_author "$PR_AUTHOR" \
+            --arg source_branch "$SOURCE_BRANCH" \
+            --arg target_branch "$TARGET_BRANCH" \
+            '{
+              "type": "message",
+              "attachments": [
+                {
+                  "contentType": "application/vnd.microsoft.card.adaptive",
+                  "contentUrl": null,
+                  "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.4",
+                    "body": [
+                      {
+                        "type": "TextBlock",
+                        "text": "🚀 New Pull Request",
+                        "weight": "Bolder",
+                        "size": "Large"
+                      },
+                      {
+                        "type": "FactSet",
+                        "facts": [
+                          {
+                            "title": "Repository",
+                            "value": $repo
+                          },
+                          {
+                            "title": "PR",
+                            "value": ("[#" + $pr_number + " " + $pr_title + "](" + $pr_url + ")")
+                          },
+                          {
+                            "title": "Author",
+                            "value": $pr_author
+                          },
+                          {
+                            "title": "Branch",
+                            "value": ($source_branch + " → " + $target_branch)
+                          }
+                        ]
+                      }
+                    ],
+                    "actions": [
+                      {
+                        "type": "Action.OpenUrl",
+                        "title": "Open Pull Request",
+                        "url": $pr_url
+                      }
+                    ]
+                  }
+                }
+              ]
+            }' > payload.json
+
+          curl --fail-with-body \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            --data @payload.json \
+            "$TEAMS_WEBHOOK_URL"
