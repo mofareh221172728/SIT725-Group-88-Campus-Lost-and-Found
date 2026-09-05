@@ -1,114 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Search &amp; Filter - Campus Lost and Found</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="css/style.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search &amp; Filter - Campus Lost and Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
 </head>
+
 <body>
 
-<nav class="switcher">
-  <div class="switcher-inner flex items-center gap-3">
-    <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
-    <ul class="switcher-links flex items-center gap-1 nowrap">
-      <li><a class="nav-link" href="index.html">Login</a></li>
-      <li><a class="nav-link" href="browse.html">Main</a></li>
-      <li><a class="nav-link" href="create-report.html">Create Report</a></li>
-      <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
-      <li><a class="nav-link active" href="search-filter.html">Search &amp; Filter</a></li>
-      <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
-    </ul>
-  </div>
-</nav>
-
-<div class="screen-wrap">
-  <div class="screen-label">
-    <h2>Search &amp; Filter View</h2>
-    <span class="tag">Type · category · building · date range · keyword</span>
-  </div>
-  <div class="device">
-    <div class="wf-navbar">
-      <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
-      <div class="wf-navlinks">
-        <a href="browse.html" class="no-underline">Browse</a>
-        <a href="my-reports.html" class="no-underline">My Reports</a>
-      </div>
-      <div class="wf-avatar"></div>
+  <nav class="switcher">
+    <div class="switcher-inner flex items-center gap-3">
+      <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
+      <ul class="switcher-links flex items-center gap-1 nowrap">
+        <li><a class="nav-link" href="index.html">Login</a></li>
+        <li><a class="nav-link" href="browse.html">Main</a></li>
+        <li><a class="nav-link" href="report.html">Create Report</a></li>
+        <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
+        <li><a class="nav-link active" href="search-filter.html">Search &amp; Filter</a></li>
+        <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
+      </ul>
     </div>
-    <div class="search-layout">
-      <div class="search-sidebar p-3">
-        <div class="kicker mono mb-2">Filters</div>
+  </nav>
 
-        <div class="field-wf mb-3">
-          <label>Type</label>
-          <div class="flex gap-2 wrap" data-toggle-group="filter-type">
-            <button type="button" class="chip-btn" data-toggle-option="lost">Lost</button>
-            <button type="button" class="chip-btn active" data-toggle-option="found">Found</button>
-            <button type="button" class="chip-btn" data-toggle-option="all">All</button>
+  <div class="screen-wrap">
+    <div class="screen-label">
+      <h2>Search &amp; Filter View</h2>
+      <span class="tag">Type · category · building · date range · keyword</span>
+    </div>
+    <div class="device">
+      <div class="wf-navbar">
+        <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
+        <div class="wf-navlinks">
+          <a href="browse.html" class="no-underline">Browse</a>
+          <a href="my-reports.html" class="no-underline">My Reports</a>
+        </div>
+        <div class="wf-avatar"></div>
+      </div>
+      <div class="search-layout">
+        <div class="search-sidebar p-3">
+          <div class="kicker mono mb-2">Filters</div>
+
+          <div class="field-wf mb-3">
+            <label>Type</label>
+            <div class="flex gap-2 wrap" data-toggle-group="filter-type">
+              <button type="button" class="chip-btn" data-toggle-option="lost">Lost</button>
+              <button type="button" class="chip-btn active" data-toggle-option="found">Found</button>
+              <button type="button" class="chip-btn" data-toggle-option="all">All</button>
+            </div>
+          </div>
+
+          <div class="field-wf mb-3">
+            <label for="filter-category">Category</label>
+            <select id="filter-category" class="select-wf">
+              <option>All categories</option>
+              <option>Electronics</option>
+              <option>Keys</option>
+              <option>Bags</option>
+              <option>Wallets / Cards</option>
+              <option>Clothing</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field-wf mb-3">
+            <label for="filter-building">Building / campus</label>
+            <select id="filter-building" class="select-wf">
+              <option>Waurn Ponds</option>
+              <option>Burwood</option>
+              <option>Geelong Waterfront</option>
+            </select>
+          </div>
+          <div class="field-wf mb-3">
+            <label>Date range</label>
+            <div class="flex gap-2">
+              <input type="date" class="input-wf-real" style="flex:1;" aria-label="From date">
+              <input type="date" class="input-wf-real" style="flex:1;" aria-label="To date">
+            </div>
+          </div>
+          <div class="field-wf mb-3">
+            <label for="filter-keyword">Keyword</label>
+            <input id="filter-keyword" type="text" class="input-wf-real" placeholder="e.g. keys, wallet…">
+          </div>
+          <button type="button" class="btn-wf-strong w-100" data-action="apply-filters">Apply filters</button>
+          <div class="text-center mt-2">
+            <button type="button" class="btn-link-wf" data-action="clear-filters">Clear all filters</button>
           </div>
         </div>
 
-        <div class="field-wf mb-3">
-          <label for="filter-category">Category</label>
-          <select id="filter-category" class="select-wf">
-            <option>All categories</option>
-            <option>Electronics</option>
-            <option>Keys</option>
-            <option>Bags</option>
-            <option>Wallets / Cards</option>
-            <option>Clothing</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="field-wf mb-3">
-          <label for="filter-building">Building / campus</label>
-          <select id="filter-building" class="select-wf">
-            <option>Waurn Ponds</option>
-            <option>Burwood</option>
-            <option>Geelong Waterfront</option>
-          </select>
-        </div>
-        <div class="field-wf mb-3">
-          <label>Date range</label>
-          <div class="flex gap-2">
-            <input type="date" class="input-wf-real" style="flex:1;" aria-label="From date">
-            <input type="date" class="input-wf-real" style="flex:1;" aria-label="To date">
+        <div class="search-results p-3">
+          <div class="flex justify-between items-center mb-3">
+            <span class="mono" style="font-size:.75rem; color:#5b5f66;">42 results</span>
+            <select class="select-wf-inline" aria-label="Sort results">
+              <option>Sort: Newest</option>
+              <option>Sort: Oldest</option>
+            </select>
           </div>
-        </div>
-        <div class="field-wf mb-3">
-          <label for="filter-keyword">Keyword</label>
-          <input id="filter-keyword" type="text" class="input-wf-real" placeholder="e.g. keys, wallet…">
-        </div>
-        <button type="button" class="btn-wf-strong w-100" data-action="apply-filters">Apply filters</button>
-        <div class="text-center mt-2">
-          <button type="button" class="btn-link-wf" data-action="clear-filters">Clear all filters</button>
-        </div>
-      </div>
-
-      <div class="search-results p-3">
-        <div class="flex justify-between items-center mb-3">
-          <span class="mono" style="font-size:.75rem; color:#5b5f66;">42 results</span>
-          <select class="select-wf-inline" aria-label="Sort results">
-            <option>Sort: Newest</option>
-            <option>Sort: Oldest</option>
-          </select>
-        </div>
-        <div class="grid grid-3">
-          <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-          <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-          <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-          <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-          <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-          <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
+          <div class="grid grid-3">
+            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
+            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
+            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
+            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
+            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
+            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<script src="js/main.js"></script>
+  <script src="js/main.js"></script>
 </body>
+
 </html>
