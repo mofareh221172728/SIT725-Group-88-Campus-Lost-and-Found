@@ -13,10 +13,6 @@ if (!MONGODB_URI) {
   process.exit(1);
 }
 
-// Basic model placeholder. Report fields will be added in a later task.
-const itemSchema = new mongoose.Schema({});
-mongoose.model("Item", itemSchema);
-
 // Parse JSON request bodies
 app.use(express.json());
 
