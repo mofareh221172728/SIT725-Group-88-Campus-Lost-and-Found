@@ -1,8 +1,21 @@
+require("dotenv").config();
+
 const express = require("express");
+const mongoose = require("mongoose");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error("MONGODB_URI is not defined.");
+  process.exit(1);
+}
+
+// Basic model placeholder. Report fields will be added in a later task.
+const itemSchema = new mongoose.Schema({});
+mongoose.model("Item", itemSchema);
 
 // Parse JSON request bodies
 app.use(express.json());
@@ -47,7 +60,17 @@ app.post("/api/items", (req, res) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+// Connect to MongoDB before starting the server
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log("Connected to MongoDB");
+
+    app.listen(PORT, () => {
+      console.log(`Server running at http://localhost:${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("MongoDB connection error:", error.message);
+    process.exit(1);
+  });
