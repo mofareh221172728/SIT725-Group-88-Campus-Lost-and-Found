@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('report-item-form');
     const btnLost = document.getElementById('btn-mode-lost');
     const btnFound = document.getElementById('btn-mode-found');
     const typeInput = document.getElementById('report-type');
@@ -6,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateLabel = document.getElementById('date-label');
     const locationHeading = document.getElementById('location-heading');
     const foundCollectionSection = document.getElementById('section-found-collection');
-    const finderEmailInput = document.getElementById('finder-email');
 
     // Mode function to change between Lost and Found tabs
     function setReportMode(mode) {
@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
             dateLabel.textContent = 'Date Lost';
             locationHeading.textContent = 'Last-Seen Location';
             foundCollectionSection.classList.add('d-none');
-            finderEmailInput.required = false;
 
         } else {
             typeInput.value = 'found';
@@ -42,5 +41,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('item-date');
     if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split('T')[0];
+    }
+
+    // function to execute on report submission
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Collect all form fields
+            const reportData = {
+                type: typeInput.value,
+                title: document.getElementById('item-title').value.trim(),
+                category: document.getElementById('item-category').value,
+                date: document.getElementById('item-date').value,
+                description: document.getElementById('item-desc').value.trim(),
+                campus: document.getElementById('item-campus').value,
+                building: document.getElementById('item-building').value.trim(),
+                room: document.getElementById('item-room').value.trim(),
+                handoverMethod: document.querySelector('input[name="handoverMethod"]:checked')?.value || null
+            };
+
+            console.log('Report submission data:', reportData);
+
+            // API CALL SHOULD BE HERE
+            alert('Report submitted successfully!');
+            form.reset();
+
+            // Re-initialize default date after reset
+            if (dateInput) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+        });
     }
 });
