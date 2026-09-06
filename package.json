@@ -74,7 +74,8 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "test": "mocha test/**/*.test.js --timeout 10000 --exit"
+    "test": "mocha test/**/*.test.js --timeout 10000 --exit",
+    "preflight-check": "node preflight-check.js"
   },
   "repository": {
     "type": "git",
