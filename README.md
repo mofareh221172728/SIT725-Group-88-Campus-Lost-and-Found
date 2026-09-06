@@ -14,12 +14,12 @@ The current target users are Deakin students. Support for visitors may be consid
 
 | Team member | Main role |
 | --- | --- |
-| Max Andres Guzman Aceituno | Scrum Master and Frontend Developer |
-| Mofareh Mubarak M Almakhalas | SRS, Documentation and Backend Developer for Search and Filtering |
-| Reza Tisa | UI/UX Designer and Frontend Developer |
-| Gulireba Maierdan | Frontend and API Integration Developer |
-| Kuan-Ting Chen | Backend and Database Developer |
-| Yuen Yi Cheng | Testing and Quality Assurance |
+| Max Andres Guzman Aceituno | Scrum Master and Frontend Developer (Forms) |
+| Mofareh Mubarak M Almakhalas | SRS, Documentation and Backend Developer (Search and Filtering APIs) |
+| Reza Tisa Adi Pratama | UI/UX Designer and Frontend Developer |
+| Gulireba Maierdan | Frontend and API Integration Engineer |
+| Kuan-Ting Chen | Backend and Database |
+| Yuen Yi Cheng (Betty) | Test and Quality Assurance |
 
 ## Technologies currently used
 
