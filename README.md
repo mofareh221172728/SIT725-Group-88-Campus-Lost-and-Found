@@ -168,4 +168,4 @@ After a successful request, refresh `http://localhost:3000/browse.html` to view 
 
 ## Current verification status
 
-The dependency installation and JavaScript syntax checks have been completed against the current `main` branch. The full startup instructions must also be checked on a Windows computer with a valid MongoDB connection before the README card is moved to Done.
+The dependency installation and JavaScript syntax checks have been completed. The Windows startup instructions were also tested successfully with a valid MongoDB connection. The browse page loaded correctly, and the GET and POST item endpoints displayed the test item as expected.
