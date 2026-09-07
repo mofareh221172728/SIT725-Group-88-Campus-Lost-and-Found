@@ -85,28 +85,35 @@ function checkTestEnvironment() {
   console.log("✅ .env.test PORT is valid.");
 }
 
-async function checkDatabase() {
-  await mongoose.connect(env.MONGODB_URI, {
+async function checkDatabase(mongoUri, label) {
+  await mongoose.connect(mongoUri, {
     serverSelectionTimeoutMS: 5000,
   });
 
-  console.log("✅ Connected to MongoDB.");
+  console.log(`✅ Connected to MongoDB (${label}).`);
 
   await mongoose.connection.db.admin().ping();
-  console.log("✅ MongoDB ping succeeded.");
+  console.log(`✅ MongoDB ping succeeded (${label}).`);
+
+  await mongoose.disconnect();
 }
 
 async function runPreflightCheck() {
   try {
     checkEnvironment();
     checkTestEnvironment();
-    await checkDatabase();
+    await checkDatabase(env.MONGODB_URI, "dev");
+    if (testEnv) {
+      await checkDatabase(testEnv.MONGODB_URI, "test");
+    }
     console.log("✅ Preflight check passed.");
   } catch (error) {
     console.error(`❌ Preflight check failed: ${error.message}`);
     process.exitCode = 1;
   } finally {
-    await mongoose.disconnect();
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
   }
 }
 
