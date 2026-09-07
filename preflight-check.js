@@ -42,7 +42,8 @@ function checkEnvironment() {
 
 function checkTestEnvironment() {
   if (!testEnv) {
-    throw new Error(".env.test file was not found.");
+    console.log("ℹ️  .env.test not found (copy .env.test.example to .env.test to run tests).");
+    return;
   }
 
   console.log("✅ .env.test file was found.");
