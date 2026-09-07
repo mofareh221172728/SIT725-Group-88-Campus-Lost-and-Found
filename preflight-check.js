@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const User = require("./models/user.model");
 
 const envPath = path.join(__dirname, ".env");
 
@@ -39,6 +40,12 @@ function checkEnvironment() {
   }
 
   console.log("✅ PORT is valid.");
+
+  if (!process.env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET is not defined in .env.");
+  }
+
+  console.log("✅ SESSION_SECRET is defined.");
 }
 
 async function checkDatabase() {
@@ -50,6 +57,16 @@ async function checkDatabase() {
 
   await mongoose.connection.db.admin().ping();
   console.log("✅ MongoDB ping succeeded.");
+
+  const mockUser = await User.exists({
+    email: "mock.user@deakin.edu.au",
+  });
+
+  if (!mockUser) {
+    throw new Error("Mock user was not found. Run npm run seed.");
+  }
+
+  console.log("✅ Mock user was found.");
 }
 
 async function runPreflightCheck() {
