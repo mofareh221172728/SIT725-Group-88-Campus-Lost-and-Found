@@ -66,17 +66,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Collect all form fields
+            // Collect all form fields using validated and sanitized normal text
             const data = validation?.data || {};
             const reportData = {
                 type: typeInput.value,
-                title: data.title ?? document.getElementById('item-title').value.trim(),
-                category: data.category ?? document.getElementById('item-category').value,
-                date: document.getElementById('item-date').value,
-                description: data.description ?? document.getElementById('item-desc').value.trim(),
-                campus: data.campus ?? document.getElementById('item-campus').value,
-                building: data.building ?? document.getElementById('item-building').value.trim(),
-                room: document.getElementById('item-room').value.trim(),
+                title: data.title,
+                category: data.category,
+                date: data.date,
+                description: data.description,
+                campus: data.campus,
+                building: data.building,
+                room: data.room,
                 handoverMethod: document.querySelector('input[name="handoverMethod"]:checked')?.value || null
             };
 
