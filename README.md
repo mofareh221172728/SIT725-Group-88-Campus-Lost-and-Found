@@ -29,6 +29,7 @@ The current target users are Deakin students. Support for visitors may be consid
 - Express
 - MongoDB and Mongoose
 - dotenv for environment variables
+- Mocha, Chai and Supertest for testing
 - Materialize CSS on the report form page
 - Git and GitHub for version control
 - Trello for Sprint planning
@@ -121,6 +122,46 @@ http://localhost:3000/browse.html
 
 8. Press `Ctrl+C` in Command Prompt to stop the server.
 
+## Test environment setup for Windows
+
+Complete the project setup above first and keep MongoDB running. Run these commands from the project folder.
+
+1. Install the current packages and create the local test configuration:
+
+```cmd
+npm install
+if not exist .env.test copy .env.test.example .env.test
+notepad .env.test
+```
+
+2. For local MongoDB, use these values in `.env.test`:
+
+```env
+NODE_ENV=test
+PORT=3001
+MONGODB_URI=mongodb://127.0.0.1:27017/sit725-group-88-test
+```
+
+Save the file and close Notepad. If you use a hosted MongoDB database, use a connection string for a separate test database.
+
+Use a different database from the one in `.env`. The cleanup functions in `test/helpers/db.js` can delete test data and drop the test database. Do not point them at a development or production database. The `.env.test` file is ignored by Git.
+
+3. Check the development and test configurations and database connections:
+
+```cmd
+npm run preflight-check
+```
+
+The expected final message is `Preflight check passed.` If a check fails, fix the reported issue before running tests.
+
+4. Run the tests:
+
+```cmd
+npm test
+```
+
+Mocha loads `.env.test` through `.mocharc.js`. At this stage, the command reports `0 passing` because application test cases have not yet been added. This confirms that the test runner starts; it does not confirm that application features pass tests.
+
 ## Implemented API endpoints
 
 ### Get all current items
@@ -164,8 +205,10 @@ After a successful request, refresh `http://localhost:3000/browse.html` to view 
 - Photo upload and storage are not yet implemented.
 - Search and filter controls are currently interface placeholders. The search and filter API is planned for Sprint 2.
 - Item details, editing, resolving reports and My Reports are not yet fully connected to stored data.
-- Automated application tests are not yet available in the current `main` branch.
+- The test tools are configured, but application test cases have not yet been added.
 
 ## Current verification status
 
 The dependency installation and JavaScript syntax checks have been completed. The Windows startup instructions were also tested successfully with a valid MongoDB connection. The browse page loaded correctly, and the GET and POST item endpoints displayed the test item as expected.
+
+On Windows, `npm run preflight-check` connected to and pinged both the development and test databases successfully. `npm test` loaded `.env.test` and reported `0 passing`.
