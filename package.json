@@ -75,9 +75,9 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "preflight-check": "node preflight-check.js",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "test": "mocha test/**/*.test.js --timeout 10000 --exit",
+    "preflight-check": "node preflight-check.js"
   },
   "repository": {
     "type": "git",
@@ -90,5 +90,10 @@
   "bugs": {
     "url": "https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/issues"
   },
-  "homepage": "https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found#readme"
+  "homepage": "https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found#readme",
+  "devDependencies": {
+    "chai": "^6.2.2",
+    "mocha": "^12.0.0",
+    "supertest": "^7.2.2"
+  }
 }
