@@ -76,6 +76,9 @@
                     </button>
                 </div>
 
+                <!-- Dynamic UI Feedback Alert -->
+                <div id="form-alert" class="form-alert d-none" role="alert"></div>
+
                 <form id="report-item-form" novalidate>
                     <input type="hidden" id="report-type" name="type" value="found">
 
@@ -84,14 +87,14 @@
 
                     <div class="row">
                         <div class="input-field col s12">
-                            <input type="text" id="item-title" name="title" class="validate" required>
+                            <input type="text" id="item-title" name="title" class="validate" required aria-required="true">
                             <label for="item-title">Item Title</label>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="input-field col s12 m6">
-                            <select id="item-category" name="category" required>
+                            <select id="item-category" name="category" required aria-required="true">
                                 <option value="" disabled selected>Choose a category</option>
                                 <option value="Electronics">Electronics (Laptops, Phones, Audio)</option>
                                 <option value="Cards & Wallets">Student Cards, Wallets, IDs</option>
@@ -101,11 +104,11 @@
                                 <option value="Books & Stationery">Books &amp; Stationery</option>
                                 <option value="Other">Other Items</option>
                             </select>
-                            <label>Category</label>
+                            <label for="item-category">Category</label>
                         </div>
 
                         <div class="input-field col s12 m6">
-                            <input type="date" id="item-date" name="date" class="validate" required>
+                            <input type="date" id="item-date" name="date" class="validate" required aria-required="true">
                             <label for="item-date" class="active" id="date-label">Date Found</label>
                         </div>
                     </div>
@@ -113,7 +116,7 @@
                     <div class="row">
                         <div class="input-field col s12">
                             <textarea id="item-desc" name="description" class="materialize-textarea"
-                                required></textarea>
+                                required aria-required="true"></textarea>
                             <label for="item-desc">Detailed Description</label>
                         </div>
                     </div>
@@ -123,18 +126,18 @@
 
                     <div class="row">
                         <div class="input-field col s12 m4">
-                            <select id="item-campus" name="campus" required>
+                            <select id="item-campus" name="campus" required aria-required="true">
                                 <option value="" disabled selected>Choose campus</option>
                                 <option value="Burwood">Melbourne Burwood</option>
                                 <option value="Waurn Ponds">Geelong Waurn Ponds</option>
                                 <option value="Waterfront">Geelong Waterfront</option>
                                 <option value="Warrnambool">Warrnambool</option>
                             </select>
-                            <label>Campus</label>
+                            <label for="item-campus">Campus</label>
                         </div>
 
                         <div class="input-field col s12 m4">
-                            <input type="text" id="item-building" name="building" class="validate" required>
+                            <input type="text" id="item-building" name="building" class="validate" required aria-required="true">
                             <label for="item-building">Building</label>
                         </div>
 
@@ -170,10 +173,10 @@
                         <div class="file-field input-field col s12">
                             <div id="upload-photo-btn" class="btn waves-effect waves-light">
                                 <span>File</span>
-                                <input type="file" id="item-photos" name="photos" accept="image/*" multiple>
+                                <input type="file" id="item-photos" name="photos" accept="image/*" multiple aria-label="Upload item photos">
                             </div>
                             <div class="file-path-wrapper">
-                                <input class="file-path validate" type="text" placeholder="Upload one or more photos">
+                                <input class="file-path validate" type="text" id="item-photos-path" placeholder="Upload one or more photos" aria-label="Selected photos">
                             </div>
                         </div>
                     </div>
@@ -196,6 +199,7 @@
     <!-- Materialize JS and Form Logic -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="js/report-validation.js"></script>
+    <script src="js/form-feedback.js"></script>
     <script src="js/report-form.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
