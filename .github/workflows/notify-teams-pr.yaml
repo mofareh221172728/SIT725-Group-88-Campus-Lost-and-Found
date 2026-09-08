@@ -4,6 +4,7 @@ on:
   pull_request:
     types:
       - opened
+      - reopened
 
 jobs:
   notify-teams:
@@ -20,6 +21,7 @@ jobs:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
           TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
+          PR_ACTION: ${{ github.event.action }}
 
         run: |
           jq -n \
@@ -30,6 +32,7 @@ jobs:
             --arg pr_author "$PR_AUTHOR" \
             --arg source_branch "$SOURCE_BRANCH" \
             --arg target_branch "$TARGET_BRANCH" \
+            --arg pr_action "$PR_ACTION" \
             '{
               "type": "message",
               "attachments": [
@@ -43,7 +46,7 @@ jobs:
                     "body": [
                       {
                         "type": "TextBlock",
-                        "text": "🚀 New Pull Request",
+                        "text": (if $pr_action == "reopened" then "🔄 Pull Request Reopened" else "🚀 New Pull Request" end),
                         "weight": "Bolder",
                         "size": "Large"
                       },
