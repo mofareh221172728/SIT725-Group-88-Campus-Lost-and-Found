@@ -1,0 +1,22 @@
+{
+  "all": true,
+  "include": [
+    "models/**/*.js",
+    "controllers/**/*.js",
+    "routes/**/*.js",
+    "services/**/*.js",
+    "server.js"
+  ],
+  "exclude": [
+    "node_modules/**",
+    "test/**",
+    "public/**",
+    "scripts/**",
+    "preflight-check.js",
+    "coverage/**"
+  ],
+  "reporter": [
+    "text",
+    "html"
+  ]
+}
