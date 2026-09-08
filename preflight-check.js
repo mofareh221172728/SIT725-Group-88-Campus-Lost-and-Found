@@ -49,7 +49,7 @@ function checkEnvironment() {
 
   console.log("✅ PORT is valid.");
 
-  if (!process.env.SESSION_SECRET) {
+  if (!env.SESSION_SECRET) {
     throw new Error("SESSION_SECRET is not defined in .env.");
   }
 
