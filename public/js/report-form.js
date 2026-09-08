@@ -58,6 +58,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // Collect handover method only if it is a found report
+            const isFound = typeInput.value === 'found';
+            const handoverInput = document.querySelector('input[name="handoverMethod"]:checked');
+
             // Collect all form fields using validated and sanitized normal text
             const data = validation?.data || {};
             const reportData = {
@@ -69,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 campus: data.campus,
                 building: data.building,
                 room: data.room,
-                handoverMethod: document.querySelector('input[name="handoverMethod"]:checked')?.value || null
+                handoverMethod: isFound ? (handoverInput?.value || null) : null
             };
 
             console.log('Report submission data:', reportData);
