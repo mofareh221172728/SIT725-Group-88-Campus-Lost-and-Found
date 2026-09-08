@@ -10,13 +10,7 @@ const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 // --- Sanitization Helper ---
 function sanitizeText(str) {
     if (typeof str !== 'string') return '';
-    return str
-        .trim()
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;');
+    return str.trim();
 }
 
 // --- Individual Field Validators ---
@@ -145,11 +139,21 @@ function validateReportForm(formElement) {
     const photoRes = validatePhotos(photoInput?.files);
     if (!photoRes.valid) errors.push({ element: photoInput, message: photoRes.message });
 
+    const roomInput = formElement.querySelector('#item-room');
+
     return {
         isValid: errors.length === 0,
-        errors: errors
+        errors: errors,
+        data: {
+            title: titleRes.sanitized,
+            category: catRes.sanitized,
+            date: dateInput?.value || '',
+            campus: campusRes.sanitized,
+            building: buildingRes.sanitized,
+            room: sanitizeText(roomInput?.value),
+            description: descRes.sanitized
+        }
     };
 }
-
 
 window.validateReportForm = validateReportForm;

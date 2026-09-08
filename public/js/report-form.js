@@ -49,25 +49,31 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
 
             // Validate form
+            let validation = null;
             if (typeof validateReportForm === 'function') {
-                const validation = validateReportForm(form);
+                validation = validateReportForm(form);
                 if (!validation.isValid) {
                     alert(`Please fix the error(s) before submitting: \n${validation.errors.map(err => err.message).join('\n')}`);
                     return;
                 }
             }
 
-            // Collect all form fields
+            // Collect handover method only if it is a found report
+            const isFound = typeInput.value === 'found';
+            const handoverInput = document.querySelector('input[name="handoverMethod"]:checked');
+
+            // Collect all form fields using validated and sanitized normal text
+            const data = validation?.data || {};
             const reportData = {
                 type: typeInput.value,
-                title: document.getElementById('item-title').value.trim(),
-                category: document.getElementById('item-category').value,
-                date: document.getElementById('item-date').value,
-                description: document.getElementById('item-desc').value.trim(),
-                campus: document.getElementById('item-campus').value,
-                building: document.getElementById('item-building').value.trim(),
-                room: document.getElementById('item-room').value.trim(),
-                handoverMethod: document.querySelector('input[name="handoverMethod"]:checked')?.value || null
+                title: data.title,
+                category: data.category,
+                date: data.date,
+                description: data.description,
+                campus: data.campus,
+                building: data.building,
+                room: data.room,
+                handoverMethod: isFound ? (handoverInput?.value || null) : null
             };
 
             console.log('Report submission data:', reportData);
