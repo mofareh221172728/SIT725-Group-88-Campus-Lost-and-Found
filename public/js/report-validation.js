@@ -147,9 +147,15 @@ function validateReportForm(formElement) {
 
     return {
         isValid: errors.length === 0,
-        errors: errors
+        errors: errors,
+        data: {
+            title: titleRes.sanitized,
+            category: catRes.sanitized,
+            campus: campusRes.sanitized,
+            building: buildingRes.sanitized,
+            description: descRes.sanitized
+        }
     };
 }
-
 
 window.validateReportForm = validateReportForm;
