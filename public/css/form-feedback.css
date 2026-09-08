@@ -1,0 +1,163 @@
+/* public/css/form-feedback.css */
+/* Accessible form error states, shake animations, and dismissible feedback alerts */
+
+/* 1. Invalid Field Border & Underline Highlighting */
+.input-field input.has-error,
+.input-field textarea.has-error,
+.select-wrapper.has-error input.select-dropdown,
+.file-field.has-error input.file-path {
+    border-bottom: 2px solid #ef4444 !important;
+    box-shadow: 0 1px 0 0 #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+.input-field input.has-error:focus,
+.input-field textarea.has-error:focus,
+.select-wrapper.has-error input.select-dropdown:focus {
+    border-bottom: 2px solid #dc2626 !important;
+    box-shadow: 0 1px 0 0 #dc2626 !important;
+}
+
+/* Fallback / standard boxed inputs */
+.form-input.has-error,
+.form-select.has-error,
+.form-textarea.has-error {
+    border: 1.5px solid #ef4444 !important;
+    background-color: #fef2f2;
+}
+
+/* Label error color */
+.input-field input.has-error+label,
+.input-field textarea.has-error+label {
+    color: #dc2626 !important;
+}
+
+/* 2. Accessible Inline Field Error Message */
+.field-error {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 500;
+    color: #dc2626;
+    margin-top: 6px;
+    margin-bottom: 4px;
+    animation: fadeInError 0.2s ease-in-out;
+}
+
+.field-error::before {
+    content: "⚠️";
+    font-size: 0.72rem;
+    flex-shrink: 0;
+}
+
+@keyframes fadeInError {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 3. Input Shake Animation */
+.shake-element {
+    animation: inputShake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes inputShake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+/* 4. Dismissible Feedback Alerts */
+.feedback-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    animation: slideDownBanner 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDownBanner {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.feedback-banner.banner-success {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.feedback-banner.banner-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.banner-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.banner-content .banner-icon {
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+.banner-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.6;
+    cursor: pointer;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease;
+}
+
+.banner-close-btn:hover {
+    opacity: 1;
+}
