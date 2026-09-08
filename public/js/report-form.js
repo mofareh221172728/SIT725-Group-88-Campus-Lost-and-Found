@@ -10,10 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mode function to change between Lost and Found tabs
     function setReportMode(mode) {
-        if (window.formFeedback && form) {
-            window.formFeedback.clearAllErrors(form);
-        }
-
         if (mode === 'lost') {
             typeInput.value = 'lost';
             btnLost.classList.add('active');
@@ -57,11 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof validateReportForm === 'function') {
                 validation = validateReportForm(form);
                 if (!validation.isValid) {
-                    if (window.formFeedback && typeof window.formFeedback.showFormErrors === 'function') {
-                        window.formFeedback.showFormErrors(form, validation.errors);
-                    } else {
-                        alert(`Please fix the error(s) before submitting: \n${validation.errors.map(err => err.message).join('\n')}`);
-                    }
+                    alert(`Please fix the error(s) before submitting: \n${validation.errors.map(err => err.message).join('\n')}`);
                     return;
                 }
             }
@@ -82,18 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('Report submission data:', reportData);
 
-            // Reset form and re-initialize Materialize select dropdowns
+            // API CALL SHOULD BE HERE
+            alert('Report submitted successfully!');
             form.reset();
-            if (window.M && typeof M.FormSelect !== 'undefined') {
-                M.FormSelect.init(form.querySelectorAll('select'));
-            }
-
-            // Success feedback replacing browser alert
-            if (window.formFeedback && typeof window.formFeedback.showSuccessFeedback === 'function') {
-                window.formFeedback.showSuccessFeedback(form, 'Report submitted successfully! Thank you for helping our campus community.');
-            } else {
-                alert('Report submitted successfully!');
-            }
 
             // Re-initialize default date after reset
             if (dateInput) {
