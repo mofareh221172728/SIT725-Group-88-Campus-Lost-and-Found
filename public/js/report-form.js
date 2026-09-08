@@ -3,89 +3,100 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnLost = document.getElementById('btn-mode-lost');
     const btnFound = document.getElementById('btn-mode-found');
     const typeInput = document.getElementById('report-type');
-
     const dateLabel = document.getElementById('date-label');
     const locationHeading = document.getElementById('location-heading');
     const foundCollectionSection = document.getElementById('section-found-collection');
+    const alertBox = document.getElementById('form-alert');
+    const dateInput = document.getElementById('item-date');
 
-    // Mode function to change between Lost and Found tabs
+    // Toggle between Lost and Found mode
     function setReportMode(mode) {
-        if (mode === 'lost') {
-            typeInput.value = 'lost';
-            btnLost.classList.add('active');
-            btnLost.setAttribute('aria-checked', 'true');
-            btnFound.classList.remove('active');
-            btnFound.setAttribute('aria-checked', 'false');
+        const isLost = mode === 'lost';
+        typeInput.value = mode;
+        btnLost.classList.toggle('active', isLost);
+        btnLost.setAttribute('aria-checked', isLost ? 'true' : 'false');
+        btnFound.classList.toggle('active', !isLost);
+        btnFound.setAttribute('aria-checked', !isLost ? 'true' : 'false');
 
-            dateLabel.textContent = 'Date Lost';
-            locationHeading.textContent = 'Last-Seen Location';
-            foundCollectionSection.classList.add('d-none');
-
-        } else {
-            typeInput.value = 'found';
-            btnFound.classList.add('active');
-            btnFound.setAttribute('aria-checked', 'true');
-            btnLost.classList.remove('active');
-            btnLost.setAttribute('aria-checked', 'false');
-
-            dateLabel.textContent = 'Date Found';
-            locationHeading.textContent = 'Discovery Location';
-            foundCollectionSection.classList.remove('d-none');
-        }
+        dateLabel.textContent = isLost ? 'Date Lost' : 'Date Found';
+        locationHeading.textContent = isLost ? 'Last-Seen Location' : 'Discovery Location';
+        foundCollectionSection.classList.toggle('d-none', isLost);
     }
 
-    btnLost.addEventListener('click', () => setReportMode('lost'));
-    btnFound.addEventListener('click', () => setReportMode('found'));
+    if (btnLost && btnFound) {
+        btnLost.addEventListener('click', () => setReportMode('lost'));
+        btnFound.addEventListener('click', () => setReportMode('found'));
+    }
 
-    // Set default today's date in date picker
-    const dateInput = document.getElementById('item-date');
+    // Default to today's date
     if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split('T')[0];
     }
 
-    // function to execute on report submission
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
+    if (!form) return;
 
-            // Validate form
-            let validation = null;
-            if (typeof validateReportForm === 'function') {
-                validation = validateReportForm(form);
-                if (!validation.isValid) {
-                    alert(`Please fix the error(s) before submitting: \n${validation.errors.map(err => err.message).join('\n')}`);
-                    return;
+    // Real-time error clearing when user fixes input
+    form.querySelectorAll('input, select, textarea').forEach(input => {
+        const clear = () => {
+            if (input.classList.contains('is-invalid')) {
+                clearFieldError(input);
+                if (!form.querySelector('.field-error-msg')) {
+                    clearFormAlert(alertBox);
                 }
             }
+        };
+        input.addEventListener('input', clear);
+        input.addEventListener('change', clear);
+    });
 
-            // Collect handover method only if it is a found report
-            const isFound = typeInput.value === 'found';
-            const handoverInput = document.querySelector('input[name="handoverMethod"]:checked');
+    // Form submission
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        clearAllErrors(form, alertBox);
 
-            // Collect all form fields using validated and sanitized normal text
-            const data = validation?.data || {};
-            const reportData = {
-                type: typeInput.value,
-                title: data.title,
-                category: data.category,
-                date: data.date,
-                description: data.description,
-                campus: data.campus,
-                building: data.building,
-                room: data.room,
-                handoverMethod: isFound ? (handoverInput?.value || null) : null
-            };
-
-            console.log('Report submission data:', reportData);
-
-            // API CALL SHOULD BE HERE
-            alert('Report submitted successfully!');
-            form.reset();
-
-            // Re-initialize default date after reset
-            if (dateInput) {
-                dateInput.value = new Date().toISOString().split('T')[0];
+        // Validation
+        if (typeof validateReportForm === 'function') {
+            const validation = validateReportForm(form);
+            if (!validation.isValid) {
+                showFormAlert(alertBox, 'error', 'Please fix the highlighted errors before submitting.');
+                validation.errors.forEach(err => showFieldError(err.element, err.message));
+                scrollToFirstError(validation.errors[0].element);
+                return;
             }
-        });
-    }
+        }
+
+        // Collect handover method only if it is a found report
+        const isFound = typeInput.value === 'found';
+        const handoverInput = document.querySelector('input[name="handoverMethod"]:checked');
+
+        // Collect all form fields using validated and sanitized normal text
+        const data = validation?.data || {};
+        const reportData = {
+            type: typeInput.value,
+            title: data.title,
+            category: data.category,
+            date: data.date,
+            description: data.description,
+            campus: data.campus,
+            building: data.building,
+            room: data.room,
+            handoverMethod: isFound ? (handoverInput?.value || null) : null
+        };
+
+        console.log('Report submitted:', reportData);
+
+        // Success UI feedback
+        showFormAlert(alertBox, 'success', `Report submitted successfully! Your ${typeInput.value} item has been added.`);
+        form.reset();
+
+        if (dateInput) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+
+        if (typeof M !== 'undefined' && M.updateTextFields) {
+            M.updateTextFields();
+        }
+
+        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
 });
