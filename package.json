@@ -26,6 +26,7 @@
     "escape-html": "^1.0.3",
     "etag": "^1.8.1",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "finalhandler": "^2.1.1",
     "forwarded": "^0.2.0",
     "fresh": "^2.0.0",
@@ -74,6 +75,7 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
+    "seed": "node scripts/seed.js",
     "test": "mocha test/**/*.test.js --timeout 10000 --exit",
     "test:coverage": "nyc mocha test/**/*.test.js --timeout 10000 --exit",
     "preflight-check": "node preflight-check.js"

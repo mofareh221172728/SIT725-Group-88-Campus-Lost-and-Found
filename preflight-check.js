@@ -2,13 +2,18 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+const User = require("./models/user.model");
 
 const envPath = path.join(__dirname, ".env");
 const testEnvPath = path.join(__dirname, ".env.test");
 
-// Load both env files upfront 
-const env = fs.existsSync(envPath) ? dotenv.parse(fs.readFileSync(envPath)) : null;
-const testEnv = fs.existsSync(testEnvPath) ? dotenv.parse(fs.readFileSync(testEnvPath)) : null;
+// Load both env files upfront
+const env = fs.existsSync(envPath)
+  ? dotenv.parse(fs.readFileSync(envPath))
+  : null;
+const testEnv = fs.existsSync(testEnvPath)
+  ? dotenv.parse(fs.readFileSync(testEnvPath))
+  : null;
 
 function checkEnvironment() {
   if (!env) {
@@ -23,8 +28,13 @@ function checkEnvironment() {
     throw new Error("MONGODB_URI is not defined in .env.");
   }
 
-  if (!mongoUri.startsWith("mongodb://") && !mongoUri.startsWith("mongodb+srv://")) {
-    throw new Error("MONGODB_URI must start with mongodb:// or mongodb+srv://.");
+  if (
+    !mongoUri.startsWith("mongodb://") &&
+    !mongoUri.startsWith("mongodb+srv://")
+  ) {
+    throw new Error(
+      "MONGODB_URI must start with mongodb:// or mongodb+srv://.",
+    );
   }
 
   console.log("✅ MONGODB_URI is valid.");
@@ -38,11 +48,19 @@ function checkEnvironment() {
   }
 
   console.log("✅ PORT is valid.");
+
+  if (!env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET is not defined in .env.");
+  }
+
+  console.log("✅ SESSION_SECRET is defined.");
 }
 
 function checkTestEnvironment() {
   if (!testEnv) {
-    console.log("ℹ️  .env.test not found (copy .env.test.example to .env.test to run tests).");
+    console.log(
+      "ℹ️  .env.test not found (copy .env.test.example to .env.test to run tests).",
+    );
     return;
   }
 
@@ -61,14 +79,19 @@ function checkTestEnvironment() {
     throw new Error("MONGODB_URI is not defined in .env.test.");
   }
 
-  if (!testMongoUri.startsWith("mongodb://") && !testMongoUri.startsWith("mongodb+srv://")) {
-    throw new Error("MONGODB_URI in .env.test must start with mongodb:// or mongodb+srv://.");
+  if (
+    !testMongoUri.startsWith("mongodb://") &&
+    !testMongoUri.startsWith("mongodb+srv://")
+  ) {
+    throw new Error(
+      "MONGODB_URI in .env.test must start with mongodb:// or mongodb+srv://.",
+    );
   }
 
   // Ensure the test database is not the same as the development database to prevent data loss
   if (testMongoUri === env.MONGODB_URI) {
     throw new Error(
-      "MONGODB_URI in .env.test must be different from .env to prevent accidental data loss."
+      "MONGODB_URI in .env.test must be different from .env to prevent accidental data loss.",
     );
   }
 
@@ -78,7 +101,9 @@ function checkTestEnvironment() {
     const port = Number(testEnv.PORT);
 
     if (!Number.isInteger(port) || port < 1 || port > 65535) {
-      throw new Error("PORT in .env.test must be a number between 1 and 65535.");
+      throw new Error(
+        "PORT in .env.test must be a number between 1 and 65535.",
+      );
     }
   }
 
@@ -94,6 +119,16 @@ async function checkDatabase(mongoUri, label) {
 
   await mongoose.connection.db.admin().ping();
   console.log(`✅ MongoDB ping succeeded (${label}).`);
+
+  const mockUser = await User.exists({
+    email: "mock.user@deakin.edu.au",
+  });
+
+  if (!mockUser) {
+    throw new Error("Mock user was not found. Run npm run seed.");
+  }
+
+  console.log("✅ Mock user was found.");
 
   await mongoose.disconnect();
 }
