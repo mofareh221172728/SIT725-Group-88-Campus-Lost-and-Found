@@ -16,7 +16,40 @@
  * database (e.g. sit725-group-88-test), never dev or production.
  */
 
+const fs = require("fs");
+const path = require("path");
+const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+
+/**
+ * Guards against .env.test being missing/misconfigured and tests
+ * silently dropping the dev database instead.
+ */
+function assertSafeTestDatabase(uri) {
+  if (process.env.NODE_ENV !== "test") {
+    throw new Error(
+      'Refusing to run: NODE_ENV must be "test". Check that .env.test is present and loaded.'
+    );
+  }
+
+  const dbName = (/\/([^/?]+)(\?|$)/.exec(uri) || [])[1] || "";
+
+  if (!dbName.toLowerCase().includes("test")) {
+    throw new Error(
+      `Refusing to run: database name "${dbName}" does not look like a test database (expected it to include "test"). Check MONGODB_URI in .env.test.`
+    );
+  }
+
+  const devEnvPath = path.join(__dirname, "../../.env");
+  if (fs.existsSync(devEnvPath)) {
+    const devEnv = dotenv.parse(fs.readFileSync(devEnvPath));
+    if (devEnv.MONGODB_URI && devEnv.MONGODB_URI === uri) {
+      throw new Error(
+        "Refusing to run: MONGODB_URI in .env.test matches the development database in .env. Point .env.test at a separate test database."
+      );
+    }
+  }
+}
 
 /**
  * Connects Mongoose to the test database defined in MONGODB_URI.
@@ -30,6 +63,8 @@ async function connect() {
       "MONGODB_URI is not defined. Check your .env.test file."
     );
   }
+
+  assertSafeTestDatabase(uri);
 
   await mongoose.connect(uri);
 }
@@ -46,10 +81,12 @@ async function clearCollections() {
 }
 
 /**
- * Drops the test database and closes the Mongoose connection.
- * Call this in a Mocha `after()` hook.
+ * Drops the test database and closes the connection. Call in `after()`.
+ * Re-checks the guard here as a destructive step.
  */
 async function disconnect() {
+  assertSafeTestDatabase(process.env.MONGODB_URI);
+
   await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
 }
