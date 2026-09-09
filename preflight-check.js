@@ -3,6 +3,8 @@ const path = require("path");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const User = require("./models/user.model");
+const FoundItem = require("./models/foundItem.model");
+const LostItem = require("./models/lostItem.model");
 
 const envPath = path.join(__dirname, ".env");
 const testEnvPath = path.join(__dirname, ".env.test");
@@ -128,7 +130,27 @@ async function checkDatabase(mongoUri, label) {
     throw new Error("Mock user was not found. Run npm run seed.");
   }
 
-  console.log("✅ Mock user was found.");
+  console.log(`✅ Mock user was found (${label}).`);
+
+  const foundItemCount = await FoundItem.countDocuments();
+
+  if (foundItemCount < 6) {
+    throw new Error(
+      `At least 6 found items are required in the ${label} database. Run npm run seed.`,
+    );
+  }
+
+  console.log(`✅ ${foundItemCount} found items were found (${label}).`);
+
+  const lostItemCount = await LostItem.countDocuments();
+
+  if (lostItemCount < 6) {
+    throw new Error(
+      `At least 6 lost items are required in the ${label} database. Run npm run seed.`,
+    );
+  }
+
+  console.log(`✅ ${lostItemCount} lost items were found (${label}).`);
 
   await mongoose.disconnect();
 }
