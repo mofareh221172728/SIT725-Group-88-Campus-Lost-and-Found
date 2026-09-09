@@ -63,6 +63,67 @@ function reportCardHTML(report) {
     </a>`;
 }
 
+let activeReports = [];
+
+function getReportType(report) {
+  return String(report.type || '').toLowerCase() === 'lost'
+    ? 'lost'
+    : 'found';
+}
+
+function updateBrowseCounts(reports) {
+  const foundCount = reports.filter(
+    (report) => getReportType(report) === 'found'
+  ).length;
+
+  const lostCount = reports.filter(
+    (report) => getReportType(report) === 'lost'
+  ).length;
+
+  const tabGroup = document.querySelector(
+    '[data-toggle-group="browse-tab"]'
+  );
+
+  if (!tabGroup) return;
+
+  const foundTab = tabGroup.querySelector('[data-toggle-option="found"]');
+  const lostTab = tabGroup.querySelector('[data-toggle-option="lost"]');
+  const allTab = tabGroup.querySelector('[data-toggle-option="all"]');
+
+  if (foundTab) foundTab.textContent = `Found (${foundCount})`;
+  if (lostTab) lostTab.textContent = `Lost (${lostCount})`;
+  if (allTab) allTab.textContent = `All (${reports.length})`;
+}
+
+function renderReportedItems(selectedType = 'all') {
+  const grid = document.getElementById('report-grid');
+  const statusMessage = document.getElementById('browse-status');
+
+  if (!grid || !statusMessage) return;
+
+  const visibleReports = selectedType === 'all'
+    ? activeReports
+    : activeReports.filter(
+        (report) => getReportType(report) === selectedType
+      );
+
+  if (visibleReports.length === 0) {
+    grid.innerHTML = '';
+
+    statusMessage.textContent = selectedType === 'all'
+      ? 'No active reports are available.'
+      : `No active ${selectedType} reports are available.`;
+
+    statusMessage.classList.remove('browse-message-error');
+    statusMessage.hidden = false;
+    return;
+  }
+
+  grid.innerHTML = visibleReports.map(reportCardHTML).join('');
+  statusMessage.classList.remove('browse-message-error');
+  statusMessage.hidden = true;
+}
+
 async function loadReportedItems() {
   const grid = document.getElementById('report-grid');
   const statusMessage = document.getElementById('browse-status');
@@ -81,22 +142,25 @@ async function loadReportedItems() {
       ? data
       : (data.items || data.reports || []);
 
-    const activeReports = reports.filter((report) => (
+    activeReports = reports.filter((report) => (
       !report.status || String(report.status).toLowerCase() === 'active'
     ));
 
-    if (activeReports.length === 0) {
-      grid.innerHTML = '';
-      statusMessage.textContent = 'No active reports are available.';
-      statusMessage.classList.remove('browse-message-error');
-      statusMessage.hidden = false;
-      return;
-    }
+    updateBrowseCounts(activeReports);
 
-    grid.innerHTML = activeReports.map(reportCardHTML).join('');
-    statusMessage.hidden = true;
+    const activeTab = document.querySelector(
+      '[data-toggle-group="browse-tab"] [data-toggle-option].active'
+    );
+
+    const selectedType = activeTab
+      ? activeTab.dataset.toggleOption
+      : 'all';
+
+    renderReportedItems(selectedType);
   } catch (error) {
     console.error('Error loading reports:', error);
+    activeReports = [];
+    updateBrowseCounts(activeReports);
     grid.innerHTML = '';
     statusMessage.textContent = 'Unable to load reports. Please try again.';
     statusMessage.classList.add('browse-message-error');
@@ -104,4 +168,16 @@ async function loadReportedItems() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', loadReportedItems);
+document.addEventListener('DOMContentLoaded', () => {
+  const browseTabs = document.querySelector(
+    '[data-toggle-group="browse-tab"]'
+  );
+
+  if (browseTabs) {
+    browseTabs.addEventListener('toggle-change', (event) => {
+      renderReportedItems(event.detail.value);
+    });
+  }
+
+  loadReportedItems();
+});
