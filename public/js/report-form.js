@@ -55,8 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAllErrors(form, alertBox);
 
         // Validation
+        let validation = null;
         if (typeof validateReportForm === 'function') {
-            const validation = validateReportForm(form);
+            validation = validateReportForm(form);
             if (!validation.isValid) {
                 showFormAlert(alertBox, 'error', 'Please fix the highlighted errors before submitting.');
                 validation.errors.forEach(err => showFieldError(err.element, err.message));
