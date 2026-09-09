@@ -188,3 +188,59 @@ textarea::placeholder {
 .dropdown-content li:hover {
     background-color: #f0f0f0 !important;
 }
+
+/* =========================================================
+   Accessible Form Error States & Dynamic Feedback Alerts
+   ========================================================= */
+
+/* Form Input Error / Invalid States */
+.input-field input.is-invalid,
+.input-field textarea.is-invalid,
+.input-field input.invalid,
+.input-field textarea.invalid,
+.input-field.has-error input,
+.input-field.has-error textarea,
+.select-wrapper.is-invalid input.select-dropdown,
+.file-field.has-error input.file-path {
+    border-bottom: 2px solid #c53030 !important;
+    box-shadow: 0 1px 0 0 #c53030 !important;
+}
+
+/* Label color when invalid */
+.input-field.has-error > label,
+.input-field input.is-invalid + label,
+.input-field textarea.is-invalid + label {
+    color: #c53030 !important;
+}
+
+/* Inline Field Error Message */
+.field-error-msg {
+    display: block;
+    margin-top: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #c53030;
+}
+
+/* Dynamic Form UI Feedback Alert */
+.form-alert {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.form-alert.alert-error {
+    background-color: #fdf2f2;
+    border: 1px solid #f8b4b4;
+    color: #9b1c1c;
+}
+
+.form-alert.alert-success {
+    background-color: #f3faf7;
+    border: 1px solid #84e1bc;
+    color: #0e6245;
+}
