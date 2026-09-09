@@ -28,6 +28,18 @@ document.addEventListener('DOMContentLoaded', () => {
         btnFound.addEventListener('click', () => setReportMode('found'));
     }
 
+    // Keyboard accessibility for upload button
+    const uploadBtn = document.getElementById('upload-photo-btn');
+    const photoInput = document.getElementById('item-photos');
+    if (uploadBtn && photoInput) {
+        uploadBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                photoInput.click();
+            }
+        });
+    }
+
     // Default to today's date
     if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split('T')[0];
@@ -55,8 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAllErrors(form, alertBox);
 
         // Validation
+        let validation = null;
         if (typeof validateReportForm === 'function') {
-            const validation = validateReportForm(form);
+            validation = validateReportForm(form);
             if (!validation.isValid) {
                 showFormAlert(alertBox, 'error', 'Please fix the highlighted errors before submitting.');
                 validation.errors.forEach(err => showFieldError(err.element, err.message));

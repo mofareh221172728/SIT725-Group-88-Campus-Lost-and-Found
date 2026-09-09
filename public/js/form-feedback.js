@@ -84,8 +84,10 @@ function clearAllErrors(form, alertBox) {
 
 function scrollToFirstError(firstElement) {
     if (!firstElement) return;
+    const uploadBtn = firstElement.closest('.file-field')?.querySelector('#upload-photo-btn');
+    const isUploadBtnFocusable = uploadBtn && uploadBtn.hasAttribute('tabindex');
     const target = firstElement.closest('.select-wrapper')?.querySelector('input.select-dropdown')
-        || (firstElement.type === 'file' ? firstElement.closest('.file-field')?.querySelector('#upload-photo-btn') : null)
+        || (firstElement.type === 'file' ? (isUploadBtnFocusable ? uploadBtn : firstElement) : null)
         || firstElement;
 
     target.scrollIntoView({ behavior: 'smooth', block: 'center' });

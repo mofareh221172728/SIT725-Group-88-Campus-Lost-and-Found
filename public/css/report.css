@@ -77,6 +77,12 @@
     background-color: #5e5e5e !important;
 }
 
+#btn-submit-report:focus,
+#upload-photo-btn:focus {
+    outline: 2px solid #1c1e22;
+    outline-offset: 2px;
+}
+
 .d-none {
     display: none !important;
 }
