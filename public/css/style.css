@@ -1,10 +1,26 @@
+/* =========================================================
+   Campus Lost & Found - Global CSS
+   ========================================================= */
+
 :root {
+  /* Wireframe Color Variables (EXACT SAME) */
   --wf-line: #8a8f98;
   --wf-line-strong: #4a4e57;
   --wf-bg: #f5f5f3;
   --wf-panel: #ffffff;
   --wf-ph: #e4e4e1;
   --wf-ph-text: #9a9a95;
+
+  /* Semantic Aliases (maps to existing colors) */
+  --color-primary: #2b6cb0;
+  --color-secondary: #1c1e22;
+  --color-success: #2e7d32;
+  --color-danger: #d32f2f;
+  --color-warning: #f57c00;
+
+  /* Fonts */
+  --font-primary: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 }
 
 html {
@@ -34,8 +50,7 @@ a {
 }
 
 /* =========================================================
-   Small local utility layer (plain CSS - flexbox/spacing
-   helpers, since no CSS framework is used per SRS Section 2.4)
+   Flexbox Utilities
    ========================================================= */
 .flex {
   display: flex;
@@ -77,6 +92,9 @@ a {
   flex-wrap: wrap;
 }
 
+/* =========================================================
+   Text & Display Utilities
+   ========================================================= */
 .text-center {
   text-align: center;
 }
@@ -102,6 +120,9 @@ a {
   opacity: .5;
 }
 
+/* =========================================================
+   Spacing Utilities
+   ========================================================= */
 .gap-1 {
   gap: .25rem;
 }
@@ -174,8 +195,9 @@ a {
   padding: 1.5rem;
 }
 
-/* Native CSS Grid replaces the Materialize/Bootstrap column grid.
-   No library - just the browser's built-in grid layout. */
+/* =========================================================
+   Grid System
+   ========================================================= */
 .grid {
   display: grid;
   gap: 1rem;
@@ -210,7 +232,7 @@ a {
 }
 
 /* =========================================================
-   Top screen switcher (site map for this wireframe set)
+   Navigation & Header
    ========================================================= */
 .switcher {
   position: sticky;
@@ -264,6 +286,9 @@ a {
   color: #fff;
 }
 
+/* =========================================================
+   Device & Screen Layout
+   ========================================================= */
 .device {
   max-width: 1180px;
   margin: 0 auto;
@@ -297,7 +322,9 @@ a {
   border: 1px solid #d7d9d8;
 }
 
-/* --- wireframe primitives --- */
+/* =========================================================
+   Wireframe Primitives
+   ========================================================= */
 .ph {
   background: repeating-linear-gradient(45deg, var(--wf-ph), var(--wf-ph) 6px, #efefec 6px, #efefec 12px);
   border: 1px dashed var(--wf-line);
@@ -386,6 +413,9 @@ a {
   margin-top: 4px;
 }
 
+/* =========================================================
+   Badges
+   ========================================================= */
 .badge-wf {
   font-size: .62rem;
   text-transform: uppercase;
@@ -397,7 +427,6 @@ a {
   color: #333;
 }
 
-/* Section 2.4: only two report statuses are supported - Active and Resolved. */
 .badge-active {
   background: #e9f3ea;
   border-color: #3f7a4a;
@@ -410,12 +439,70 @@ a {
   color: #454d6b;
 }
 
+/* =========================================================
+   Tabs & Toggles
+   ========================================================= */
 .tabline {
   display: flex;
   gap: 0;
   border-bottom: 1.5px solid var(--wf-line-strong);
 }
 
+.tab-btn {
+  padding: .5rem 1.1rem;
+  font-size: .78rem;
+  font-weight: 600;
+  color: #8a8f98;
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.tab-btn.active {
+  color: #1c1e22;
+  border-color: var(--wf-line-strong);
+  border-radius: 4px 4px 0 0;
+  background: #fff;
+  margin-bottom: -1.5px;
+  border-bottom: 1.5px solid #fff;
+}
+
+.tab-btn:hover:not(.active) {
+  color: #4a4e57;
+}
+
+.toggle-wf {
+  display: inline-flex;
+  border: 1.5px solid var(--wf-line-strong);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.toggle-btn {
+  padding: .4rem 1rem;
+  font-size: .75rem;
+  font-weight: 600;
+  color: #6a6e76;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.toggle-btn.active {
+  background: #1c1e22;
+  color: #fff;
+}
+
+.toggle-btn:hover:not(.active) {
+  background: #eceeee;
+}
+
+/* =========================================================
+   Cards
+   ========================================================= */
 .card-wf {
   border: 1px solid var(--wf-line);
   border-radius: 4px;
@@ -427,6 +514,9 @@ a {
   border-color: var(--wf-line-strong);
 }
 
+/* =========================================================
+   Form Fields
+   ========================================================= */
 .field-wf {
   width: 100%;
 }
@@ -448,38 +538,9 @@ a {
   background: #fbfbfa;
 }
 
-.toggle-wf {
-  display: inline-flex;
-  border: 1.5px solid var(--wf-line-strong);
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-.footnote {
-  max-width: 1180px;
-  margin: 12px auto 0;
-  font-size: .72rem;
-  color: #6a6e76;
-}
-
-.kicker {
-  font-size: .68rem;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: #8a8f98;
-  margin-bottom: 2px;
-}
-
-.screen-wrap {
-  padding: 2rem 0 4rem;
-}
-
-.center-col {
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-/* ===== Real interactive buttons (plain CSS, no button/form library) ===== */
+/* =========================================================
+   Buttons
+   ========================================================= */
 .btn-wf,
 .btn-wf-strong {
   cursor: pointer;
@@ -535,51 +596,9 @@ a {
   outline-offset: 2px;
 }
 
-.tab-btn {
-  padding: .5rem 1.1rem;
-  font-size: .78rem;
-  font-weight: 600;
-  color: #8a8f98;
-  border: 1px solid transparent;
-  border-bottom: none;
-  background: transparent;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-}
-
-.tab-btn.active {
-  color: #1c1e22;
-  border-color: var(--wf-line-strong);
-  border-radius: 4px 4px 0 0;
-  background: #fff;
-  margin-bottom: -1.5px;
-  border-bottom: 1.5px solid #fff;
-}
-
-.tab-btn:hover:not(.active) {
-  color: #4a4e57;
-}
-
-.toggle-btn {
-  padding: .4rem 1rem;
-  font-size: .75rem;
-  font-weight: 600;
-  color: #6a6e76;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-}
-
-.toggle-btn.active {
-  background: #1c1e22;
-  color: #fff;
-}
-
-.toggle-btn:hover:not(.active) {
-  background: #eceeee;
-}
-
+/* =========================================================
+   Chip & Pill Buttons
+   ========================================================= */
 .chip-btn {
   padding: .4rem .8rem;
   font-size: .72rem;
@@ -627,6 +646,9 @@ a {
   cursor: not-allowed;
 }
 
+/* =========================================================
+   Link Button
+   ========================================================= */
 .btn-link-wf {
   border: none;
   background: none;
@@ -643,7 +665,9 @@ a {
   color: #1c1e22;
 }
 
-/* Plain native form elements, styled directly - no form/UI library involved. */
+/* =========================================================
+   Form Elements
+   ========================================================= */
 .select-wf {
   border: 1px solid var(--wf-line);
   border-radius: 3px;
@@ -691,7 +715,19 @@ textarea.input-wf-real {
   font-family: inherit;
 }
 
-/* Search & Filter layout: sidebar + results, plain flexbox */
+.input-wf-real[aria-invalid="true"] {
+  border-color: #d32f2f;
+  background-color: #fff5f5;
+}
+
+.input-wf-real[aria-invalid="false"] {
+  border-color: var(--wf-line);
+  background-color: #fbfbfa;
+}
+
+/* =========================================================
+   Search & Filter Layout
+   ========================================================= */
 .search-layout {
   display: flex;
   align-items: flex-start;
@@ -720,7 +756,36 @@ textarea.input-wf-real {
   }
 }
 
-/* ========== Login Form Styling ========== */
+/* =========================================================
+   Text & Footer Styles
+   ========================================================= */
+.footnote {
+  max-width: 1180px;
+  margin: 12px auto 0;
+  font-size: .72rem;
+  color: #6a6e76;
+}
+
+.kicker {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #8a8f98;
+  margin-bottom: 2px;
+}
+
+.screen-wrap {
+  padding: 2rem 0 4rem;
+}
+
+.center-col {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* =========================================================
+   Form Feedback Messages
+   ========================================================= */
 .error-message {
   display: block;
   font-size: 0.62rem;
