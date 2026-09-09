@@ -28,18 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnFound.addEventListener('click', () => setReportMode('found'));
     }
 
-    // Keyboard accessibility for upload button
-    const uploadBtn = document.getElementById('upload-photo-btn');
-    const photoInput = document.getElementById('item-photos');
-    if (uploadBtn && photoInput) {
-        uploadBtn.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                photoInput.click();
-            }
-        });
-    }
-
     // Default to today's date
     if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split('T')[0];
