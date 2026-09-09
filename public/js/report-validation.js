@@ -156,4 +156,38 @@ function validateReportForm(formElement) {
     };
 }
 
+// Helper to validate an individual field on blur or input
+function validateSingleField(fieldElement) {
+    if (!fieldElement) return { valid: true };
+    const id = fieldElement.id;
+
+    if (id === 'item-title') {
+        return validateTitle(fieldElement.value);
+    } else if (id === 'item-category') {
+        return validateCategory(fieldElement.value);
+    } else if (id === 'item-date') {
+        return validateDate(fieldElement.value);
+    } else if (id === 'item-campus') {
+        return validateCampus(fieldElement.value);
+    } else if (id === 'item-building') {
+        return validateBuilding(fieldElement.value);
+    } else if (id === 'item-desc') {
+        return validateDescription(fieldElement.value);
+    } else if (id === 'item-photos') {
+        return validatePhotos(fieldElement.files);
+    }
+
+    return { valid: true };
+}
+
+
 window.validateReportForm = validateReportForm;
+window.validateSingleField = validateSingleField;
+window.validateTitle = validateTitle;
+window.validateCategory = validateCategory;
+window.validateDate = validateDate;
+window.validateCampus = validateCampus;
+window.validateBuilding = validateBuilding;
+window.validateDescription = validateDescription;
+window.validatePhotos = validatePhotos;
+window.sanitizeText = sanitizeText;
