@@ -164,6 +164,86 @@ const sampleItems = [
     date: "2026-08-22",
     location: "Burwood - Coffee Cart",
     description: "Oval shaped prescription glasses in a hard brown case."
+  },
+  {
+    type: "found",
+    title: "Anker 20,000mAh Power Bank",
+    category: "Electronics",
+    date: "2026-09-09",
+    location: "Burwood - Building HE Level 1",
+    description: "Black matte portable battery with dual USB-C ports."
+  },
+  {
+    type: "lost",
+    title: "Dell XPS 15 Laptop Charger",
+    category: "Electronics",
+    date: "2026-09-08",
+    location: "Waurn Ponds - Library 2nd Floor",
+    description: "Black 130W USB-C oval charger with Australian power plug."
+  },
+  {
+    type: "found",
+    title: "Deakin Student ID Card - Emily W.",
+    category: "Wallets / Cards",
+    date: "2026-09-06",
+    location: "Burwood - Student Central",
+    description: "Card ending in student number 2210. Handed to reception desk."
+  },
+  {
+    type: "lost",
+    title: "AirPods Max Silver Wireless Headphones",
+    category: "Electronics",
+    date: "2026-09-07",
+    location: "Waterfront - John Hay Building",
+    description: "Silver Apple over-ear headphones with white smart case."
+  },
+  {
+    type: "found",
+    title: "Grey Knit Scarf & Gloves Set",
+    category: "Clothing",
+    date: "2026-09-03",
+    location: "Waurn Ponds - Building IC Bus Stop",
+    description: "Thick woollen dark grey scarf with matching gloves."
+  },
+  {
+    type: "lost",
+    title: "TI-Nspire CX II CAS Calculator",
+    category: "Electronics",
+    date: "2026-09-02",
+    location: "Burwood - Building F Tutorial Room 2.01",
+    description: "Colour graphing calculator with blue slider case."
+  },
+  {
+    type: "found",
+    title: "Set of Mazda Car Keys on Red Ribbon",
+    category: "Keys",
+    date: "2026-09-05",
+    location: "Burwood - Multi-level Car Park Level 3",
+    description: "Electronic Mazda key fob with two small locker keys."
+  },
+  {
+    type: "lost",
+    title: "Black Hydro Flask 32oz",
+    category: "Other",
+    date: "2026-08-31",
+    location: "Waterfront - Student Lounge",
+    description: "Wide mouth bottle with sticker of Deakin Computing Club."
+  },
+  {
+    type: "found",
+    title: "Green Umbrella with Wooden Handle",
+    category: "Other",
+    date: "2026-09-01",
+    location: "Burwood - Building LC Main Entrance",
+    description: "Dark green classic umbrella left in the umbrella stand."
+  },
+  {
+    type: "lost",
+    title: "Motorcycle Helmet HJC (Size M)",
+    category: "Other",
+    date: "2026-08-29",
+    location: "Waurn Ponds - Bike Shed near Building JB",
+    description: "Matte black full-face helmet with tinted visor."
   }
 ];
 
