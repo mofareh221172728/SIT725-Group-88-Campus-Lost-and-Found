@@ -1,6 +1,4 @@
 // public/js/browse.js
-// Card #23: load and display active lost and found reports from the item API.
-// Card #57: frontend controls for reported-date sorting and tab filtering.
 
 const ITEMS_PER_PAGE = 12;
 
@@ -67,12 +65,53 @@ function reportCardHTML(report) {
 }
 
 let activeReports = [];
+let currentPage = 1;
+let totalPages = 1;
+let totalReports = 0;
 
 function getSelectedTab() {
   const activeTab = document.querySelector(
     '[data-toggle-group="browse-tab"] [data-toggle-option].active'
   );
   return activeTab ? activeTab.dataset.toggleOption : 'found';
+}
+
+function renderPagination(currentPage, totalPages) {
+  const container = document.getElementById('browse-pagination');
+  if (!container) return;
+
+  if (totalPages <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = `<button type="button" class="pill-btn" data-page="prev" ${currentPage <= 1 ? 'disabled' : ''} aria-label="Previous page">Previous</button>`;
+
+  const pages = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (currentPage > 3) pages.push('…');
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push('…');
+    pages.push(totalPages);
+  }
+
+  pages.forEach((p) => {
+    if (p === '…') {
+      html += `<button type="button" class="pill-btn" disabled aria-hidden="true">…</button>`;
+    } else {
+      const activeClass = p === currentPage ? ' active' : '';
+      html += `<button type="button" class="pill-btn${activeClass}" data-page="${p}" aria-label="Page ${p}">${p}</button>`;
+    }
+  });
+
+  html += `<button type="button" class="pill-btn" data-page="next" ${currentPage >= totalPages ? 'disabled' : ''} aria-label="Next page">Next</button>`;
+
+  container.innerHTML = html;
 }
 
 function renderReportedItems(selectedType = 'all') {
@@ -83,12 +122,16 @@ function renderReportedItems(selectedType = 'all') {
   if (!grid || !statusMessage) return;
 
   if (countLabel) {
-    if (activeReports.length > ITEMS_PER_PAGE) {
-      countLabel.textContent = `Showing 1–${ITEMS_PER_PAGE} of ${activeReports.length} reports`;
+    if (totalReports === 0) {
+      countLabel.textContent = '';
+    } else if (totalReports > ITEMS_PER_PAGE) {
+      const start = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+      const end = Math.min(currentPage * ITEMS_PER_PAGE, totalReports);
+      countLabel.textContent = `Showing ${start}–${end} of ${totalReports} reports`;
     } else {
-      countLabel.textContent = activeReports.length === 1
+      countLabel.textContent = totalReports === 1
         ? '1 report'
-        : `${activeReports.length} reports`;
+        : `${totalReports} reports`;
     }
   }
 
@@ -101,51 +144,61 @@ function renderReportedItems(selectedType = 'all') {
 
     statusMessage.classList.remove('browse-message-error');
     statusMessage.hidden = false;
+    renderPagination(currentPage, 0);
     return;
   }
 
-  const displayedReports = activeReports.slice(0, ITEMS_PER_PAGE);
-  grid.innerHTML = displayedReports.map(reportCardHTML).join('');
+  grid.innerHTML = activeReports.map(reportCardHTML).join('');
   statusMessage.classList.remove('browse-message-error');
   statusMessage.hidden = true;
+
+  renderPagination(currentPage, totalPages);
 }
 
-// Fetch all reports once to populate tab badge counts: Found (x), Lost (y), All (z)
-async function updateTabCounts() {
+// Updates tab badge counts in the DOM
+function updateTabBadges(counts) {
+  if (!counts) return;
+
+  const tabGroup = document.querySelector('[data-toggle-group="browse-tab"]');
+  if (!tabGroup) return;
+
+  const foundTab = tabGroup.querySelector('[data-toggle-option="found"]');
+  const lostTab = tabGroup.querySelector('[data-toggle-option="lost"]');
+  const allTab = tabGroup.querySelector('[data-toggle-option="all"]');
+
+  if (foundTab && typeof counts.found === 'number') {
+    foundTab.textContent = `Found (${counts.found})`;
+  }
+  if (lostTab && typeof counts.lost === 'number') {
+    lostTab.textContent = `Lost (${counts.lost})`;
+  }
+  if (allTab && typeof counts.all === 'number') {
+    allTab.textContent = `All (${counts.all})`;
+  }
+}
+
+// Loads overall active item counts by type from GET /api/items/counts
+async function loadTabCounts() {
   try {
-    const res = await fetch('/api/items');
+    const res = await fetch('/api/items/counts');
     if (!res.ok) return;
-    const data = await res.json();
-    const all = Array.isArray(data) ? data : (data.items || []);
-    const active = all.filter((r) => !r.status || String(r.status).toLowerCase() === 'active');
-
-    const foundCount = active.filter((r) => String(r.type || '').toLowerCase() === 'found').length;
-    const lostCount = active.filter((r) => String(r.type || '').toLowerCase() === 'lost').length;
-
-    const tabGroup = document.querySelector('[data-toggle-group="browse-tab"]');
-    if (!tabGroup) return;
-
-    const foundTab = tabGroup.querySelector('[data-toggle-option="found"]');
-    const lostTab = tabGroup.querySelector('[data-toggle-option="lost"]');
-    const allTab = tabGroup.querySelector('[data-toggle-option="all"]');
-
-    if (foundTab) foundTab.textContent = `Found (${foundCount})`;
-    if (lostTab) lostTab.textContent = `Lost (${lostCount})`;
-    if (allTab) allTab.textContent = `All (${active.length})`;
-  } catch (e) {
-    // Non-blocking
+    const counts = await res.json();
+    updateTabBadges(counts);
+  } catch (err) {
+    console.error('Error loading tab counts:', err);
   }
 }
 
 // Loads reports from the API.
-// Backend (server.js / MongoDB in Card #27) handles all filtering & sorting.
-async function loadReportedItems(typeOverride) {
+// Backend (server.js / MongoDB in Card #27) handles all filtering, sorting & pagination.
+async function loadReportedItems(page = 1, typeOverride) {
   const grid = document.getElementById('report-grid');
   const statusMessage = document.getElementById('browse-status');
   const countLabel = document.getElementById('browse-count');
 
   if (!grid || !statusMessage) return;
 
+  currentPage = page;
   const selectedType = typeOverride || getSelectedTab();
   const sortSelect = document.getElementById('browse-sort');
   const sortOrder = sortSelect ? sortSelect.value : 'newest';
@@ -158,8 +211,10 @@ async function loadReportedItems(typeOverride) {
     if (sortOrder) {
       params.append('sort', sortOrder);
     }
+    params.append('page', currentPage);
+    params.append('limit', ITEMS_PER_PAGE);
 
-    const url = params.toString() ? `/api/items?${params}` : '/api/items';
+    const url = `/api/items?${params}`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -171,19 +226,28 @@ async function loadReportedItems(typeOverride) {
       ? data
       : (data.items || data.reports || []);
 
-    activeReports = reports.filter((report) => (
-      !report.status || String(report.status).toLowerCase() === 'active'
-    ));
+    // Pagination metadata directly from backend
+    totalReports = typeof data.total === 'number' ? data.total : reports.length;
+    totalPages = typeof data.totalPages === 'number'
+      ? data.totalPages
+      : (Math.ceil(totalReports / ITEMS_PER_PAGE) || 1);
+    currentPage = typeof data.page === 'number' ? data.page : page;
+
+    // Reports are already active, filtered, sorted, and paginated by the backend
+    activeReports = reports;
 
     renderReportedItems(selectedType);
   } catch (error) {
     console.error('Error loading reports:', error);
     activeReports = [];
+    totalReports = 0;
+    totalPages = 1;
     grid.innerHTML = '';
     if (countLabel) countLabel.textContent = '';
     statusMessage.textContent = 'Unable to load reports. Please try again.';
     statusMessage.classList.add('browse-message-error');
     statusMessage.hidden = false;
+    renderPagination(1, 0);
   }
 }
 
@@ -194,19 +258,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (browseTabs) {
     browseTabs.addEventListener('toggle-change', (event) => {
-      loadReportedItems(event.detail.value);
+      loadReportedItems(1, event.detail.value);
     });
   }
 
   const sortSelect = document.getElementById('browse-sort');
   if (sortSelect) {
     sortSelect.addEventListener('change', () => {
-      loadReportedItems();
+      loadReportedItems(1);
     });
   }
 
-  updateTabCounts();
-  loadReportedItems();
+  const paginationContainer = document.getElementById('browse-pagination');
+  if (paginationContainer) {
+    paginationContainer.addEventListener('click', (event) => {
+      const btn = event.target.closest('button[data-page]');
+      if (!btn || btn.disabled) return;
+
+      const action = btn.dataset.page;
+      if (action === 'prev') {
+        if (currentPage > 1) {
+          loadReportedItems(currentPage - 1);
+        }
+      } else if (action === 'next') {
+        if (currentPage < totalPages) {
+          loadReportedItems(currentPage + 1);
+        }
+      } else {
+        const targetPage = parseInt(action, 10);
+        if (targetPage && targetPage !== currentPage) {
+          loadReportedItems(targetPage);
+        }
+      }
+    });
+  }
+
+  loadTabCounts();
+  loadReportedItems(1);
 });
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -214,5 +302,7 @@ if (typeof module !== 'undefined' && module.exports) {
     escapeHTML,
     formatReportDate,
     loadReportedItems,
+    loadTabCounts,
+    renderPagination,
   };
 }

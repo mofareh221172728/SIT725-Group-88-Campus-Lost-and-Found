@@ -39,10 +39,28 @@ app.use(express.static(path.join(__dirname, "public")));
 // Temporary in-memory storage
 const items = [];
 
-// GET all items (supports optional query params: ?type=lost|found&sort=newest|oldest)
+// GET item type counts (overall counts of active lost, found, all items)
+app.get("/api/items/counts", (req, res) => {
+  const activeItems = items.filter(
+    (item) => !item.status || String(item.status).toLowerCase() === "active"
+  );
+
+  res.json({
+    all: activeItems.length,
+    lost: activeItems.filter((i) => i.type && i.type.toLowerCase() === "lost").length,
+    found: activeItems.filter((i) => i.type && i.type.toLowerCase() === "found").length,
+  });
+});
+
+// GET items with filtering, sorting, and pagination
 app.get("/api/items", (req, res) => {
-  let result = [...items];
-  const { type, sort } = req.query;
+  // Only active reports are returned
+  const activeItems = items.filter(
+    (item) => !item.status || String(item.status).toLowerCase() === "active"
+  );
+
+  let result = [...activeItems];
+  const { type, sort, page, limit } = req.query;
 
   // Filter by type (lost / found)
   if (type && type.toLowerCase() !== "all") {
@@ -56,6 +74,23 @@ app.get("/api/items", (req, res) => {
     result.sort((a, b) => new Date(a.date) - new Date(b.date));
   } else if (sort === "newest") {
     result.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+
+  // Pagination (when page query param is supplied)
+  if (page) {
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, parseInt(limit, 10) || 12);
+    const total = result.length;
+    const totalPages = Math.ceil(total / limitNum) || 1;
+    const startIndex = (pageNum - 1) * limitNum;
+    const paginatedItems = result.slice(startIndex, startIndex + limitNum);
+
+    return res.json({
+      items: paginatedItems,
+      total,
+      page: pageNum,
+      totalPages,
+    });
   }
 
   res.json(result);
