@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Form submission
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         clearAllErrors(form, alertBox);
 
@@ -72,11 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Collect all form fields using validated and sanitized normal text
         const data = validation?.data || {};
+        const location = [data.campus, data.building, data.room].filter(Boolean).join(', ');
         const reportData = {
             type: typeInput.value,
             title: data.title,
             category: data.category,
             date: data.date,
+            location: location,
             description: data.description,
             campus: data.campus,
             building: data.building,
@@ -84,20 +86,40 @@ document.addEventListener('DOMContentLoaded', () => {
             handoverMethod: isFound ? (handoverInput?.value || null) : null
         };
 
-        console.log('Report submitted:', reportData);
+        try {
+            const response = await fetch('/api/items', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reportData)
+            });
 
-        // Success UI feedback
-        showFormAlert(alertBox, 'success', `Report submitted successfully! Your ${typeInput.value} item has been added.`);
-        form.reset();
+            const result = await response.json();
 
-        if (dateInput) {
-            dateInput.value = new Date().toISOString().split('T')[0];
+            if (!response.ok) {
+                showFormAlert(alertBox, 'error', result.message || 'Failed to submit report.');
+                alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // Success UI feedback
+            showFormAlert(alertBox, 'success', result.message || `Report submitted successfully! Your ${typeInput.value} item has been added.`);
+            form.reset();
+
+            if (dateInput) {
+                dateInput.value = new Date().toISOString().split('T')[0];
+            }
+
+            if (typeof M !== 'undefined' && M.updateTextFields) {
+                M.updateTextFields();
+            }
+
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            showFormAlert(alertBox, 'error', 'Unable to submit report. Please check your connection and try again.');
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-
-        if (typeof M !== 'undefined' && M.updateTextFields) {
-            M.updateTextFields();
-        }
-
-        alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 });
