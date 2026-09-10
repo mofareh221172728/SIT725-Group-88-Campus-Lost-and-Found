@@ -1,5 +1,8 @@
 // public/js/browse.js
 // Card #23: load and display active lost and found reports from the item API.
+// Card #57: frontend controls for reported-date sorting and tab filtering.
+
+const ITEMS_PER_PAGE = 12;
 
 function escapeHTML(value) {
   return String(value ?? '')
@@ -65,49 +68,31 @@ function reportCardHTML(report) {
 
 let activeReports = [];
 
-function getReportType(report) {
-  return String(report.type || '').toLowerCase() === 'lost'
-    ? 'lost'
-    : 'found';
-}
-
-function updateBrowseCounts(reports) {
-  const foundCount = reports.filter(
-    (report) => getReportType(report) === 'found'
-  ).length;
-
-  const lostCount = reports.filter(
-    (report) => getReportType(report) === 'lost'
-  ).length;
-
-  const tabGroup = document.querySelector(
-    '[data-toggle-group="browse-tab"]'
+function getSelectedTab() {
+  const activeTab = document.querySelector(
+    '[data-toggle-group="browse-tab"] [data-toggle-option].active'
   );
-
-  if (!tabGroup) return;
-
-  const foundTab = tabGroup.querySelector('[data-toggle-option="found"]');
-  const lostTab = tabGroup.querySelector('[data-toggle-option="lost"]');
-  const allTab = tabGroup.querySelector('[data-toggle-option="all"]');
-
-  if (foundTab) foundTab.textContent = `Found (${foundCount})`;
-  if (lostTab) lostTab.textContent = `Lost (${lostCount})`;
-  if (allTab) allTab.textContent = `All (${reports.length})`;
+  return activeTab ? activeTab.dataset.toggleOption : 'found';
 }
 
 function renderReportedItems(selectedType = 'all') {
   const grid = document.getElementById('report-grid');
   const statusMessage = document.getElementById('browse-status');
+  const countLabel = document.getElementById('browse-count');
 
   if (!grid || !statusMessage) return;
 
-  const visibleReports = selectedType === 'all'
-    ? activeReports
-    : activeReports.filter(
-        (report) => getReportType(report) === selectedType
-      );
+  if (countLabel) {
+    if (activeReports.length > ITEMS_PER_PAGE) {
+      countLabel.textContent = `Showing 1–${ITEMS_PER_PAGE} of ${activeReports.length} reports`;
+    } else {
+      countLabel.textContent = activeReports.length === 1
+        ? '1 report'
+        : `${activeReports.length} reports`;
+    }
+  }
 
-  if (visibleReports.length === 0) {
+  if (activeReports.length === 0) {
     grid.innerHTML = '';
 
     statusMessage.textContent = selectedType === 'all'
@@ -119,22 +104,66 @@ function renderReportedItems(selectedType = 'all') {
     return;
   }
 
-  grid.innerHTML = visibleReports.map(reportCardHTML).join('');
+  const displayedReports = activeReports.slice(0, ITEMS_PER_PAGE);
+  grid.innerHTML = displayedReports.map(reportCardHTML).join('');
   statusMessage.classList.remove('browse-message-error');
   statusMessage.hidden = true;
 }
 
-async function loadReportedItems() {
+// Fetch all reports once to populate tab badge counts: Found (x), Lost (y), All (z)
+async function updateTabCounts() {
+  try {
+    const res = await fetch('/api/items');
+    if (!res.ok) return;
+    const data = await res.json();
+    const all = Array.isArray(data) ? data : (data.items || []);
+    const active = all.filter((r) => !r.status || String(r.status).toLowerCase() === 'active');
+
+    const foundCount = active.filter((r) => String(r.type || '').toLowerCase() === 'found').length;
+    const lostCount = active.filter((r) => String(r.type || '').toLowerCase() === 'lost').length;
+
+    const tabGroup = document.querySelector('[data-toggle-group="browse-tab"]');
+    if (!tabGroup) return;
+
+    const foundTab = tabGroup.querySelector('[data-toggle-option="found"]');
+    const lostTab = tabGroup.querySelector('[data-toggle-option="lost"]');
+    const allTab = tabGroup.querySelector('[data-toggle-option="all"]');
+
+    if (foundTab) foundTab.textContent = `Found (${foundCount})`;
+    if (lostTab) lostTab.textContent = `Lost (${lostCount})`;
+    if (allTab) allTab.textContent = `All (${active.length})`;
+  } catch (e) {
+    // Non-blocking
+  }
+}
+
+// Loads reports from the API.
+// Backend (server.js / MongoDB in Card #27) handles all filtering & sorting.
+async function loadReportedItems(typeOverride) {
   const grid = document.getElementById('report-grid');
   const statusMessage = document.getElementById('browse-status');
+  const countLabel = document.getElementById('browse-count');
 
   if (!grid || !statusMessage) return;
 
+  const selectedType = typeOverride || getSelectedTab();
+  const sortSelect = document.getElementById('browse-sort');
+  const sortOrder = sortSelect ? sortSelect.value : 'newest';
+
   try {
-    const response = await fetch('/api/items');
+    const params = new URLSearchParams();
+    if (selectedType && selectedType !== 'all') {
+      params.append('type', selectedType);
+    }
+    if (sortOrder) {
+      params.append('sort', sortOrder);
+    }
+
+    const url = params.toString() ? `/api/items?${params}` : '/api/items';
+    const response = await fetch(url);
 
     if (!response.ok) {
-      throw new Error(`GET /api/items returned ${response.status}`);
+      throw new Error(`GET ${url} returned ${response.status}`);
     }
 
     const data = await response.json();
@@ -146,22 +175,12 @@ async function loadReportedItems() {
       !report.status || String(report.status).toLowerCase() === 'active'
     ));
 
-    updateBrowseCounts(activeReports);
-
-    const activeTab = document.querySelector(
-      '[data-toggle-group="browse-tab"] [data-toggle-option].active'
-    );
-
-    const selectedType = activeTab
-      ? activeTab.dataset.toggleOption
-      : 'all';
-
     renderReportedItems(selectedType);
   } catch (error) {
     console.error('Error loading reports:', error);
     activeReports = [];
-    updateBrowseCounts(activeReports);
     grid.innerHTML = '';
+    if (countLabel) countLabel.textContent = '';
     statusMessage.textContent = 'Unable to load reports. Please try again.';
     statusMessage.classList.add('browse-message-error');
     statusMessage.hidden = false;
@@ -175,9 +194,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (browseTabs) {
     browseTabs.addEventListener('toggle-change', (event) => {
-      renderReportedItems(event.detail.value);
+      loadReportedItems(event.detail.value);
     });
   }
 
+  const sortSelect = document.getElementById('browse-sort');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+      loadReportedItems();
+    });
+  }
+
+  updateTabCounts();
   loadReportedItems();
 });
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    escapeHTML,
+    formatReportDate,
+    loadReportedItems,
+  };
+}

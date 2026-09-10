@@ -39,9 +39,26 @@ app.use(express.static(path.join(__dirname, "public")));
 // Temporary in-memory storage
 const items = [];
 
-// GET all items
+// GET all items (supports optional query params: ?type=lost|found&sort=newest|oldest)
 app.get("/api/items", (req, res) => {
-  res.json(items);
+  let result = [...items];
+  const { type, sort } = req.query;
+
+  // Filter by type (lost / found)
+  if (type && type.toLowerCase() !== "all") {
+    result = result.filter(
+      (item) => item.type && item.type.toLowerCase() === type.toLowerCase()
+    );
+  }
+
+  // Sort by reported date: newest (descending) or oldest (ascending)
+  if (sort === "oldest") {
+    result.sort((a, b) => new Date(a.date) - new Date(b.date));
+  } else if (sort === "newest") {
+    result.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+
+  res.json(result);
 });
 
 // POST a new item

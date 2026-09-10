@@ -53,6 +53,17 @@
           <button type="button" class="tab-btn" data-toggle-option="all">All (0)</button>
       </div>
 
+      <div class="flex justify-between items-center mb-3">
+        <span id="browse-count" class="mono" style="font-size:.75rem; color:#5b5f66;"></span>
+        <div class="flex items-center gap-1">
+          <label for="browse-sort" class="mono" style="font-size:.72rem; color:#5b5f66; margin-right:.25rem;">Sort:</label>
+          <select id="browse-sort" class="select-wf-inline" aria-label="Sort reports">
+            <option value="newest">Newest Reported</option>
+            <option value="oldest">Oldest Reported</option>
+          </select>
+        </div>
+      </div>
+
       <div id="browse-status" class="browse-message" role="status" aria-live="polite">
         Loading reports…
       </div>
