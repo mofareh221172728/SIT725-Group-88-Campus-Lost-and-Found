@@ -21,25 +21,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const email = document.getElementById('email').value.trim();
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+  await api.post('/api/auth/login', { email });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        showMessage(result.message || 'Unable to log in.');
-        return;
-      }
-
-      window.location.href = 'browse.html';
-    } catch (error) {
-      console.error('Error logging in:', error);
-      showMessage('Something went wrong. Please try again.');
-    }
+  window.location.href = 'browse.html';
+   } catch (error) {
+  console.error('Error logging in:', error);
+  showMessage(error.message || 'Something went wrong. Please try again.');
+   }
   });
 });

@@ -180,9 +180,7 @@ function updateTabBadges(counts) {
 // Loads overall active item counts by type from GET /api/items/counts
 async function loadTabCounts() {
   try {
-    const res = await fetch('/api/items/counts');
-    if (!res.ok) return;
-    const counts = await res.json();
+    const counts = await api.get('/api/items/counts');
     updateTabBadges(counts);
   } catch (err) {
     console.error('Error loading tab counts:', err);
@@ -214,14 +212,10 @@ async function loadReportedItems(page = 1, typeOverride) {
     params.append('page', currentPage);
     params.append('limit', ITEMS_PER_PAGE);
 
+
     const url = `/api/items?${params}`;
-    const response = await fetch(url);
+    const data = await api.get(url);
 
-    if (!response.ok) {
-      throw new Error(`GET ${url} returned ${response.status}`);
-    }
-
-    const data = await response.json();
     const reports = Array.isArray(data)
       ? data
       : (data.items || data.reports || []);
