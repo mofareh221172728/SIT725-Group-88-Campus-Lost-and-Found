@@ -1,9 +1,5 @@
-/* =========================================================
-   Campus Lost & Found - Global CSS
-   ========================================================= */
-
 :root {
-  /* Wireframe Color Variables (EXACT SAME) */
+  /* Wireframe grayscale / line weights */
   --wf-line: #8a8f98;
   --wf-line-strong: #4a4e57;
   --wf-bg: #f5f5f3;
@@ -11,20 +7,21 @@
   --wf-ph: #e4e4e1;
   --wf-ph-text: #9a9a95;
 
-  /* Semantic Aliases (maps to existing colors) */
-  --color-primary: #2b6cb0;
-  --color-secondary: #1c1e22;
-  --color-success: #2e7d32;
-  --color-danger: #d32f2f;
-  --color-warning: #f57c00;
-
-  /* Fonts */
-  --font-primary: 'Inter', sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
+  /* Core palette - reused across buttons, nav, text and form states */
+  --wf-white: #fff;
+  --wf-ink: #1c1e22;        /* darkest text / active surface */
+  --wf-text: #2b2b2b;       /* base body text */
+  --wf-text-strong: #333;   /* button / badge text */
+  --wf-text-muted: #6a6e76; /* footnote, kicker, tag text */
+  --wf-text-soft: #5b5f66;  /* nav links, help button */
+  --wf-input-bg: #fbfbfa;   /* form field background */
+  --wf-link: #2b6cb0;       /* link + focus outline color */
+  --wf-danger: #d32f2f;     /* error / invalid state */
 }
 
 html {
   box-sizing: border-box;
+  scrollbar-gutter: stable; /* keeps layout width stable when a vertical scrollbar appears */
 }
 
 *,
@@ -37,7 +34,7 @@ body {
   margin: 0;
   background: var(--wf-bg);
   font-family: 'Inter', sans-serif;
-  color: #2b2b2b;
+  color: var(--wf-text);
   min-height: 100vh;
 }
 
@@ -46,26 +43,19 @@ body {
 }
 
 a {
-  color: #2b6cb0;
+  color: var(--wf-link);
 }
 
 /* =========================================================
-   Flexbox Utilities
+   Small local utility layer (plain CSS - flexbox/spacing
+   helpers, since no CSS framework is used per SRS Section 2.4)
    ========================================================= */
 .flex {
   display: flex;
 }
 
-.flex-col {
-  flex-direction: column;
-}
-
 .items-center {
   align-items: center;
-}
-
-.items-start {
-  align-items: flex-start;
 }
 
 .justify-center {
@@ -92,9 +82,6 @@ a {
   flex-wrap: wrap;
 }
 
-/* =========================================================
-   Text & Display Utilities
-   ========================================================= */
 .text-center {
   text-align: center;
 }
@@ -120,9 +107,6 @@ a {
   opacity: .5;
 }
 
-/* =========================================================
-   Spacing Utilities
-   ========================================================= */
 .gap-1 {
   gap: .25rem;
 }
@@ -135,16 +119,8 @@ a {
   gap: 1rem;
 }
 
-.gap-4 {
-  gap: 1.5rem;
-}
-
 .m-0 {
   margin: 0;
-}
-
-.mt-1 {
-  margin-top: .25rem;
 }
 
 .mt-2 {
@@ -175,10 +151,6 @@ a {
   margin-bottom: 1.5rem;
 }
 
-.me-2 {
-  margin-right: .5rem;
-}
-
 .me-3 {
   margin-right: 1rem;
 }
@@ -195,9 +167,8 @@ a {
   padding: 1.5rem;
 }
 
-/* =========================================================
-   Grid System
-   ========================================================= */
+/* Native CSS Grid replaces the Materialize/Bootstrap column grid.
+   No library - just the browser's built-in grid layout. */
 .grid {
   display: grid;
   gap: 1rem;
@@ -232,13 +203,13 @@ a {
 }
 
 /* =========================================================
-   Navigation & Header
+   Top screen switcher (site map for this wireframe set)
    ========================================================= */
 .switcher {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: #1c1e22;
+  background: var(--wf-ink);
   border-bottom: 1px solid #000;
 }
 
@@ -249,7 +220,7 @@ a {
 }
 
 .switcher .brand {
-  color: #fff;
+  color: var(--wf-white);
   font-weight: 600;
   letter-spacing: .02em;
   font-size: .85rem;
@@ -279,16 +250,13 @@ a {
 
 .switcher .nav-link.active {
   background: #3a3e46;
-  color: #fff;
+  color: var(--wf-white);
 }
 
 .switcher .nav-link:hover:not(.active) {
-  color: #fff;
+  color: var(--wf-white);
 }
 
-/* =========================================================
-   Device & Screen Layout
-   ========================================================= */
 .device {
   max-width: 1180px;
   margin: 0 auto;
@@ -315,16 +283,14 @@ a {
   font-size: .7rem;
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: #6a6e76;
+  color: var(--wf-text-muted);
   background: #eceeee;
   padding: .2rem .55rem;
   border-radius: 3px;
   border: 1px solid #d7d9d8;
 }
 
-/* =========================================================
-   Wireframe Primitives
-   ========================================================= */
+/* --- wireframe primitives --- */
 .ph {
   background: repeating-linear-gradient(45deg, var(--wf-ph), var(--wf-ph) 6px, #efefec 6px, #efefec 12px);
   border: 1px dashed var(--wf-line);
@@ -338,12 +304,12 @@ a {
 
 .box {
   border: 1px solid var(--wf-line);
-  background: #fff;
+  background: var(--wf-white);
 }
 
 .box-strong {
   border: 1.5px solid var(--wf-line-strong);
-  background: #fff;
+  background: var(--wf-white);
 }
 
 .lorem-line {
@@ -392,7 +358,7 @@ a {
   display: flex;
   gap: 1.1rem;
   font-size: .75rem;
-  color: #5b5f66;
+  color: var(--wf-text-soft);
 }
 
 .wf-avatar {
@@ -402,20 +368,6 @@ a {
   border: 1.5px solid var(--wf-line-strong);
 }
 
-.annot {
-  font-size: .68rem;
-  color: #8a5a2b;
-  background: #fdf3e6;
-  border: 1px dashed #e0b578;
-  padding: .15rem .4rem;
-  border-radius: 3px;
-  display: inline-block;
-  margin-top: 4px;
-}
-
-/* =========================================================
-   Badges
-   ========================================================= */
 .badge-wf {
   font-size: .62rem;
   text-transform: uppercase;
@@ -423,10 +375,11 @@ a {
   border: 1px solid var(--wf-line-strong);
   border-radius: 3px;
   padding: .15rem .4rem;
-  background: #fff;
-  color: #333;
+  background: var(--wf-white);
+  color: var(--wf-text-strong);
 }
 
+/* Section 2.4: only two report statuses are supported - Active and Resolved. */
 .badge-active {
   background: #e9f3ea;
   border-color: #3f7a4a;
@@ -439,38 +392,33 @@ a {
   color: #454d6b;
 }
 
-/* =========================================================
-   Tabs & Toggles
-   ========================================================= */
 .tabline {
   display: flex;
   gap: 0;
   border-bottom: 1.5px solid var(--wf-line-strong);
 }
 
-.tab-btn {
-  padding: .5rem 1.1rem;
-  font-size: .78rem;
-  font-weight: 600;
-  color: #8a8f98;
-  border: 1px solid transparent;
-  border-bottom: none;
-  background: transparent;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
+.card-wf {
+  border: 1px solid var(--wf-line);
+  border-radius: 4px;
+  padding: .75rem;
+  background: var(--wf-white);
 }
 
-.tab-btn.active {
-  color: #1c1e22;
+.card-wf:hover {
   border-color: var(--wf-line-strong);
-  border-radius: 4px 4px 0 0;
-  background: #fff;
-  margin-bottom: -1.5px;
-  border-bottom: 1.5px solid #fff;
 }
 
-.tab-btn:hover:not(.active) {
-  color: #4a4e57;
+.field-wf {
+  width: 100%;
+}
+
+.field-wf label {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--wf-line-strong);
+  margin-bottom: .2rem;
+  display: block;
 }
 
 .toggle-wf {
@@ -480,67 +428,31 @@ a {
   overflow: hidden;
 }
 
-.toggle-btn {
-  padding: .4rem 1rem;
-  font-size: .75rem;
-  font-weight: 600;
-  color: #6a6e76;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-}
-
-.toggle-btn.active {
-  background: #1c1e22;
-  color: #fff;
-}
-
-.toggle-btn:hover:not(.active) {
-  background: #eceeee;
-}
-
-/* =========================================================
-   Cards
-   ========================================================= */
-.card-wf {
-  border: 1px solid var(--wf-line);
-  border-radius: 4px;
-  padding: .75rem;
-  background: #fff;
-}
-
-.card-wf:hover {
-  border-color: var(--wf-line-strong);
-}
-
-/* =========================================================
-   Form Fields
-   ========================================================= */
-.field-wf {
-  width: 100%;
-}
-
-.field-wf label {
+.footnote {
+  max-width: 1180px;
+  margin: 12px auto 0;
   font-size: .72rem;
-  font-weight: 600;
-  color: #4a4e57;
-  margin-bottom: .2rem;
-  display: block;
+  color: var(--wf-text-muted);
 }
 
-.field-wf .input-wf {
-  border: 1px solid var(--wf-line);
-  border-radius: 3px;
-  padding: .5rem .6rem;
-  font-size: .78rem;
-  color: #9a9a95;
-  background: #fbfbfa;
+.kicker {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--wf-line);
+  margin-bottom: 2px;
 }
 
-/* =========================================================
-   Buttons
-   ========================================================= */
+.screen-wrap {
+  padding: 2rem 0 4rem;
+}
+
+.center-col {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ===== Real interactive buttons (plain CSS, no button/form library) ===== */
 .btn-wf,
 .btn-wf-strong {
   cursor: pointer;
@@ -554,28 +466,28 @@ a {
 
 .btn-wf {
   border: 1px solid var(--wf-line);
-  background: #fff;
-  color: #333;
+  background: var(--wf-white);
+  color: var(--wf-text-strong);
   padding: .5rem .9rem;
 }
 
 .btn-wf:hover:not([disabled]) {
   border-color: var(--wf-line-strong);
   background: #f6f6f4;
-  color: #1c1e22;
+  color: var(--wf-ink);
 }
 
 .btn-wf-strong {
   border: 1.5px solid var(--wf-line-strong);
-  background: #fff;
-  color: #1c1e22;
+  background: var(--wf-white);
+  color: var(--wf-ink);
   font-weight: 600;
   padding: .5rem .9rem;
 }
 
 .btn-wf-strong:hover:not([disabled]) {
-  background: #1c1e22;
-  color: #fff;
+  background: var(--wf-ink);
+  color: var(--wf-white);
 }
 
 .btn-wf[disabled],
@@ -592,29 +504,71 @@ a {
 .pill-btn:focus-visible,
 .select-wf:focus-visible,
 .input-wf-real:focus-visible {
-  outline: 2px solid #2b6cb0;
+  outline: 2px solid var(--wf-link);
   outline-offset: 2px;
 }
 
-/* =========================================================
-   Chip & Pill Buttons
-   ========================================================= */
+.tab-btn {
+  padding: .5rem 1.1rem;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--wf-line);
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.tab-btn.active {
+  color: var(--wf-ink);
+  border-color: var(--wf-line-strong);
+  border-radius: 4px 4px 0 0;
+  background: var(--wf-white);
+  margin-bottom: -1.5px;
+  border-bottom: 1.5px solid var(--wf-white);
+}
+
+.tab-btn:hover:not(.active) {
+  color: var(--wf-line-strong);
+}
+
+.toggle-btn {
+  padding: .4rem 1rem;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--wf-text-muted);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.toggle-btn.active {
+  background: var(--wf-ink);
+  color: var(--wf-white);
+}
+
+.toggle-btn:hover:not(.active) {
+  background: #eceeee;
+}
+
 .chip-btn {
   padding: .4rem .8rem;
   font-size: .72rem;
   font-weight: 600;
   border-radius: 20px;
   border: 1.5px solid var(--wf-line-strong);
-  background: #fff;
-  color: #333;
+  background: var(--wf-white);
+  color: var(--wf-text-strong);
   cursor: pointer;
   font-family: 'IBM Plex Mono', monospace;
 }
 
 .chip-btn.active {
-  background: #1c1e22;
-  color: #fff;
-  border-color: #1c1e22;
+  background: var(--wf-ink);
+  color: var(--wf-white);
+  border-color: var(--wf-ink);
 }
 
 .chip-btn:hover:not(.active) {
@@ -623,7 +577,7 @@ a {
 
 .pill-btn {
   border: 1px solid var(--wf-line);
-  background: #fff;
+  background: var(--wf-white);
   border-radius: 3px;
   padding: .3rem .6rem;
   font-size: .72rem;
@@ -646,9 +600,6 @@ a {
   cursor: not-allowed;
 }
 
-/* =========================================================
-   Link Button
-   ========================================================= */
 .btn-link-wf {
   border: none;
   background: none;
@@ -656,25 +607,23 @@ a {
   cursor: pointer;
   font-family: 'IBM Plex Mono', monospace;
   font-size: .7rem;
-  color: #6a6e76;
+  color: var(--wf-text-muted);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .btn-link-wf:hover {
-  color: #1c1e22;
+  color: var(--wf-ink);
 }
 
-/* =========================================================
-   Form Elements
-   ========================================================= */
+/* Plain native form elements, styled directly - no form/UI library involved. */
 .select-wf {
   border: 1px solid var(--wf-line);
   border-radius: 3px;
   padding: .5rem .6rem;
   font-size: .78rem;
-  color: #4a4e57;
-  background: #fbfbfa;
+  color: var(--wf-line-strong);
+  background: var(--wf-input-bg);
   width: 100%;
   font-family: 'Inter', sans-serif;
   height: auto;
@@ -686,8 +635,8 @@ a {
   border-radius: 3px;
   padding: .3rem .6rem;
   font-size: .72rem;
-  color: #4a4e57;
-  background: #fff;
+  color: var(--wf-line-strong);
+  background: var(--wf-white);
   font-family: 'IBM Plex Mono', monospace;
   height: auto;
   width: auto;
@@ -698,8 +647,8 @@ a {
   border-radius: 3px;
   padding: .5rem .6rem;
   font-size: .78rem;
-  color: #2b2b2b;
-  background: #fbfbfa;
+  color: var(--wf-text);
+  background: var(--wf-input-bg);
   width: 100%;
   font-family: 'Inter', sans-serif;
   height: auto;
@@ -707,7 +656,7 @@ a {
 }
 
 .input-wf-real::placeholder {
-  color: #9a9a95;
+  color: var(--wf-ph-text);
 }
 
 textarea.input-wf-real {
@@ -715,19 +664,7 @@ textarea.input-wf-real {
   font-family: inherit;
 }
 
-.input-wf-real[aria-invalid="true"] {
-  border-color: #d32f2f;
-  background-color: #fff5f5;
-}
-
-.input-wf-real[aria-invalid="false"] {
-  border-color: var(--wf-line);
-  background-color: #fbfbfa;
-}
-
-/* =========================================================
-   Search & Filter Layout
-   ========================================================= */
+/* Search & Filter layout: sidebar + results, plain flexbox */
 .search-layout {
   display: flex;
   align-items: flex-start;
@@ -756,51 +693,14 @@ textarea.input-wf-real {
   }
 }
 
-/* =========================================================
-   Text & Footer Styles
-   ========================================================= */
-.footnote {
-  max-width: 1180px;
-  margin: 12px auto 0;
-  font-size: .72rem;
-  color: #6a6e76;
-}
-
-.kicker {
-  font-size: .68rem;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: #8a8f98;
-  margin-bottom: 2px;
-}
-
-.screen-wrap {
-  padding: 2rem 0 4rem;
-}
-
-.center-col {
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-/* =========================================================
-   Form Feedback Messages
-   ========================================================= */
-.error-message {
-  display: block;
-  font-size: 0.62rem;
-  color: #d32f2f;
-  margin-top: 0.25rem;
-  height: 1rem;
-  overflow: hidden;
-}
+/* ========== Shared form feedback states (validation + async buttons) ========== */
 
 .help-button {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 0.75rem;
-  color: #5b5f66;
+  color: var(--wf-text-soft);
   padding: 0;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -809,24 +709,111 @@ textarea.input-wf-real {
 }
 
 .help-button:hover {
-  color: #1c1e22;
+  color: var(--wf-ink);
 }
 
 .help-button:focus-visible {
-  outline: 2px solid #2b6cb0;
+  outline: 2px solid var(--wf-link);
   outline-offset: 2px;
 }
 
 .input-wf-real[aria-invalid="true"] {
-  border-color: #d32f2f;
+  border-color: var(--wf-danger);
   background-color: #fff5f5;
 }
 
 .input-wf-real[aria-invalid="false"] {
   border-color: var(--wf-line);
-  background-color: #fbfbfa;
+  background-color: var(--wf-input-bg);
 }
 
 button[aria-busy="true"] {
   opacity: 0.6;
+}
+/* =========================================================
+   Responsive hamburger menu (mobile nav collapse behavior)
+   ========================================================= */
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--wf-white);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mobile-menu-btn::before {
+  content: '☰';
+}
+
+.mobile-menu-btn.active::before {
+  content: '✕';
+}
+
+@media (max-width: 767px) {
+  .switcher-inner {
+    flex-wrap: wrap;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    margin-left: auto;
+    order: 2;
+  }
+
+  .switcher-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    overflow-x: visible;
+    order: 3;
+  }
+
+  .switcher-links.active {
+    display: flex;
+  }
+
+  .switcher .nav-link {
+    display: block;
+    width: 100%;
+  }
+
+  /* In-app secondary navbar (wf-navbar): prevent squished avatar
+     and word-by-word wrapping on narrow screens */
+  .wf-navbar {
+    flex-wrap: wrap;
+    row-gap: .6rem;
+  }
+
+  .wf-logo {
+    width: 100%;
+  }
+
+  .wf-navlinks {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: .6rem .9rem;
+  }
+
+  .wf-avatar {
+    flex-shrink: 0;
+  }
+
+  /* Give the page content breathing room from the screen edges
+     on mobile (title and card were flush to the sides) */
+  .screen-wrap {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .device {
+    min-height: 0 !important;
+  }
 }

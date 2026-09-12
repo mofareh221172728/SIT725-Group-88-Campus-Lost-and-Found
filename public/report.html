@@ -24,7 +24,9 @@
                 Campus<br>Lost &amp; Found
             </span>
 
-            <ul class="switcher-links flex items-center gap-1 nowrap">
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu"></button>
+
+            <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links">
                 <li><a class="nav-link" href="index.html">Login</a></li>
                 <li><a class="nav-link" href="browse.html">Main</a></li>
                 <li><a class="nav-link active" href="report.html">Create Report</a></li>
@@ -56,8 +58,6 @@
                         ← Back to Browse
                     </a>
                 </div>
-
-                <div class="wf-avatar"></div>
 
             </div>
 
@@ -206,6 +206,7 @@
             M.AutoInit();
         });
     </script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 
 </html>
