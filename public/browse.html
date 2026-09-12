@@ -10,30 +10,39 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
-  <link href="css/browse.css" rel="stylesheet">
 </head>
 
 <body>
 
-  <nav class="switcher">
+  <!-- RESPONSIVE NAVIGATION WITH HAMBURGER MENU -->
+  <nav class="switcher" role="navigation" aria-label="Main navigation">
     <div class="switcher-inner flex items-center gap-3">
+      <!-- Brand Logo -->
       <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
-      <ul class="switcher-links flex items-center gap-1 nowrap">
-        <li><a class="nav-link" href="index.html">Login</a></li>
-        <li><a class="nav-link active" href="browse.html">Main</a></li>
-        <li><a class="nav-link" href="report.html">Create Report</a></li>
-        <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
-        <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
-        <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
+      
+      <!-- Mobile Menu Toggle Button -->
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu">
+      </button>
+
+      <!-- Navigation Links (Collapsible on Mobile) -->
+      <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links" role="menu">
+        <li role="none"><a class="nav-link" href="index.html" role="menuitem">Login</a></li>
+        <li role="none"><a class="nav-link active" href="browse.html" role="menuitem">Main</a></li>
+        <li role="none"><a class="nav-link" href="report.html" role="menuitem">Create Report</a></li>
+        <li role="none"><a class="nav-link" href="item-detail.html" role="menuitem">Item Detail</a></li>
+        <li role="none"><a class="nav-link" href="search-filter.html" role="menuitem">Search &amp; Filter</a></li>
+        <li role="none"><a class="nav-link" href="my-reports.html" role="menuitem">My Reports</a></li>
       </ul>
     </div>
   </nav>
 
   <div class="screen-wrap">
     <div class="screen-label">
-      <h2>Main Browse</h2>
+      <h2>Main Browse View</h2>
     </div>
+
     <div class="device">
+      <!-- In-App Navigation Bar -->
       <div class="wf-navbar">
         <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
         <div class="wf-navlinks">
@@ -41,46 +50,48 @@
           <a href="my-reports.html" class="no-underline">My Reports</a>
           <a href="report.html" class="no-underline">+ Report Item</a>
         </div>
-        <div class="wf-avatar"></div>
       </div>
 
+      <!-- Main Content -->
       <div class="p-3">
-        <div class="flex gap-2 items-center mb-3">
-          <input type="text" class="input-wf-real flex-grow" style="max-width:420px;"
-            placeholder='Search keyword… ("blue bottle")'>
-          <a href="search-filter.html" class="btn-wf">Filters ⚙</a>
+        <!-- Search and Filter Bar -->
+        <div class="flex gap-2 items-center mb-3" style="flex-wrap: wrap;">
+          <input
+            type="text"
+            class="input-wf-real"
+            style="flex: 1; min-width: 200px; max-width:420px;"
+            placeholder='Search keyword… ("blue bottle")'
+            aria-label="Search for lost or found items"
+          >
+          <a href="search-filter.html" class="btn-wf" aria-label="Open advanced filters">Filters ⚙</a>
         </div>
 
+        <!-- Tab Navigation -->
         <div class="tabline mb-3" data-toggle-group="browse-tab">
-          <button type="button" class="tab-btn active" data-toggle-option="found">Found (0)</button>
-          <button type="button" class="tab-btn" data-toggle-option="lost">Lost (0)</button>
-          <button type="button" class="tab-btn" data-toggle-option="all">All (0)</button>
+          <button type="button" class="tab-btn active" data-toggle-option="found" id="tab-found">Found</button>
+          <button type="button" class="tab-btn" data-toggle-option="lost" id="tab-lost">Lost</button>
+          <button type="button" class="tab-btn" data-toggle-option="all" id="tab-all">All</button>
         </div>
 
-        <div class="flex justify-between items-center mb-3">
-          <span id="browse-count" class="mono" style="font-size:.75rem; color:#5b5f66;"></span>
-          <div class="flex items-center gap-1">
-            <label for="browse-sort" class="mono"
-              style="font-size:.72rem; color:#5b5f66; margin-right:.25rem;">Sort:</label>
-            <select id="browse-sort" class="select-wf-inline" aria-label="Sort reports">
-              <option value="newest">Newest Reported</option>
-              <option value="oldest">Oldest Reported</option>
-            </select>
-          </div>
-        </div>
-
+        <!-- Browse Status Message -->
         <div id="browse-status" class="browse-message" role="status" aria-live="polite">
           Loading reports…
         </div>
+
+        <!-- Report Cards Grid (Responsive) -->
         <div id="report-grid" class="grid grid-4" aria-label="Active lost and found reports"></div>
 
-        <div id="browse-pagination" class="flex justify-center gap-1 mt-4" aria-label="Pagination"></div>
+        <!-- Pagination -->
+        <div id="browse-pagination" class="flex justify-center gap-1 mt-4"></div>
       </div>
     </div>
   </div>
 
+  <!-- Scripts -->
+  <script src="js/mobile-menu.js"></script>
   <script src="js/main.js"></script>
   <script src="js/browse.js"></script>
+
 </body>
 
 </html>
