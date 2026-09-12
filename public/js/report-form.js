@@ -9,6 +9,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const alertBox = document.getElementById('form-alert');
     const dateInput = document.getElementById('item-date');
 
+    const collectionLocationField = document.getElementById('collection-location-field');
+    const collectionLocationInput = document.getElementById('collection-location');
+    const handoverInputs = document.querySelectorAll('input[name="handoverMethod"]');
+    const submitButton = document.getElementById('btn-submit-report');
+
+    function updateFoundFields() {
+    const isFound = typeInput.value === 'found';
+    const handoverMethod = document.querySelector('input[name="handoverMethod"]:checked')?.value;
+    const needsCollectionLocation = isFound && handoverMethod === 'dropoff';
+
+    foundCollectionSection.classList.toggle('d-none', !isFound);
+
+
+
+    handoverInputs.forEach(input => {
+        input.disabled = !isFound;
+        input.required = isFound;
+        input.setAttribute('aria-required', String(isFound));
+    });
+
+    collectionLocationField.classList.toggle('d-none', !needsCollectionLocation);
+    collectionLocationInput.disabled = !needsCollectionLocation;
+    collectionLocationInput.required = needsCollectionLocation;
+    collectionLocationInput.setAttribute('aria-required', String(needsCollectionLocation));
+
+    if (!needsCollectionLocation && typeof clearFieldError === 'function') {
+        clearFieldError(collectionLocationInput);
+    }
+}
+
     // Toggle between Lost and Found mode
     function setReportMode(mode) {
         const isLost = mode === 'lost';
@@ -20,14 +50,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         dateLabel.textContent = isLost ? 'Date Lost' : 'Date Found';
         locationHeading.textContent = isLost ? 'Last-Seen Location' : 'Discovery Location';
-        foundCollectionSection.classList.toggle('d-none', isLost);
+        updateFoundFields();
     }
 
     if (btnLost && btnFound) {
         btnLost.addEventListener('click', () => setReportMode('lost'));
         btnFound.addEventListener('click', () => setReportMode('found'));
     }
+     handoverInputs.forEach(input => {
+    input.addEventListener('change', () => {
+        handoverInputs.forEach(clearFieldError);
+        updateFoundFields();
+     });
+    });
 
+updateFoundFields();
     // Default to today's date
     if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split('T')[0];
@@ -68,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Collect handover method only if it is a found report
         const isFound = typeInput.value === 'found';
-        const handoverInput = document.querySelector('input[name="handoverMethod"]:checked');
+
 
         // Collect all form fields using validated and sanitized normal text
         const data = validation?.data || {};
@@ -83,15 +120,21 @@ document.addEventListener('DOMContentLoaded', () => {
             campus: data.campus,
             building: data.building,
             room: data.room,
-            handoverMethod: isFound ? (handoverInput?.value || null) : null
+            handoverMethod: isFound ? data.handoverMethod : null,
+            collectionLocation: isFound ? data.collectionLocation : null
         };
 
         try {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+
             const result = await api.post('/api/items', reportData);
 
             // Success UI feedback
-            showFormAlert(alertBox, 'success', result.message || `Report submitted successfully! Your ${typeInput.value} item has been added.`);
+            const submittedType = typeInput.value;
+            showFormAlert(alertBox, 'success', result.message || `Report submitted successfully! Your ${submittedType} item has been added.`);
             form.reset();
+            setReportMode('found');
 
             if (dateInput) {
                 dateInput.value = new Date().toISOString().split('T')[0];
