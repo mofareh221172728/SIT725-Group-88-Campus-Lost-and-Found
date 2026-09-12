@@ -9,6 +9,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const alertBox = document.getElementById('form-alert');
     const dateInput = document.getElementById('item-date');
 
+    const collectionGroup = document.getElementById('collection-location-group');
+    const collectionInput = document.getElementById('item-collection-location');
+    const handoverRadios = document.querySelectorAll('input[name="handoverMethod"]');
+
+    function updateHandoverVisibility() {
+        const handoverChecked = document.querySelector('input[name="handoverMethod"]:checked');
+        const isDropoff = handoverChecked?.value === 'dropoff';
+        if (collectionGroup) {
+            collectionGroup.classList.toggle('d-none', !isDropoff);
+        }
+    }
+
+    handoverRadios.forEach(radio => {
+        radio.addEventListener('change', updateHandoverVisibility);
+    });
+
     // Toggle between Lost and Found mode
     function setReportMode(mode) {
         const isLost = mode === 'lost';
@@ -21,6 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
         dateLabel.textContent = isLost ? 'Date Lost' : 'Date Found';
         locationHeading.textContent = isLost ? 'Last-Seen Location' : 'Discovery Location';
         foundCollectionSection.classList.toggle('d-none', isLost);
+
+        if (!isLost) {
+            updateHandoverVisibility();
+        }
     }
 
     if (btnLost && btnFound) {
@@ -69,10 +89,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Collect handover method only if it is a found report
         const isFound = typeInput.value === 'found';
         const handoverInput = document.querySelector('input[name="handoverMethod"]:checked');
+        const handoverMethod = isFound ? (handoverInput?.value || null) : null;
 
         // Collect all form fields using validated and sanitized normal text
         const data = validation?.data || {};
         const location = [data.campus, data.building, data.room].filter(Boolean).join(', ');
+
+        let collectionLocation = undefined;
+        if (isFound && handoverMethod === 'dropoff') {
+            collectionLocation = data.collectionLocation || collectionInput?.value?.trim();
+        }
+
         const reportData = {
             type: typeInput.value,
             title: data.title,
@@ -80,10 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
             date: data.date,
             location: location,
             description: data.description,
-            campus: data.campus,
-            building: data.building,
-            room: data.room,
-            handoverMethod: isFound ? (handoverInput?.value || null) : null
+            handoverMethod: handoverMethod,
+            collectionLocation: collectionLocation
         };
 
         try {
@@ -110,6 +135,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dateInput) {
                 dateInput.value = new Date().toISOString().split('T')[0];
             }
+
+            updateHandoverVisibility();
 
             if (typeof M !== 'undefined' && M.updateTextFields) {
                 M.updateTextFields();
