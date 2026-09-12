@@ -51,8 +51,9 @@
 
       <!-- Login Form -->
       <div class="flex flex-grow items-center justify-center p-3">
-        <form class="box-strong p-4" style="width:100%; max-width:380px; border-radius:6px;" method="GET" action="browse.html">
+        <form id="login-form" class="box-strong p-4" style="width:100%; max-width:380px; border-radius:6px;" aria-label="Login form">
           <div class="kicker mono">DEAKIN SSO</div>
+          <div id="login-message" role="alert" style="display:none; margin-top:.5rem; font-size:.78rem; color:#c0392b;"></div>
           <div class="mt-3">
             <div class="field-wf mb-2">
               <label for="email">Deakin email</label>
@@ -80,6 +81,7 @@
 
   <!-- Mobile Menu Toggle Script -->
   <script src="js/mobile-menu.js"></script>
+  <script src="js/login.js"></script>
 </body>
 
 </html>
