@@ -17,7 +17,8 @@
   <nav class="switcher">
     <div class="switcher-inner flex items-center gap-3">
       <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
-      <ul class="switcher-links flex items-center gap-1 nowrap">
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu"></button>
+      <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links">
         <li><a class="nav-link" href="index.html">Login</a></li>
         <li><a class="nav-link" href="browse.html">Main</a></li>
         <li><a class="nav-link" href="report.html">Create Report</a></li>
@@ -31,7 +32,6 @@
   <div class="screen-wrap">
     <div class="screen-label">
       <h2>Search &amp; Filter View</h2>
-      <span class="tag">Type · category · building · date range · keyword</span>
     </div>
     <div class="device">
       <div class="wf-navbar">
@@ -40,7 +40,6 @@
           <a href="browse.html" class="no-underline">Browse</a>
           <a href="my-reports.html" class="no-underline">My Reports</a>
         </div>
-        <div class="wf-avatar"></div>
       </div>
       <div class="search-layout">
         <div class="search-sidebar p-3">
@@ -114,6 +113,7 @@
   </div>
 
   <script src="js/main.js"></script>
+  <script src="js/mobile-menu.js"></script>
 </body>
 
 </html>

@@ -1,14 +1,27 @@
 :root {
+  /* Wireframe grayscale / line weights */
   --wf-line: #8a8f98;
   --wf-line-strong: #4a4e57;
   --wf-bg: #f5f5f3;
   --wf-panel: #ffffff;
   --wf-ph: #e4e4e1;
   --wf-ph-text: #9a9a95;
+
+  /* Core palette - reused across buttons, nav, text and form states */
+  --wf-white: #fff;
+  --wf-ink: #1c1e22;        /* darkest text / active surface */
+  --wf-text: #2b2b2b;       /* base body text */
+  --wf-text-strong: #333;   /* button / badge text */
+  --wf-text-muted: #6a6e76; /* footnote, kicker, tag text */
+  --wf-text-soft: #5b5f66;  /* nav links, help button */
+  --wf-input-bg: #fbfbfa;   /* form field background */
+  --wf-link: #2b6cb0;       /* link + focus outline color */
+  --wf-danger: #d32f2f;     /* error / invalid state */
 }
 
 html {
   box-sizing: border-box;
+  scrollbar-gutter: stable; /* keeps layout width stable when a vertical scrollbar appears */
 }
 
 *,
@@ -21,7 +34,7 @@ body {
   margin: 0;
   background: var(--wf-bg);
   font-family: 'Inter', sans-serif;
-  color: #2b2b2b;
+  color: var(--wf-text);
   min-height: 100vh;
 }
 
@@ -30,7 +43,7 @@ body {
 }
 
 a {
-  color: #2b6cb0;
+  color: var(--wf-link);
 }
 
 /* =========================================================
@@ -41,16 +54,8 @@ a {
   display: flex;
 }
 
-.flex-col {
-  flex-direction: column;
-}
-
 .items-center {
   align-items: center;
-}
-
-.items-start {
-  align-items: flex-start;
 }
 
 .justify-center {
@@ -114,16 +119,8 @@ a {
   gap: 1rem;
 }
 
-.gap-4 {
-  gap: 1.5rem;
-}
-
 .m-0 {
   margin: 0;
-}
-
-.mt-1 {
-  margin-top: .25rem;
 }
 
 .mt-2 {
@@ -152,10 +149,6 @@ a {
 
 .mb-4 {
   margin-bottom: 1.5rem;
-}
-
-.me-2 {
-  margin-right: .5rem;
 }
 
 .me-3 {
@@ -216,7 +209,7 @@ a {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: #1c1e22;
+  background: var(--wf-ink);
   border-bottom: 1px solid #000;
 }
 
@@ -227,7 +220,7 @@ a {
 }
 
 .switcher .brand {
-  color: #fff;
+  color: var(--wf-white);
   font-weight: 600;
   letter-spacing: .02em;
   font-size: .85rem;
@@ -257,11 +250,11 @@ a {
 
 .switcher .nav-link.active {
   background: #3a3e46;
-  color: #fff;
+  color: var(--wf-white);
 }
 
 .switcher .nav-link:hover:not(.active) {
-  color: #fff;
+  color: var(--wf-white);
 }
 
 .device {
@@ -290,7 +283,7 @@ a {
   font-size: .7rem;
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: #6a6e76;
+  color: var(--wf-text-muted);
   background: #eceeee;
   padding: .2rem .55rem;
   border-radius: 3px;
@@ -311,12 +304,12 @@ a {
 
 .box {
   border: 1px solid var(--wf-line);
-  background: #fff;
+  background: var(--wf-white);
 }
 
 .box-strong {
   border: 1.5px solid var(--wf-line-strong);
-  background: #fff;
+  background: var(--wf-white);
 }
 
 .lorem-line {
@@ -365,7 +358,7 @@ a {
   display: flex;
   gap: 1.1rem;
   font-size: .75rem;
-  color: #5b5f66;
+  color: var(--wf-text-soft);
 }
 
 .wf-avatar {
@@ -375,17 +368,6 @@ a {
   border: 1.5px solid var(--wf-line-strong);
 }
 
-.annot {
-  font-size: .68rem;
-  color: #8a5a2b;
-  background: #fdf3e6;
-  border: 1px dashed #e0b578;
-  padding: .15rem .4rem;
-  border-radius: 3px;
-  display: inline-block;
-  margin-top: 4px;
-}
-
 .badge-wf {
   font-size: .62rem;
   text-transform: uppercase;
@@ -393,8 +375,8 @@ a {
   border: 1px solid var(--wf-line-strong);
   border-radius: 3px;
   padding: .15rem .4rem;
-  background: #fff;
-  color: #333;
+  background: var(--wf-white);
+  color: var(--wf-text-strong);
 }
 
 /* Section 2.4: only two report statuses are supported - Active and Resolved. */
@@ -420,7 +402,7 @@ a {
   border: 1px solid var(--wf-line);
   border-radius: 4px;
   padding: .75rem;
-  background: #fff;
+  background: var(--wf-white);
 }
 
 .card-wf:hover {
@@ -434,18 +416,9 @@ a {
 .field-wf label {
   font-size: .72rem;
   font-weight: 600;
-  color: #4a4e57;
+  color: var(--wf-line-strong);
   margin-bottom: .2rem;
   display: block;
-}
-
-.field-wf .input-wf {
-  border: 1px solid var(--wf-line);
-  border-radius: 3px;
-  padding: .5rem .6rem;
-  font-size: .78rem;
-  color: #9a9a95;
-  background: #fbfbfa;
 }
 
 .toggle-wf {
@@ -459,14 +432,14 @@ a {
   max-width: 1180px;
   margin: 12px auto 0;
   font-size: .72rem;
-  color: #6a6e76;
+  color: var(--wf-text-muted);
 }
 
 .kicker {
   font-size: .68rem;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: #8a8f98;
+  color: var(--wf-line);
   margin-bottom: 2px;
 }
 
@@ -493,28 +466,28 @@ a {
 
 .btn-wf {
   border: 1px solid var(--wf-line);
-  background: #fff;
-  color: #333;
+  background: var(--wf-white);
+  color: var(--wf-text-strong);
   padding: .5rem .9rem;
 }
 
 .btn-wf:hover:not([disabled]) {
   border-color: var(--wf-line-strong);
   background: #f6f6f4;
-  color: #1c1e22;
+  color: var(--wf-ink);
 }
 
 .btn-wf-strong {
   border: 1.5px solid var(--wf-line-strong);
-  background: #fff;
-  color: #1c1e22;
+  background: var(--wf-white);
+  color: var(--wf-ink);
   font-weight: 600;
   padding: .5rem .9rem;
 }
 
 .btn-wf-strong:hover:not([disabled]) {
-  background: #1c1e22;
-  color: #fff;
+  background: var(--wf-ink);
+  color: var(--wf-white);
 }
 
 .btn-wf[disabled],
@@ -531,7 +504,7 @@ a {
 .pill-btn:focus-visible,
 .select-wf:focus-visible,
 .input-wf-real:focus-visible {
-  outline: 2px solid #2b6cb0;
+  outline: 2px solid var(--wf-link);
   outline-offset: 2px;
 }
 
@@ -539,7 +512,7 @@ a {
   padding: .5rem 1.1rem;
   font-size: .78rem;
   font-weight: 600;
-  color: #8a8f98;
+  color: var(--wf-line);
   border: 1px solid transparent;
   border-bottom: none;
   background: transparent;
@@ -548,23 +521,23 @@ a {
 }
 
 .tab-btn.active {
-  color: #1c1e22;
+  color: var(--wf-ink);
   border-color: var(--wf-line-strong);
   border-radius: 4px 4px 0 0;
-  background: #fff;
+  background: var(--wf-white);
   margin-bottom: -1.5px;
-  border-bottom: 1.5px solid #fff;
+  border-bottom: 1.5px solid var(--wf-white);
 }
 
 .tab-btn:hover:not(.active) {
-  color: #4a4e57;
+  color: var(--wf-line-strong);
 }
 
 .toggle-btn {
   padding: .4rem 1rem;
   font-size: .75rem;
   font-weight: 600;
-  color: #6a6e76;
+  color: var(--wf-text-muted);
   border: none;
   background: transparent;
   cursor: pointer;
@@ -572,8 +545,8 @@ a {
 }
 
 .toggle-btn.active {
-  background: #1c1e22;
-  color: #fff;
+  background: var(--wf-ink);
+  color: var(--wf-white);
 }
 
 .toggle-btn:hover:not(.active) {
@@ -586,16 +559,16 @@ a {
   font-weight: 600;
   border-radius: 20px;
   border: 1.5px solid var(--wf-line-strong);
-  background: #fff;
-  color: #333;
+  background: var(--wf-white);
+  color: var(--wf-text-strong);
   cursor: pointer;
   font-family: 'IBM Plex Mono', monospace;
 }
 
 .chip-btn.active {
-  background: #1c1e22;
-  color: #fff;
-  border-color: #1c1e22;
+  background: var(--wf-ink);
+  color: var(--wf-white);
+  border-color: var(--wf-ink);
 }
 
 .chip-btn:hover:not(.active) {
@@ -604,7 +577,7 @@ a {
 
 .pill-btn {
   border: 1px solid var(--wf-line);
-  background: #fff;
+  background: var(--wf-white);
   border-radius: 3px;
   padding: .3rem .6rem;
   font-size: .72rem;
@@ -634,13 +607,13 @@ a {
   cursor: pointer;
   font-family: 'IBM Plex Mono', monospace;
   font-size: .7rem;
-  color: #6a6e76;
+  color: var(--wf-text-muted);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .btn-link-wf:hover {
-  color: #1c1e22;
+  color: var(--wf-ink);
 }
 
 /* Plain native form elements, styled directly - no form/UI library involved. */
@@ -649,8 +622,8 @@ a {
   border-radius: 3px;
   padding: .5rem .6rem;
   font-size: .78rem;
-  color: #4a4e57;
-  background: #fbfbfa;
+  color: var(--wf-line-strong);
+  background: var(--wf-input-bg);
   width: 100%;
   font-family: 'Inter', sans-serif;
   height: auto;
@@ -662,8 +635,8 @@ a {
   border-radius: 3px;
   padding: .3rem .6rem;
   font-size: .72rem;
-  color: #4a4e57;
-  background: #fff;
+  color: var(--wf-line-strong);
+  background: var(--wf-white);
   font-family: 'IBM Plex Mono', monospace;
   height: auto;
   width: auto;
@@ -674,8 +647,8 @@ a {
   border-radius: 3px;
   padding: .5rem .6rem;
   font-size: .78rem;
-  color: #2b2b2b;
-  background: #fbfbfa;
+  color: var(--wf-text);
+  background: var(--wf-input-bg);
   width: 100%;
   font-family: 'Inter', sans-serif;
   height: auto;
@@ -683,7 +656,7 @@ a {
 }
 
 .input-wf-real::placeholder {
-  color: #9a9a95;
+  color: var(--wf-ph-text);
 }
 
 textarea.input-wf-real {
@@ -720,22 +693,14 @@ textarea.input-wf-real {
   }
 }
 
-/* ========== Login Form Styling ========== */
-.error-message {
-  display: block;
-  font-size: 0.62rem;
-  color: #d32f2f;
-  margin-top: 0.25rem;
-  height: 1rem;
-  overflow: hidden;
-}
+/* ========== Shared form feedback states (validation + async buttons) ========== */
 
 .help-button {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 0.75rem;
-  color: #5b5f66;
+  color: var(--wf-text-soft);
   padding: 0;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -744,24 +709,111 @@ textarea.input-wf-real {
 }
 
 .help-button:hover {
-  color: #1c1e22;
+  color: var(--wf-ink);
 }
 
 .help-button:focus-visible {
-  outline: 2px solid #2b6cb0;
+  outline: 2px solid var(--wf-link);
   outline-offset: 2px;
 }
 
 .input-wf-real[aria-invalid="true"] {
-  border-color: #d32f2f;
+  border-color: var(--wf-danger);
   background-color: #fff5f5;
 }
 
 .input-wf-real[aria-invalid="false"] {
   border-color: var(--wf-line);
-  background-color: #fbfbfa;
+  background-color: var(--wf-input-bg);
 }
 
 button[aria-busy="true"] {
   opacity: 0.6;
+}
+/* =========================================================
+   Responsive hamburger menu (mobile nav collapse behavior)
+   ========================================================= */
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--wf-white);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mobile-menu-btn::before {
+  content: '☰';
+}
+
+.mobile-menu-btn.active::before {
+  content: '✕';
+}
+
+@media (max-width: 767px) {
+  .switcher-inner {
+    flex-wrap: wrap;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    margin-left: auto;
+    order: 2;
+  }
+
+  .switcher-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    overflow-x: visible;
+    order: 3;
+  }
+
+  .switcher-links.active {
+    display: flex;
+  }
+
+  .switcher .nav-link {
+    display: block;
+    width: 100%;
+  }
+
+  /* In-app secondary navbar (wf-navbar): prevent squished avatar
+     and word-by-word wrapping on narrow screens */
+  .wf-navbar {
+    flex-wrap: wrap;
+    row-gap: .6rem;
+  }
+
+  .wf-logo {
+    width: 100%;
+  }
+
+  .wf-navlinks {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: .6rem .9rem;
+  }
+
+  .wf-avatar {
+    flex-shrink: 0;
+  }
+
+  /* Give the page content breathing room from the screen edges
+     on mobile (title and card were flush to the sides) */
+  .screen-wrap {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .device {
+    min-height: 0 !important;
+  }
 }

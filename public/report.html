@@ -24,7 +24,9 @@
                 Campus<br>Lost &amp; Found
             </span>
 
-            <ul class="switcher-links flex items-center gap-1 nowrap">
+            <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu"></button>
+
+            <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links">
                 <li><a class="nav-link" href="index.html">Login</a></li>
                 <li><a class="nav-link" href="browse.html">Main</a></li>
                 <li><a class="nav-link active" href="report.html">Create Report</a></li>
@@ -56,8 +58,6 @@
                         ← Back to Browse
                     </a>
                 </div>
-
-                <div class="wf-avatar"></div>
 
             </div>
 
@@ -171,7 +171,7 @@
                     <h5>Item Photos (Up to 3)</h5>
                     <div class="row">
                         <div class="file-field input-field col s12">
-                            <div id="upload-photo-btn" class="btn waves-effect waves-light" tabindex="0">
+                            <div id="upload-photo-btn" class="btn waves-effect waves-light">
                                 <span>File</span>
                                 <input type="file" id="item-photos" name="photos" accept="image/*" multiple aria-label="Upload item photos">
                             </div>
@@ -206,6 +206,7 @@
             M.AutoInit();
         });
     </script>
+    <script src="js/mobile-menu.js"></script>
 </body>
 
 </html>

@@ -6,24 +6,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Landing - Campus Lost and Found</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
 </head>
 
 <body>
 
-  <nav class="switcher">
+  <!-- Responsive Navigation with Mobile Hamburger Menu -->
+  <nav class="switcher" role="navigation" aria-label="Main navigation">
     <div class="switcher-inner flex items-center gap-3">
+      <!-- Brand Logo -->
       <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
-      <ul class="switcher-links flex items-center gap-1 nowrap">
-        <li><a class="nav-link active" href="index.html">Login</a></li>
-        <li><a class="nav-link" href="browse.html">Main</a></li>
-        <li><a class="nav-link" href="report.html">Create Report</a></li>
-        <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
-        <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
-        <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
+      
+      <!-- Mobile Menu Toggle Button -->
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu">
+      </button>
+      
+      <!-- Navigation Links (Collapsible on Mobile) -->
+      <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links" role="menu">
+        <li role="none"><a class="nav-link active" href="index.html" role="menuitem">Login</a></li>
+        <li role="none"><a class="nav-link" href="browse.html" role="menuitem">Main</a></li>
+        <li role="none"><a class="nav-link" href="report.html" role="menuitem">Create Report</a></li>
+        <li role="none"><a class="nav-link" href="item-detail.html" role="menuitem">Item Detail</a></li>
+        <li role="none"><a class="nav-link" href="search-filter.html" role="menuitem">Search &amp; Filter</a></li>
+        <li role="none"><a class="nav-link" href="my-reports.html" role="menuitem">My Reports</a></li>
       </ul>
     </div>
   </nav>
@@ -31,64 +37,49 @@
   <div class="screen-wrap">
     <div class="screen-label">
       <h2>Landing View</h2>
-      <span class="tag">Sign-in shell · SSO out of scope for MVP</span>
     </div>
+
     <div class="device" style="min-height:560px; display:flex; flex-direction:column;">
+      
+      <!-- In-App Navigation Bar -->
       <div class="wf-navbar">
         <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
         <div class="wf-navlinks">
-          <a href="help.html" class="help-button" aria-label="Help">Help</a>
+          <a href="#" class="help-button">Help</a>
         </div>
       </div>
 
-      <div class="flex flex-grow items-center justify-center">
-        <form class="box-strong p-4" style="width:380px; border-radius:6px;" method="GET" action="browse.html">
+      <!-- Login Form -->
+      <div class="flex flex-grow items-center justify-center p-3">
+        <form class="box-strong p-4" style="width:100%; max-width:380px; border-radius:6px;" method="GET" action="browse.html">
           <div class="kicker mono">DEAKIN SSO</div>
-          <div class="lorem-line w-80" style="height:14px;"></div>
-          <div class="lorem-line w-60"></div>
           <div class="mt-3">
-            <!-- Email Field -->
             <div class="field-wf mb-2">
               <label for="email">Deakin email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                class="input-wf-real"
-                placeholder="s1234567@deakin.edu.au"
-              >
+              <input id="email" name="email" type="email" class="input-wf-real" placeholder="s1234567@deakin.edu.au">
             </div>
 
-            <!-- Password Field -->
             <div class="field-wf mb-3">
               <label for="password">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                class="input-wf-real"
-                placeholder="••••••••••"
-              >
+              <input id="password" name="password" type="password" class="input-wf-real" placeholder="••••••••••">
             </div>
 
-            <!-- Submit Button -->
-            <button
-              type="submit"
-              class="btn-wf-strong text-center w-100"
-              aria-label="Continue with Deakin SSO"
-            >
+            <button type="submit" class="btn-wf-strong text-center w-100">
               Continue with Deakin SSO →
             </button>
           </div>
         </form>
       </div>
-      <div class="text-center p-2" style="border-top:1px solid var(--wf-line); font-size:.68rem; color:#8a8f98;">Deakin
-        Students &amp; Staff only</div>
+
+      <!-- Footer -->
+      <div class="text-center p-2" style="border-top:1px solid var(--wf-line); font-size:.68rem; color:#8a8f98;">Deakin Students &amp; Staff only</div>
     </div>
-    <div class="footnote">Purpose: entry point of the app. No functional auth in MVP - button routes straight to Browse
-      View since SSO doesn't exist yet.</div>
+
+    <div class="footnote">Purpose: entry point of the app. No functional auth in MVP - button routes straight to Browse View since SSO doesn't exist yet.</div>
   </div>
 
+  <!-- Mobile Menu Toggle Script -->
+  <script src="js/mobile-menu.js"></script>
 </body>
 
 </html>
