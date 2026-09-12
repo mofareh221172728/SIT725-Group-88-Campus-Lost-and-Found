@@ -158,6 +158,17 @@
                             </label>
                         </p>
 
+                        <!-- Collection Location field (shown when handed to campus / dropoff is selected) -->
+                        <div id="collection-location-group" class="collection-location-group">
+                            <div class="row">
+                                <div class="input-field col s12 m8">
+                                    <input type="text" id="item-collection-location" name="collectionLocation" maxlength="100" class="validate" placeholder="e.g. Building B Level 2 Campus Security Desk">
+                                    <label for="item-collection-location" class="active">Desk / Office Location</label>
+                                    <span class="helper-text">Specify the campus security desk or office where the item was left (up to 100 characters).</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <p>
                             <label>
                                 <input name="handoverMethod" type="radio" value="email">
