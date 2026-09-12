@@ -5,6 +5,7 @@ const session = require("express-session");
 const mongoose = require("mongoose");
 const path = require("path");
 const authRoutes = require("./routes/auth.routes");
+const itemsRoutes = require("./routes/items.routes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,6 +33,7 @@ app.use(
 );
 
 app.use("/api/auth", authRoutes);
+app.use("/api/items", itemsRoutes);
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
@@ -96,34 +98,7 @@ app.get("/api/items", (req, res) => {
   res.json(result);
 });
 
-// POST a new item
-app.post("/api/items", (req, res) => {
-  const { type, title, category, date, location, description } = req.body;
 
-  // Required field validation
-  if (!type || !title || !category || !date || !location || !description) {
-    return res.status(400).json({
-      message: "All required fields must be provided.",
-    });
-  }
-
-  const newItem = {
-    id: items.length + 1,
-    type,
-    title,
-    category,
-    date,
-    location,
-    description,
-  };
-
-  items.push(newItem);
-
-  return res.status(201).json({
-    message: "Report created successfully.",
-    item: newItem,
-  });
-});
 
 // Export (used by tests via Supertest)
 
