@@ -104,8 +104,18 @@ Save and close the file.
 6. Start the server:
 
 ```cmd
-node server.js
+npm run start
 ```
+
+`npm run start` is equivalent to `node server.js`.
+
+To run the preflight check before starting the server, use:
+
+```cmd
+npm run dev
+```
+
+This runs `node preflight-check.js` first, then starts the server with `node server.js` only when the checks pass.
 
 The expected messages are:
 
