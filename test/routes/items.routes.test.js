@@ -381,15 +381,16 @@ describe('Items Routes - Browse Active Reports (GET /api/items, GET /api/items/c
   describe('[ERROR HANDLING] Database Failures', () => {
     it('TC-API-GET-14: should return 500 if the database throws while listing items', async () => {
       const originalFind = FoundItem.find;
-      FoundItem.find = () => {
-        throw new Error('Simulated database failure');
-      };
+      const originalConsoleError = console.error;
+      FoundItem.find = () => { throw new Error('Simulated database failure'); };
+      console.error = () => {};
 
       let res;
       try {
         res = await request(app).get('/api/items');
       } finally {
         FoundItem.find = originalFind;
+        console.error = originalConsoleError;
       }
 
       expect(res.status).to.equal(500);
@@ -409,15 +410,16 @@ describe('Items Routes - Browse Active Reports (GET /api/items, GET /api/items/c
   describe('[ERROR HANDLING] Database Failures - Counts', () => {
     it('TC-API-COUNTS-02: should return 500 if the database throws while counting items', async () => {
       const originalCount = FoundItem.countDocuments;
-      FoundItem.countDocuments = () => {
-        throw new Error('Simulated database failure');
-      };
+      const originalConsoleError = console.error;
+      FoundItem.countDocuments = () => { throw new Error('Simulated database failure'); };
+      console.error = () => {};
 
       let res;
       try {
         res = await request(app).get('/api/items/counts');
       } finally {
         FoundItem.countDocuments = originalCount;
+        console.error = originalConsoleError;
       }
 
       expect(res.status).to.equal(500);
