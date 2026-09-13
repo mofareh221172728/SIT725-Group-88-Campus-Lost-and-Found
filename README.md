@@ -117,8 +117,18 @@ The seed script adds missing sample records using upserts. It seeds the developm
 6. Start the server:
 
 ```cmd
-node server.js
+npm run start
 ```
+
+`npm run start` is equivalent to `node server.js`.
+
+To run the preflight check before starting the server, use:
+
+```cmd
+npm run dev
+```
+
+This runs `node preflight-check.js` first, then starts the server with `node server.js` only when the checks pass.
 
 The expected messages are:
 
@@ -283,7 +293,7 @@ Mofareh prepared the project overview, team roles, setup instructions, API notes
 
 Betty added testing and coverage instructions and linked the detailed test specification in [PR #53](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/53).
 
-Kuan proposed updated startup instructions and the `npm run dev` shortcut in [PR #55](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/55). That PR is open as of 13 September 2026. The installation section above uses the existing `node server.js` command.
+Kuan updated the startup instructions and added the `npm run dev` shortcut in [PR #55](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/55).
 
 ## Project planning
 

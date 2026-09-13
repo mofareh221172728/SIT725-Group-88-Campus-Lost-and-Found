@@ -13,7 +13,8 @@
     "seed": "node scripts/seed.js",
     "test": "mocha test/**/*.test.js --timeout 10000 --exit",
     "test:coverage": "nyc mocha test/**/*.test.js --timeout 10000 --exit",
-    "preflight-check": "node preflight-check.js"
+    "preflight-check": "node preflight-check.js",
+    "dev": "node preflight-check.js && node server.js"
   },
   "repository": {
     "type": "git",
