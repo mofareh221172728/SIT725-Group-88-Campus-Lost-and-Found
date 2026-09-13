@@ -29,35 +29,38 @@ The current target users are Deakin students. Support for visitors may be consid
 - Express
 - MongoDB and Mongoose
 - dotenv for environment variables
-- Mocha, Chai and Supertest for testing
+- express-session for mock login sessions
+- Mocha, Chai and Supertest for testing, with nyc for coverage
 - Materialize CSS on the report form page
 - Git and GitHub for version control
 - Trello for Sprint planning
 
 ## Sprint 1 features currently in `main`
 
-- Static pages for login, browsing, creating a report, item details, search and filters, and My Reports.
-- A Node.js and Express server that serves the files in `public/`.
-- MongoDB connection setup using Mongoose and a local `.env` file.
-- Basic User and Found Item database models.
-- `GET /api/items` for retrieving the current item list.
-- `POST /api/items` for adding a basic lost or found item to temporary memory storage.
-- A browse page that loads active reports from the item API.
-- Report cards that show the title, report type, category, location, date and status.
-- Clear messages when there are no active reports or when the GET request fails.
-- A Lost/Found report form interface.
+- An Express server that serves the frontend from `public/` and connects to MongoDB.
+- User, Found Item and Lost Item models, with reports saved in MongoDB across server restarts.
+- Mock login using a seeded email account and an Express session cookie.
+- A Create Report form connected to `POST /api/items`, with required-field and date validation.
+- Found-item handover choices for email contact or campus drop-off, including a collection location.
+- A browse page showing active reports, photos where stored image URLs exist, Found/Lost/All tabs, counts and pagination.
+- API support for filtering by report type and sorting by date. The browse page requests newest-first results by default.
+- Loading, empty-list and request-error messages on the browse page.
+- Automated model, authentication/session and item API tests.
 
 ## Project structure
 
 ```text
-public/       Frontend HTML, CSS and JavaScript
-models/       Mongoose database models
-controllers/  Controller files
-routes/       Route files
-services/     Service files
-scripts/      Development scripts
-test/         Test files
-server.js     Express server and current item API
+public/             Frontend HTML, CSS and JavaScript
+models/             Mongoose database models
+routes/             Authentication and item API routes
+services/           Authentication and item business logic
+middleware/         Session authentication checks
+scripts/            Development seed script
+data/               Sample image URLs used by the seed script
+test/               Automated tests and test helpers
+docs/               Test specifications and project documentation
+server.js           Express setup, sessions and MongoDB startup
+preflight-check.js  Environment, database and seed-data checks
 ```
 
 ## Requirements
@@ -85,21 +88,31 @@ cd SIT725-Group-88-Campus-Lost-and-Found
 npm install
 ```
 
-4. Create the local environment file:
+4. Create the local environment file if it does not already exist:
 
 ```cmd
-copy .env.example .env
+if not exist .env copy .env.example .env
 notepad .env
 ```
 
-5. In `.env`, keep port `3000` and replace the example MongoDB value with a valid connection string for your MongoDB setup:
+5. For local MongoDB without authentication, use this configuration in `.env`:
 
-```text
+```env
 PORT=3000
-MONGODB_URI=your-valid-mongodb-connection-string
+MONGODB_URI=mongodb://127.0.0.1:27017/sit725-group-88
+SESSION_SECRET=replace-with-a-long-random-secret
 ```
 
-Save and close the file.
+Replace the session secret with your own random value. If your MongoDB setup requires authentication or uses a hosted database, replace the connection string with the correct development database URI. Save and close the file. Local `.env` and `.env.test` files are ignored by Git.
+
+Keep MongoDB running, then add the mock account and sample reports and check the setup:
+
+```cmd
+npm run seed
+npm run preflight-check
+```
+
+The seed script adds missing sample records using upserts. It seeds the development database and also the test database if `.env.test` exists. Preflight checks the connections, the mock user and at least six found and six lost reports in each configured database. Its expected final message is `Preflight check passed.`
 
 6. Start the server:
 
@@ -114,22 +127,21 @@ Connected to MongoDB
 Server running at http://localhost:3000
 ```
 
-7. Open the browse page:
+7. Open the login page at [http://localhost:3000/index.html](http://localhost:3000/index.html).
 
-```text
-http://localhost:3000/browse.html
-```
+Use the seeded email `mock.user@deakin.edu.au`. The current mock flow uses the email only; the password field is not checked. The page still displays SSO wording, but it does not connect to Deakin SSO.
 
-8. Press `Ctrl+C` in Command Prompt to stop the server.
+After login, open **Create Report** at [http://localhost:3000/report.html](http://localhost:3000/report.html). A successful submission saves the report in MongoDB. Open or refresh [http://localhost:3000/browse.html](http://localhost:3000/browse.html) and select the matching Found/Lost/All tab to view it.
+
+8. Press `Ctrl+C` in Command Prompt to stop the server. Reports remain in MongoDB; the current in-memory login sessions do not survive a server restart.
 
 ## Test environment setup for Windows
 
 Complete the project setup above first and keep MongoDB running. Run these commands from the project folder.
 
-1. Install the current packages and create the local test configuration:
+1. Create the local test configuration:
 
 ```cmd
-npm install
 if not exist .env.test copy .env.test.example .env.test
 notepad .env.test
 ```
@@ -140,19 +152,21 @@ notepad .env.test
 NODE_ENV=test
 PORT=3001
 MONGODB_URI=mongodb://127.0.0.1:27017/sit725-group-88-test
+SESSION_SECRET=test-session-secret
 ```
 
-Save the file and close Notepad. If you use a hosted MongoDB database, use a connection string for a separate test database.
+Save and close the file. For hosted MongoDB, use a separate test database whose name includes `test`.
 
-Use a different database from the one in `.env`. The cleanup functions in `test/helpers/db.js` can delete test data and drop the test database. Do not point them at a development or production database. The `.env.test` file is ignored by Git.
+**The test helpers clear collections and drop the test database.** Make sure this is a different database from the development database in `.env`. Do not use a database containing data you need to keep.
 
-3. Check the development and test configurations and database connections:
+3. Seed both configured databases and run the preflight check:
 
 ```cmd
+npm run seed
 npm run preflight-check
 ```
 
-The expected final message is `Preflight check passed.` If a check fails, fix the reported issue before running tests.
+If a check fails, fix the reported issue before continuing. After running tests, the test database is cleared, so run `npm run seed` again before repeating the preflight check.
 
 4. Run the tests:
 
@@ -160,68 +174,84 @@ The expected final message is `Preflight check passed.` If a check fails, fix th
 npm test
 ```
 
-Mocha loads `.env.test` through `.mocharc.js` and runs the full suite — model unit tests plus API/session tests against the test database.
+Mocha loads `.env.test` through `.mocharc.js`. The suite includes model validation, login/session handling, report creation, active-item listing, counts, type filtering, sorting and pagination. API tests use Supertest with the exported Express app and a real MongoDB test database; a separately running server is not required.
 
-To run the same suite with a coverage report:
+To run the suite with coverage:
 
 ```cmd
 npm run test:coverage
 ```
 
-This writes an HTML report to `coverage/index.html` and prints an overall Statements/Branches/Functions/Lines summary in the terminal.
-To access the interactive coverage report, run the following command.
+This prints a coverage summary and writes an HTML report to `coverage/index.html`. Open it in Windows Command Prompt with:
+
 ```cmd
-open coverage/index.html
+start "" "coverage\index.html"
 ```
 
-For the full test-case specification — taxonomy, individual test cases and expected results, and the current coverage breakdown per file, see more details on test cases in [`docs/test-cases.md`](docs/test-cases.md).
+See [docs/test-cases.md](docs/test-cases.md) for test-case descriptions. Use the output from your current run for pass/fail counts and coverage. Browser workflows also need manual checks; the coverage report does not measure the frontend pages.
 
 ## Implemented API endpoints
 
-### Get all current items
+### Authentication
+
+| Method and path | Purpose | Session required |
+| --- | --- | --- |
+| `POST /api/auth/login` | Log in with a seeded user email in a JSON body | No |
+| `GET /api/auth/me` | Return the current user's ID and email | Yes |
+| `POST /api/auth/logout` | Destroy the current session | Yes |
+
+Mock login accepts `{ "email": "mock.user@deakin.edu.au" }` and sets a session cookie. Keep that cookie when making authenticated requests.
+
+### Browse active reports
 
 ```http
 GET /api/items
+GET /api/items?type=found&sort=newest&page=1&limit=12
+GET /api/items/counts
 ```
 
-The endpoint currently returns a JSON array. The array is empty after each server restart until test items are added again.
+These GET endpoints do not require a session.
 
-### Create a basic item report
+- `type`: `all` (default), `found` or `lost`.
+- `sort`: `newest` or `oldest`, using the reported lost/found date. Specify it when date ordering is needed.
+- Without `page`, the item endpoint returns an array of active reports.
+- With `page`, it returns `{ items, total, page, totalPages }`. The default page size is 12.
+- The counts endpoint returns `{ all, found, lost }` for active reports.
+
+Reports are read from MongoDB and remain available after a server restart.
+
+### Create a report
 
 ```http
 POST /api/items
 Content-Type: application/json
 ```
 
-Required JSON fields:
+An authenticated session is required. The owner is taken from the session.
 
-- `type`
-- `title`
-- `category`
-- `date`
-- `location`
-- `description`
+| Field | Requirement |
+| --- | --- |
+| `type` | `lost` or `found` |
+| `title`, `category`, `description`, `location` | Required text fields |
+| `date` | A valid date that is not in the future |
+| `handoverMethod` | Required for found reports: `email` or `dropoff` |
+| `collectionLocation` | Required when a found report uses `dropoff` |
+| `photos` | Optional array of up to three image URL strings; defaults to an empty array |
 
-Windows test example:
+A successful request returns HTTP `201` with `{ message, report }`. Missing authentication returns `401`; invalid report data returns `400`.
 
-```cmd
-curl.exe -X POST "http://localhost:3000/api/items" -H "Content-Type: application/json" -d "{\"type\":\"found\",\"title\":\"Test Phone\",\"category\":\"Electronics\",\"date\":\"2026-09-05\",\"location\":\"Burwood Library\",\"description\":\"Sprint 1 test item\"}"
-```
+Use the login and Create Report pages above to try this flow. The API accepts JSON; it does not upload image files.
 
-After a successful request, refresh `http://localhost:3000/browse.html` to view the report.
+## Known limitations and Sprint 2 work
 
-## Known limitations
+- Authentication is a mock email login. Real Deakin SSO and password verification are not implemented.
+- The form has a photo selector, but selected files are not uploaded or included in its report submission. File upload and storage remain Sprint 2 work. Seeded reports can display existing image URLs.
+- Keyword search and category, location and date-range filters are not connected. These remain Sprint 2 work; report-type tabs and API date sorting are already implemented.
+- Item details, My Reports, owner editing and resolving reports still need their stored-data workflows completed in Sprint 2.
+- The found-item handover choice is stored with the report. Automated email delivery is not implemented.
 
-- Deakin SSO is not implemented. Login is a mock interface only.
-- The current GET and POST item endpoints use temporary memory storage. Reports are deleted when the server stops.
-- The Mongoose models are not yet connected to the item endpoints.
-- The current Create Report page does not yet send its form data to the POST endpoint.
-- Photo upload and storage are not yet implemented.
-- Search and filter controls are currently interface placeholders. The search and filter API is planned for Sprint 2.
-- Item details, editing, resolving reports and My Reports are not yet fully connected to stored data.
+## Project planning
 
-## Current verification status
+The SRS requirements are unchanged. This README describes the current implementation and setup.
 
-The dependency installation and JavaScript syntax checks have been completed. The Windows startup instructions were also tested successfully with a valid MongoDB connection. The browse page loaded correctly, and the GET and POST item endpoints displayed the test item as expected.
-
-On Windows, `npm run preflight-check` connected to and pinged both the development and test databases successfully. `npm test` loaded `.env.test` and reported `0 passing`.
+See the [Group 88 Trello board](https://trello.com/b/KD93aCEN/sit725-group-88-project) for Sprint tasks and the remaining work.
