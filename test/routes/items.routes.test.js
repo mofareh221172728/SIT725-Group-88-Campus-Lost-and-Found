@@ -3,6 +3,7 @@
 const { expect } = require('chai');
 const request = require('supertest');
 const { app } = require('../../server');
+const FoundItem = require('../../models/foundItem.model');
 const LostItem = require('../../models/lostItem.model');
 const db = require('../helpers/db');
 const seed = require('../helpers/seed');
