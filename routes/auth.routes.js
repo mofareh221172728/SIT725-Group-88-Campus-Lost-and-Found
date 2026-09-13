@@ -1,20 +1,12 @@
 const express = require("express");
-const User = require("../models/user.model");
+const authService = require("../services/auth.service");
 const requireAuth = require("../middleware/auth.middleware");
 
 const router = express.Router();
 
 router.post("/login", async (req, res) => {
   try {
-    const email = typeof req.body.email === "string" ? req.body.email.trim().toLowerCase() : "";
-
-    if (!email) {
-      return res.status(400).json({
-        message: "Email is required.",
-      });
-    }
-
-    const user = await User.findOne({ email });
+    const user = await authService.login(req.body.email);
 
     if (!user) {
       return res.status(401).json({
@@ -24,7 +16,7 @@ router.post("/login", async (req, res) => {
 
     req.session.userId = user._id.toString();
 
-    res.json({
+    return res.json({
       message: "Login successful.",
       user: {
         id: user._id,
@@ -32,7 +24,11 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({
+    if (error.status === 400) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    return res.status(500).json({
       message: "Unable to log in.",
     });
   }
@@ -40,7 +36,7 @@ router.post("/login", async (req, res) => {
 
 router.get("/me", requireAuth, async (req, res) => {
   try {
-    const user = await User.findById(req.session.userId).select("email");
+    const user = await authService.getCurrentUser(req.session.userId);
 
     if (!user) {
       req.session.destroy(() => {});
@@ -50,14 +46,14 @@ router.get("/me", requireAuth, async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       user: {
         id: user._id,
         email: user.email,
       },
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: "Unable to get the current user.",
     });
   }
@@ -72,7 +68,7 @@ router.post("/logout", requireAuth, (req, res) => {
     }
 
     res.clearCookie("connect.sid");
-    res.json({
+    return res.json({
       message: "Logout successful.",
     });
   });
