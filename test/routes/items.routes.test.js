@@ -231,92 +231,196 @@ describe('Items Routes - Create Report (POST /api/items)', () => {
   });
 });
 
-describe("Item Routes - Active report listing", () => {
+describe('Items Routes - Browse Active Reports (GET /api/items, GET /api/items/counts)', () => {
   before(db.connect);
   beforeEach(seed.seedAll);
   afterEach(db.clearCollections);
   after(db.disconnect);
 
-  it("returns active lost and found reports using the card response fields", async () => {
-    const res = await request(app).get("/api/items?type=all&sort=newest");
+  describe('[POSITIVE] Active Report Listing', () => {
+    it('TC-API-GET-01: should return combined active found and lost reports with card response fields', async () => {
+      const res = await request(app).get('/api/items?type=all');
 
-    expect(res.status).to.equal(200);
-    expect(res.body).to.have.length(3);
-    expect(res.body.map((item) => item.type)).to.have.members([
-      "found",
-      "found",
-      "lost",
-    ]);
-    expect(res.body.map((item) => item.title)).to.not.include(
-      "Wireless Noise Cancelling Earbuds",
-    );
-    expect(res.body[0]).to.have.all.keys(
-      "id",
-      "type",
-      "title",
-      "category",
-      "location",
-      "date",
-      "photos",
-      "status",
-    );
-    expect(res.body[0].title).to.equal("Black Leather Bi-fold Wallet");
-    expect(res.body[0].location).to.equal("Burwood");
-    expect(res.body[0].status).to.equal("active");
-  });
-
-  it("supports the Lost and Found views", async () => {
-    const [lostRes, foundRes] = await Promise.all([
-      request(app).get("/api/items?type=lost"),
-      request(app).get("/api/items?type=found"),
-    ]);
-
-    expect(lostRes.status).to.equal(200);
-    expect(lostRes.body).to.have.length(1);
-    expect(lostRes.body[0].type).to.equal("lost");
-
-    expect(foundRes.status).to.equal(200);
-    expect(foundRes.body).to.have.length(2);
-    expect(foundRes.body.every((item) => item.type === "found")).to.equal(true);
-  });
-
-  it("sorts and paginates the database results for the browse grid", async () => {
-    const res = await request(app).get(
-      "/api/items?type=all&sort=oldest&page=2&limit=2",
-    );
-
-    expect(res.status).to.equal(200);
-    expect(res.body).to.include({ total: 3, page: 2, totalPages: 2 });
-    expect(res.body.items).to.have.length(1);
-    expect(res.body.items[0].title).to.equal("Black Leather Bi-fold Wallet");
-  });
-
-  it("includes legacy reports without a status as active", async () => {
-    await LostItem.collection.insertOne({
-      ownerId: seed.testUserIds.alice,
-      title: "Legacy Lost Item",
-      category: "Other",
-      description: "Created before report statuses were introduced",
-      lostAt: new Date("2026-08-31T09:00:00.000Z"),
-      campusLocation: "Waterfront",
-      photos: [],
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(3);
+      expect(res.body.map((item) => item.type).sort()).to.deep.equal(['found', 'found', 'lost']);
+      expect(res.body[0]).to.have.all.keys(
+        'id',
+        'type',
+        'title',
+        'category',
+        'location',
+        'date',
+        'photos',
+        'status',
+      );
     });
 
-    const res = await request(app).get("/api/items?type=lost");
+    it('TC-API-GET-02: should default to type "all" when no type query param is provided', async () => {
+      const res = await request(app).get('/api/items');
 
-    expect(res.status).to.equal(200);
-    expect(res.body).to.have.length(2);
-    expect(res.body.find((item) => item.title === "Legacy Lost Item")).to.include({
-      type: "lost",
-      status: "active",
-      location: "Waterfront",
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(3);
+    });
+
+    it('TC-API-GET-03: should return only found reports for type=found', async () => {
+      const res = await request(app).get('/api/items?type=found');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(2);
+      expect(res.body.every((item) => item.type === 'found')).to.equal(true);
+    });
+
+    it('TC-API-GET-04: should return only lost reports for type=lost', async () => {
+      const res = await request(app).get('/api/items?type=lost');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(1);
+      expect(res.body[0].type).to.equal('lost');
     });
   });
 
-  it("returns active report counts from both collections", async () => {
-    const res = await request(app).get("/api/items/counts");
+  describe('[TYPE & ENUM] Unrecognised Type Query', () => {
+    it('TC-API-GET-05: should return an empty list for a type value that is neither "found" nor "lost" nor "all"', async () => {
+      const res = await request(app).get('/api/items?type=misplaced');
 
-    expect(res.status).to.equal(200);
-    expect(res.body).to.deep.equal({ all: 3, found: 2, lost: 1 });
+      expect(res.status).to.equal(200);
+      expect(res.body).to.deep.equal([]);
+    });
+  });
+
+  describe('[CONDITIONAL] Active-Status Filtering', () => {
+    it('TC-API-GET-06: should treat a legacy report with no status field as active', async () => {
+      await LostItem.collection.insertOne({
+        ownerId: seed.testUserIds.alice,
+        title: 'Legacy Lost Item',
+        category: 'Other',
+        description: 'Created before report statuses were introduced',
+        lostAt: new Date('2026-08-31T09:00:00.000Z'),
+        campusLocation: 'Waterfront',
+        photos: [],
+      });
+
+      const res = await request(app).get('/api/items?type=lost');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(2);
+      expect(res.body.find((item) => item.title === 'Legacy Lost Item')).to.include({
+        type: 'lost',
+        status: 'active',
+        location: 'Waterfront',
+      });
+    });
+
+    it('TC-API-GET-07: should exclude reports with status "resolved"', async () => {
+      const res = await request(app).get('/api/items?type=lost');
+
+      expect(res.status).to.equal(200);
+      expect(res.body.map((item) => item.title)).to.not.include('Wireless Noise Cancelling Earbuds');
+    });
+  });
+
+  describe('[POSITIVE] Sorting', () => {
+    it('TC-API-GET-08: should sort by newest date first when sort=newest', async () => {
+      const res = await request(app).get('/api/items?type=all&sort=newest');
+
+      expect(res.status).to.equal(200);
+      expect(res.body[0].title).to.equal('Black Leather Bi-fold Wallet');
+      expect(res.body[2].title).to.equal('Blue Hydro Flask Water Bottle');
+    });
+
+    it('TC-API-GET-09: should sort by oldest date first when sort=oldest', async () => {
+      const res = await request(app).get('/api/items?type=all&sort=oldest');
+
+      expect(res.status).to.equal(200);
+      expect(res.body[0].title).to.equal('Blue Hydro Flask Water Bottle');
+      expect(res.body[2].title).to.equal('Black Leather Bi-fold Wallet');
+    });
+  });
+
+  describe('[BOUNDARY] Pagination', () => {
+    it('TC-API-GET-10: should return the first page slice with the requested page size', async () => {
+      const res = await request(app).get('/api/items?type=all&sort=oldest&page=1&limit=2');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.include({ total: 3, page: 1, totalPages: 2 });
+      expect(res.body.items).to.have.length(2);
+      expect(res.body.items.map((item) => item.title)).to.deep.equal([
+        'Blue Hydro Flask Water Bottle',
+        'Graphing Calculator TI-84',
+      ]);
+    });
+
+    it('TC-API-GET-11: should return the remaining items on the last page', async () => {
+      const res = await request(app).get('/api/items?type=all&sort=oldest&page=2&limit=2');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.include({ total: 3, page: 2, totalPages: 2 });
+      expect(res.body.items).to.have.length(1);
+      expect(res.body.items[0].title).to.equal('Black Leather Bi-fold Wallet');
+    });
+
+    it('TC-API-GET-12: should return an empty items array for a page beyond the last page', async () => {
+      const res = await request(app).get('/api/items?type=all&limit=2&page=5');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.include({ total: 3, page: 5, totalPages: 2 });
+      expect(res.body.items).to.have.length(0);
+    });
+
+    it('TC-API-GET-13: should fall back to page 1 / limit 12 for non-numeric page and limit values', async () => {
+      const res = await request(app).get('/api/items?type=all&page=abc&limit=xyz');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.include({ total: 3, page: 1, totalPages: 1 });
+      expect(res.body.items).to.have.length(3);
+    });
+  });
+
+  describe('[ERROR HANDLING] Database Failures', () => {
+    it('TC-API-GET-14: should return 500 if the database throws while listing items', async () => {
+      const originalFind = FoundItem.find;
+      FoundItem.find = () => {
+        throw new Error('Simulated database failure');
+      };
+
+      let res;
+      try {
+        res = await request(app).get('/api/items');
+      } finally {
+        FoundItem.find = originalFind;
+      }
+
+      expect(res.status).to.equal(500);
+      expect(res.body.message).to.equal('Unable to get items.');
+    });
+  });
+
+  describe('[POSITIVE] Report Counts', () => {
+    it('TC-API-COUNTS-01: should return active report counts split by found and lost, excluding resolved reports', async () => {
+      const res = await request(app).get('/api/items/counts');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.deep.equal({ all: 3, found: 2, lost: 1 });
+    });
+  });
+
+  describe('[ERROR HANDLING] Database Failures - Counts', () => {
+    it('TC-API-COUNTS-02: should return 500 if the database throws while counting items', async () => {
+      const originalCount = FoundItem.countDocuments;
+      FoundItem.countDocuments = () => {
+        throw new Error('Simulated database failure');
+      };
+
+      let res;
+      try {
+        res = await request(app).get('/api/items/counts');
+      } finally {
+        FoundItem.countDocuments = originalCount;
+      }
+
+      expect(res.status).to.equal(500);
+      expect(res.body.message).to.equal('Unable to get item counts.');
+    });
   });
 });
