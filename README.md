@@ -250,6 +250,41 @@ Use the login and Create Report pages above to try this flow. The API accepts JS
 - Item details, My Reports, owner editing and resolving reports still need their stored-data workflows completed in Sprint 2.
 - The found-item handover choice is stored with the report. Automated email delivery is not implemented.
 
+## Team contributions
+
+Mofareh writes and maintains the project README, bringing together the work completed by the team. The following sections credit each member for their work, with links to public GitHub evidence.
+
+### Requirements planning
+
+Mofareh defined the keyword, category, location and date-range query specification in [PR #18](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/18). This was a documentation task; the corresponding search and filter implementation remains Sprint 2 work.
+
+### Implementation and testing
+
+The linked pull requests below are merged Sprint 1 contributions. Where several members worked on the same area, their specific changes are listed together.
+
+| Project area | Contributions | Evidence |
+| --- | --- | --- |
+| Server setup and project structure | Gulireba prepared the initial Node.js and Express setup, which Kuan separated into a setup PR. Kuan organised the project folders and later moved authentication and item business logic into services. | [PR #5](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/5), [PR #7](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/7), [PR #54](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/54) |
+| Database models and connection | Kuan set up the MongoDB connection and created the User, FoundItem and LostItem models. | [PR #9](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/9), [PR #11](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/11), [PR #14](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/14), [PR #20](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/20) |
+| Sample data and setup checks | Kuan added the preflight script, mock user and sample lost/found reports, and checks for the required seed data. | [PR #16](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/16), [PR #22](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/22), [PR #28](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/28) |
+| Page design and mobile navigation | Reza improved the mock login page, organised the shared CSS, updated the Browse layout and added responsive mobile navigation. | [PR #30](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/30), [PR #39](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/39), [PR #41](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/41), [PR #42](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/42) |
+| Mock login and sessions | Kuan implemented the mock login and session authentication. Betty connected the login form to the authentication API and added login error feedback. Gulireba later connected these requests to the shared API client. | [PR #22](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/22), [PR #43](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/43), [PR #47](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/47) |
+| Report form and validation | Max built the Lost/Found form, input validation, field feedback and collection-location input. Gulireba extended validation and connected validated form data to report submission. | [PR #12](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/12), [PR #13](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/13), [PR #26](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/26), [PR #45](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/45), [PR #48](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/48) |
+| Report creation and retrieval APIs | Gulireba connected authenticated report creation to MongoDB and implemented active-item retrieval and counts, including type filtering, date sorting and pagination. | [PR #37](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/37), [PR #50](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/50) |
+| Browse behaviour | Mofareh added active report cards, empty/error messages, dynamic counts and Found/Lost/All filtering. Max added date-sorting and pagination logic. Reza updated the page layout, and Gulireba connected the listing and counts to stored reports. | [PR #8](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/8), [PR #32](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/32), [PR #36](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/36), [PR #42](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/42), [PR #50](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/50) |
+| Shared frontend API client | Gulireba added the shared request wrapper, session-cookie support and response/error handling for login, browsing and report submission, with API client tests. | [PR #47](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/47) |
+| Test environment and coverage | Betty set up Mocha, Chai, Supertest, the test environment and database helpers, and nyc coverage reporting. | [PR #17](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/17), [PR #21](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/21) |
+| Automated feature tests | Betty added model, authentication/session and item-route tests, including validation and failure cases. Gulireba added report creation/retrieval integration tests and frontend API client tests. | [PR #27](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/27), [PR #33](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/33), [PR #40](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/40), [PR #52](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/52), [PR #49](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/49), [PR #47](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/47) |
+| Windows and Browse checks | Mofareh recorded Windows installation, startup and API checks, and manual checks of the Browse counts, type tabs and empty results. | [PR #19](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/19), [PR #32](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/32) |
+
+### README maintenance
+
+Mofareh prepared the project overview, team roles, setup instructions, API notes and limitations in [PR #19](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/19). He maintains the README as the project changes and documents each member's work in the relevant project area.
+
+Betty added testing and coverage instructions and linked the detailed test specification in [PR #53](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/53).
+
+Kuan proposed updated startup instructions and the `npm run dev` shortcut in [PR #55](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/55). That PR is open as of 13 September 2026. The installation section above uses the existing `node server.js` command.
+
 ## Project planning
 
 The SRS requirements are unchanged. This README describes the current implementation and setup.
