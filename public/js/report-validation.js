@@ -7,6 +7,9 @@ const MAX_PHOTOS = 3;
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+const COLL_LOC_MIN_LEN = 3;
+const COLL_LOC_MAX_LEN = 100;
+
 // --- Sanitization Helper ---
 function sanitizeText(str) {
     if (typeof str !== 'string') return '';
@@ -99,6 +102,23 @@ function validatePhotos(fileList) {
     return { valid: true };
 }
 
+function validateCollectionLocation(value, isDropoff, isFound) {
+    if (!isFound || !isDropoff) {
+        return { valid: true, sanitized: '' };
+    }
+    const trimmed = (value || '').trim();
+    if (!trimmed) {
+        return { valid: false, message: 'Please specify the desk or office location.' };
+    }
+    if (trimmed.length < COLL_LOC_MIN_LEN) {
+        return { valid: false, message: `Desk/office location must be at least ${COLL_LOC_MIN_LEN} characters.` };
+    }
+    if (trimmed.length > COLL_LOC_MAX_LEN) {
+        return { valid: false, message: `Desk/office location cannot exceed ${COLL_LOC_MAX_LEN} characters.` };
+    }
+    return { valid: true, sanitized: sanitizeText(trimmed) };
+}
+
 // --- Main Form Orchestration ---
 
 function validateReportForm(formElement) {
@@ -139,6 +159,23 @@ function validateReportForm(formElement) {
     const photoRes = validatePhotos(photoInput?.files);
     if (!photoRes.valid) errors.push({ element: photoInput, message: photoRes.message });
 
+    // 8. Collection Location (Found items with Dropoff handover)
+    const typeInput = formElement.querySelector('#report-type');
+    const isFound = typeInput ? typeInput.value === 'found' : true;
+    const handoverRadio = formElement.querySelector('input[name="handoverMethod"]:checked');
+    const isDropoff = handoverRadio ? handoverRadio.value === 'dropoff' : false;
+
+    let collectionLocationVal = '';
+    if (isFound && isDropoff) {
+        const collectionInput = formElement.querySelector('#item-collection-location');
+        const collRes = validateCollectionLocation(collectionInput?.value, isDropoff, isFound);
+        if (!collRes.valid) {
+            errors.push({ element: collectionInput, message: collRes.message });
+        } else {
+            collectionLocationVal = collRes.sanitized;
+        }
+    }
+
     const roomInput = formElement.querySelector('#item-room');
 
     return {
@@ -151,7 +188,8 @@ function validateReportForm(formElement) {
             campus: campusRes.sanitized,
             building: buildingRes.sanitized,
             room: sanitizeText(roomInput?.value),
-            description: descRes.sanitized
+            description: descRes.sanitized,
+            collectionLocation: collectionLocationVal
         }
     };
 }
@@ -175,19 +213,39 @@ function validateSingleField(fieldElement) {
         return validateDescription(fieldElement.value);
     } else if (id === 'item-photos') {
         return validatePhotos(fieldElement.files);
+    } else if (id === 'item-collection-location') {
+        return validateCollectionLocation(fieldElement.value, true, true);
     }
 
     return { valid: true };
 }
 
+if (typeof window !== 'undefined') {
+    window.validateReportForm = validateReportForm;
+    window.validateSingleField = validateSingleField;
+    window.validateTitle = validateTitle;
+    window.validateCategory = validateCategory;
+    window.validateDate = validateDate;
+    window.validateCampus = validateCampus;
+    window.validateBuilding = validateBuilding;
+    window.validateDescription = validateDescription;
+    window.validatePhotos = validatePhotos;
+    window.validateCollectionLocation = validateCollectionLocation;
+    window.sanitizeText = sanitizeText;
+}
 
-window.validateReportForm = validateReportForm;
-window.validateSingleField = validateSingleField;
-window.validateTitle = validateTitle;
-window.validateCategory = validateCategory;
-window.validateDate = validateDate;
-window.validateCampus = validateCampus;
-window.validateBuilding = validateBuilding;
-window.validateDescription = validateDescription;
-window.validatePhotos = validatePhotos;
-window.sanitizeText = sanitizeText;
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        validateReportForm,
+        validateSingleField,
+        validateTitle,
+        validateCategory,
+        validateDate,
+        validateCampus,
+        validateBuilding,
+        validateDescription,
+        validatePhotos,
+        validateCollectionLocation,
+        sanitizeText
+    };
+}
