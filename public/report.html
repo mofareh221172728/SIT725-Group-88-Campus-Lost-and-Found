@@ -87,7 +87,8 @@
 
                     <div class="row">
                         <div class="input-field col s12">
-                            <input type="text" id="item-title" name="title" class="validate" required aria-required="true">
+                            <input type="text" id="item-title" name="title" class="validate" minlength="5"
+                                   maxlength="100" required aria-required="true">
                             <label for="item-title">Item Title</label>
                         </div>
                     </div>
@@ -116,7 +117,7 @@
                     <div class="row">
                         <div class="input-field col s12">
                             <textarea id="item-desc" name="description" class="materialize-textarea"
-                                required aria-required="true"></textarea>
+                                   minlength="10" maxlength="1000" required aria-required="true"></textarea>
                             <label for="item-desc">Detailed Description</label>
                         </div>
                     </div>
@@ -153,7 +154,7 @@
 
                         <p>
                             <label>
-                                <input name="handoverMethod" type="radio" value="dropoff" checked>
+                                <input name="handoverMethod" type="radio" value="dropoff" required aria-required="true">
                                 <span>Handed to Campus Security / Student Central</span>
                             </label>
                         </p>
@@ -171,10 +172,16 @@
 
                         <p>
                             <label>
-                                <input name="handoverMethod" type="radio" value="email">
+                                <input name="handoverMethod" type="radio" value="email" required aria-required="true">
                                 <span>Direct Contact via Deakin Email</span>
                             </label>
                         </p>
+                    <div id="collection-location-field" class="input-field">
+                          <input type="text" id="collection-location" name="collectionLocation" required
+                                aria-required="true">
+                          <label for="collection-location">Collection Location</label>
+                          <span class="helper-text">For example, Burwood Campus Security.</span>
+                    </div>
 
                     </div>
 
@@ -184,7 +191,7 @@
                         <div class="file-field input-field col s12">
                             <div id="upload-photo-btn" class="btn waves-effect waves-light">
                                 <span>File</span>
-                                <input type="file" id="item-photos" name="photos" accept="image/*" multiple aria-label="Upload item photos">
+                               <input type="file" id="item-photos" name="photos" accept="image/jpeg,image/png,image/webp" multiple aria-label="Upload item photos">
                             </div>
                             <div class="file-path-wrapper">
                                 <input class="file-path validate" type="text" id="item-photos-path" placeholder="Upload one or more photos" aria-label="Selected photos">
