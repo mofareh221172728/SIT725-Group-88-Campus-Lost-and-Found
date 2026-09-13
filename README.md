@@ -104,8 +104,18 @@ Save and close the file.
 6. Start the server:
 
 ```cmd
-node server.js
+npm run start
 ```
+
+`npm run start` is equivalent to `node server.js`.
+
+To run the preflight check before starting the server, use:
+
+```cmd
+npm run dev
+```
+
+This runs `node preflight-check.js` first, then starts the server with `node server.js` only when the checks pass.
 
 The expected messages are:
 
@@ -160,7 +170,21 @@ The expected final message is `Preflight check passed.` If a check fails, fix th
 npm test
 ```
 
-Mocha loads `.env.test` through `.mocharc.js`. At this stage, the command reports `0 passing` because application test cases have not yet been added. This confirms that the test runner starts; it does not confirm that application features pass tests.
+Mocha loads `.env.test` through `.mocharc.js` and runs the full suite — model unit tests plus API/session tests against the test database.
+
+To run the same suite with a coverage report:
+
+```cmd
+npm run test:coverage
+```
+
+This writes an HTML report to `coverage/index.html` and prints an overall Statements/Branches/Functions/Lines summary in the terminal.
+To access the interactive coverage report, run the following command.
+```cmd
+open coverage/index.html
+```
+
+For the full test-case specification — taxonomy, individual test cases and expected results, and the current coverage breakdown per file, see more details on test cases in [`docs/test-cases.md`](docs/test-cases.md).
 
 ## Implemented API endpoints
 
@@ -205,7 +229,6 @@ After a successful request, refresh `http://localhost:3000/browse.html` to view 
 - Photo upload and storage are not yet implemented.
 - Search and filter controls are currently interface placeholders. The search and filter API is planned for Sprint 2.
 - Item details, editing, resolving reports and My Reports are not yet fully connected to stored data.
-- The test tools are configured, but application test cases have not yet been added.
 
 ## Current verification status
 
