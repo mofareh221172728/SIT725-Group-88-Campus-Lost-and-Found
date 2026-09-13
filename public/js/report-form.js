@@ -112,21 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('/api/items', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(reportData)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                showFormAlert(alertBox, 'error', result.message || 'Failed to submit report.');
-                alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                return;
-            }
+            const result = await api.post('/api/items', reportData);
 
             // Success UI feedback
             showFormAlert(alertBox, 'success', result.message || `Report submitted successfully! Your ${typeInput.value} item has been added.`);
@@ -145,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } catch (error) {
             console.error('Error submitting report:', error);
-            showFormAlert(alertBox, 'error', 'Unable to submit report. Please check your connection and try again.');
+            showFormAlert(alertBox, 'error', error.message || 'Unable to submit report. Please check your connection and try again.');
             alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     });
