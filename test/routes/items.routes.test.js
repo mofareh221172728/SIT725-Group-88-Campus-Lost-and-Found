@@ -281,6 +281,110 @@ describe('Items Routes - Browse Active Reports (GET /api/items, GET /api/items/c
     });
   });
 
+  describe('[SEARCH] Keyword Filter', () => {
+    it('TC-API-SEARCH-01: should find active reports by keyword in the title', async () => {
+      const res = await request(app).get('/api/items?keyword=wallet');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(1);
+      expect(res.body[0].title).to.equal('Black Leather Bi-fold Wallet');
+    });
+  });
+  describe('[FILTERS] Category, Location and Date Range', () => {
+    it('TC-API-FILTER-01: should filter by category', async () => {
+      const res = await request(app).get('/api/items?category=electronics');
+
+      expect(res.status).to.equal(200);
+      expect(res.body.map((item) => item.title)).to.deep.equal([
+        'Graphing Calculator TI-84',
+      ]);
+    });
+
+    it('TC-API-FILTER-02: should filter by campus location', async () => {
+      const res = await request(app).get('/api/items?location=burwood');
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(2);
+      expect(
+        res.body.every((item) => item.location === 'Burwood'),
+      ).to.equal(true);
+    });
+
+    it('TC-API-FILTER-03: should use an inclusive date range', async () => {
+      const res = await request(app).get(
+        '/api/items?fromDate=2026-09-02&toDate=2026-09-03&sort=oldest',
+      );
+
+      expect(res.status).to.equal(200);
+      expect(res.body.map((item) => item.title)).to.deep.equal([
+        'Graphing Calculator TI-84',
+        'Black Leather Bi-fold Wallet',
+      ]);
+    });
+
+    it('TC-API-FILTER-04: should combine category, location, and date filters', async () => {
+      const res = await request(app).get(
+        '/api/items?type=found&category=Electronics&location=Waurn%20Ponds&fromDate=2026-09-02&toDate=2026-09-02',
+      );
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(1);
+      expect(res.body[0].title).to.equal('Graphing Calculator TI-84');
+    });
+  });
+  describe('[SEARCH] Empty, No-result and Date Validation', () => {
+    it('TC-API-SEARCH-02: should return an empty array when nothing matches', async () => {
+      const res = await request(app).get(
+        '/api/items?keyword=no-such-item',
+      );
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.deep.equal([]);
+    });
+
+    it('TC-API-SEARCH-03: should ignore empty filter parameters', async () => {
+      const res = await request(app).get(
+        '/api/items?keyword=&category=&location=&fromDate=&toDate=',
+      );
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(3);
+    });
+
+    it('TC-API-SEARCH-04: should reject an invalid date format', async () => {
+      const res = await request(app).get(
+        '/api/items?fromDate=not-a-date',
+      );
+
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal(
+        'fromDate must be a valid date in YYYY-MM-DD format.',
+      );
+    });
+
+    it('TC-API-SEARCH-05: should reject an invalid calendar date', async () => {
+      const res = await request(app).get(
+        '/api/items?fromDate=2026-02-30',
+      );
+
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal(
+        'fromDate must be a valid date in YYYY-MM-DD format.',
+      );
+    });
+
+    it('TC-API-SEARCH-06: should reject a reversed date range', async () => {
+      const res = await request(app).get(
+        '/api/items?fromDate=2026-09-04&toDate=2026-09-01',
+      );
+
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal(
+        'fromDate cannot be after toDate.',
+      );
+    });
+  });
+
   describe('[TYPE & ENUM] Unrecognised Type Query', () => {
     it('TC-API-GET-05: should return an empty list for a type value that is neither "found" nor "lost" nor "all"', async () => {
       const res = await request(app).get('/api/items?type=misplaced');
