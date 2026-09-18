@@ -18,7 +18,7 @@ async function login(email) {
 }
 
 function getCurrentUser(userId) {
-  return User.findById(userId).select("email");
+  return User.findById(userId).select("email role");
 }
 
 module.exports = {
