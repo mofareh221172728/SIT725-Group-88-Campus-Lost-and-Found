@@ -54,16 +54,22 @@ function toCardItem(report, type, dateField) {
   };
 }
 
-async function getActiveItems(type) {
+async function getActiveItems(type, keyword = "") {
   const queries = [];
+  const matchesKeyword = (report) =>
+    !keyword ||
+    report.title.toLowerCase().includes(keyword) ||
+    (report.description || "").toLowerCase().includes(keyword);
 
   if (type === "all" || type === "found") {
     queries.push(
       FoundItem.find(activeReportFilter)
-        .select("title category campusLocation foundAt photos status")
+        .select("title description category campusLocation foundAt photos status")
         .lean()
         .then((reports) =>
-          reports.map((report) => toCardItem(report, "found", "foundAt")),
+          reports
+            .filter(matchesKeyword)
+            .map((report) => toCardItem(report, "found", "foundAt")),
         ),
     );
   }
@@ -71,10 +77,12 @@ async function getActiveItems(type) {
   if (type === "all" || type === "lost") {
     queries.push(
       LostItem.find(activeReportFilter)
-        .select("title category campusLocation lostAt photos status")
+        .select("title description category campusLocation lostAt photos status")
         .lean()
         .then((reports) =>
-          reports.map((report) => toCardItem(report, "lost", "lostAt")),
+          reports
+            .filter(matchesKeyword)
+            .map((report) => toCardItem(report, "lost", "lostAt")),
         ),
     );
   }
@@ -104,13 +112,7 @@ async function getItems({
     throw validationError("fromDate cannot be after toDate.");
   }
 
-  let items = await getActiveItems(type);
-
-  if (keyword) {
-    items = items.filter((item) =>
-      item.title.toLowerCase().includes(keyword),
-    );
-  }
+  let items = await getActiveItems(type, keyword);
 
   if (category) {
     items = items.filter(

@@ -289,6 +289,30 @@ describe('Items Routes - Browse Active Reports (GET /api/items, GET /api/items/c
       expect(res.body).to.have.length(1);
       expect(res.body[0].title).to.equal('Black Leather Bi-fold Wallet');
     });
+
+    it('TC-API-SEARCH-07: should find a found report by a keyword only in its description', async () => {
+      const res = await request(app).get('/api/items').query({
+        keyword: '  STICKER  ',
+      });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(1);
+      expect(res.body[0].type).to.equal('found');
+      expect(res.body[0].title).to.equal('Blue Hydro Flask Water Bottle');
+      expect(res.body[0]).not.to.have.property('description');
+    });
+
+    it('TC-API-SEARCH-08: should find a lost report by a keyword only in its description', async () => {
+      const res = await request(app).get('/api/items').query({
+        keyword: '  LICENSE  ',
+      });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.length(1);
+      expect(res.body[0].type).to.equal('lost');
+      expect(res.body[0].title).to.equal('Black Leather Bi-fold Wallet');
+      expect(res.body[0]).not.to.have.property('description');
+    });
   });
   describe('[FILTERS] Category, Location and Date Range', () => {
     it('TC-API-FILTER-01: should filter by category', async () => {
