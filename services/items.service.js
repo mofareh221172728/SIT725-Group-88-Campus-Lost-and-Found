@@ -11,6 +11,36 @@ function validationError(message) {
   return error;
 }
 
+function parseDateFilter(rawValue, parameterName, endOfDay = false) {
+  const value = String(rawValue || "").trim();
+  if (!value) {
+
+    return null;
+  }
+
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!datePattern.test(value)) {
+    throw validationError(
+      `${parameterName} must be a valid date in YYYY-MM-DD format.`,
+    );
+  }
+
+  const time = endOfDay ? "23:59:59.999" : "00:00:00.000";
+  const date = new Date(`${value}T${time}Z`);
+
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.toISOString().slice(0, 10) !== value
+  ) {
+    throw validationError(
+      `${parameterName} must be a valid date in YYYY-MM-DD format.`,
+    );
+  }
+
+  return date;
+}
+
 function toCardItem(report, type, dateField) {
   return {
     id: String(report._id),
@@ -24,16 +54,22 @@ function toCardItem(report, type, dateField) {
   };
 }
 
-async function getActiveItems(type) {
+async function getActiveItems(type, keyword = "") {
   const queries = [];
+  const matchesKeyword = (report) =>
+    !keyword ||
+    report.title.toLowerCase().includes(keyword) ||
+    (report.description || "").toLowerCase().includes(keyword);
 
   if (type === "all" || type === "found") {
     queries.push(
       FoundItem.find(activeReportFilter)
-        .select("title category campusLocation foundAt photos status")
+        .select("title description category campusLocation foundAt photos status")
         .lean()
         .then((reports) =>
-          reports.map((report) => toCardItem(report, "found", "foundAt")),
+          reports
+            .filter(matchesKeyword)
+            .map((report) => toCardItem(report, "found", "foundAt")),
         ),
     );
   }
@@ -41,10 +77,12 @@ async function getActiveItems(type) {
   if (type === "all" || type === "lost") {
     queries.push(
       LostItem.find(activeReportFilter)
-        .select("title category campusLocation lostAt photos status")
+        .select("title description category campusLocation lostAt photos status")
         .lean()
         .then((reports) =>
-          reports.map((report) => toCardItem(report, "lost", "lostAt")),
+          reports
+            .filter(matchesKeyword)
+            .map((report) => toCardItem(report, "lost", "lostAt")),
         ),
     );
   }
@@ -52,9 +90,53 @@ async function getActiveItems(type) {
   return (await Promise.all(queries)).flat();
 }
 
-async function getItems({ type: rawType, sort, page, limit }) {
+async function getItems({
+  type: rawType,
+  sort,
+  page,
+  limit,
+  keyword: rawKeyword,
+  category: rawCategory,
+  location: rawLocation,
+  fromDate: rawFromDate,
+  toDate: rawToDate,
+}) {
   const type = String(rawType || "all").toLowerCase();
-  const items = await getActiveItems(type);
+  const keyword = String(rawKeyword || "").trim().toLowerCase();
+  const category = String(rawCategory || "").trim().toLowerCase();
+  const location = String(rawLocation || "").trim().toLowerCase();
+  const fromDate = parseDateFilter(rawFromDate, "fromDate");
+  const toDate = parseDateFilter(rawToDate, "toDate", true);
+
+  if (fromDate && toDate && fromDate > toDate) {
+    throw validationError("fromDate cannot be after toDate.");
+  }
+
+  let items = await getActiveItems(type, keyword);
+
+  if (category) {
+    items = items.filter(
+      (item) => item.category.toLowerCase() === category,
+    );
+  }
+
+  if (location) {
+    items = items.filter((item) =>
+      item.location.toLowerCase().includes(location),
+    );
+  }
+
+  if (fromDate) {
+    items = items.filter(
+      (item) => new Date(item.date) >= fromDate,
+    );
+  }
+
+  if (toDate) {
+    items = items.filter(
+      (item) => new Date(item.date) <= toDate,
+    );
+  }
 
   if (sort === "oldest") {
     items.sort((a, b) => new Date(a.date) - new Date(b.date));
