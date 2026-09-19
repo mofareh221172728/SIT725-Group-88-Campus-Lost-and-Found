@@ -10,6 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/search-filter.css" rel="stylesheet">
 </head>
 
 <body>
@@ -42,22 +43,22 @@
         </div>
       </div>
       <div class="search-layout">
-        <div class="search-sidebar p-3">
+        <form id="search-filter-form" class="search-sidebar p-3">
           <div class="kicker mono mb-2">Filters</div>
 
           <div class="field-wf mb-3">
             <label>Type</label>
             <div class="flex gap-2 wrap" data-toggle-group="filter-type">
-              <button type="button" class="chip-btn" data-toggle-option="lost">Lost</button>
-              <button type="button" class="chip-btn active" data-toggle-option="found">Found</button>
-              <button type="button" class="chip-btn" data-toggle-option="all">All</button>
+              <button type="button" class="chip-btn" data-toggle-option="lost" aria-pressed="false">Lost</button>
+              <button type="button" class="chip-btn" data-toggle-option="found" aria-pressed="false">Found</button>
+              <button type="button" class="chip-btn active" data-toggle-option="all" aria-pressed="true">All</button>
             </div>
           </div>
 
           <div class="field-wf mb-3">
             <label for="filter-category">Category</label>
             <select id="filter-category" class="select-wf">
-              <option>All categories</option>
+              <option value="">All categories</option>
               <option>Electronics</option>
               <option>Keys</option>
               <option>Bags</option>
@@ -69,6 +70,7 @@
           <div class="field-wf mb-3">
             <label for="filter-building">Building / campus</label>
             <select id="filter-building" class="select-wf">
+              <option value="">All campuses</option>
               <option>Waurn Ponds</option>
               <option>Burwood</option>
               <option>Geelong Waterfront</option>
@@ -76,43 +78,44 @@
           </div>
           <div class="field-wf mb-3">
             <label>Date range</label>
-            <div class="flex gap-2">
-              <input type="date" class="input-wf-real" style="flex:1;" aria-label="From date">
-              <input type="date" class="input-wf-real" style="flex:1;" aria-label="To date">
+            <div class="search-date-range">
+              <div>
+                <label for="filter-from-date">From</label>
+                <input id="filter-from-date" type="date" class="input-wf-real">
+              </div>
+              <div>
+                <label for="filter-to-date">To</label>
+                <input id="filter-to-date" type="date" class="input-wf-real">
+              </div>
             </div>
           </div>
           <div class="field-wf mb-3">
             <label for="filter-keyword">Keyword</label>
             <input id="filter-keyword" type="text" class="input-wf-real" placeholder="e.g. keys, wallet…">
           </div>
-          <button type="button" class="btn-wf-strong w-100" data-action="apply-filters">Apply filters</button>
+          <button type="submit" class="btn-wf-strong w-100" data-action="apply-filters">Apply filters</button>
           <div class="text-center mt-2">
-            <button type="button" class="btn-link-wf" data-action="clear-filters">Clear all filters</button>
+            <button type="button" id="clear-filters" class="btn-link-wf" data-action="clear-filters">Clear all filters</button>
           </div>
-        </div>
+        </form>
 
-        <div class="search-results p-3">
+        <div id="search-results" class="search-results p-3" aria-busy="false">
           <div class="flex justify-between items-center mb-3">
-            <span class="mono" style="font-size:.75rem; color:#5b5f66;">42 results</span>
-            <select class="select-wf-inline" aria-label="Sort results">
-              <option>Sort: Newest</option>
-              <option>Sort: Oldest</option>
+            <span id="search-count" class="mono" role="status"></span>
+            <select id="search-sort" class="select-wf-inline" aria-label="Sort results">
+              <option value="newest">Sort: Newest</option>
+              <option value="oldest">Sort: Oldest</option>
             </select>
           </div>
-          <div class="grid grid-3">
-            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-            <a href="item-detail.html" class="no-underline" data-repeat="found"></a>
-          </div>
+          <p id="search-status" class="browse-message" role="status">Loading reports...</p>
+          <div id="search-grid" class="grid grid-3"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="js/main.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/search-filter.js"></script>
   <script src="js/mobile-menu.js"></script>
 </body>
 
