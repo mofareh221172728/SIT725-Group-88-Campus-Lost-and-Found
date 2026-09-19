@@ -49,7 +49,7 @@
 **Test Framework:** Mocha + Chai
 **Coverage Tool:** nyc (Istanbul)
 **Scope:** Mongoose model schema validation (no database connection required)
-**Total Tests:** 38
+**Total Tests:** 41
 **Coverage:** 100% (Statements, Branches, Functions, Lines) on all model files
 
 <a id="founditem-model"></a>
@@ -208,7 +208,7 @@
 **Test File:** `test/models/user.model.test.js`
 **Model File:** `models/user.model.js`
 
-**Note:** User model uses mocked DeakinSSO: only `email` field requires schema-level validation.
+**Note:** User model uses mocked DeakinSSO: `email` and `role` are the only fields with schema-level validation.
 
 <a id="u-positive"></a>
 **[POSITIVE] Valid Document Creation**
@@ -216,6 +216,8 @@
 | # | Test Description | Expected Result |
 |---|-----------------|-----------------|
 | U-01 | Valid Deakin email `student@deakin.edu.au` | ✅ Passes validation |
+| U-04 | `role` field omitted (default behaviour) | ✅ Defaults to `'user'` |
+| U-05 | `role: 'admin'` explicitly set | ✅ Passes validation |
 
 <a id="u-required"></a>
 **[REQUIRED] Mandatory Field Validation**
@@ -230,6 +232,13 @@
 | # | Input | Expected Stored Value |
 |---|-------|-----------------------|
 | U-03 | `'   TestUser@DEAKIN.EDU.AU   '` | `'testuser@deakin.edu.au'` (lowercased + trimmed) |
+
+<a id="u-type-enum"></a>
+**[TYPE & ENUM] Enumeration and Allowed Values**
+
+| # | Field | Invalid Value | Expected Error |
+|---|-------|--------------|----------------|
+| U-06 | `role` | `'superadmin'` | `err.errors.role` exists |
 
 ---
 
@@ -406,7 +415,7 @@
 ## 3. Integration & UI Test Cases
 
 > **Component:** Report Submission & Browse — end-to-end browser flows.
-> **Status:** Manual only — no browser-automation file exists yet (no Cypress/E2E runner in this project). See `docs/draft-ui-test-create-report-form.md` for a more detailed 22-case manual UI test draft for the report form (card #48).
+> **Status:** Manual only — no browser-automation file exists yet (no Cypress/E2E runner in this project).
 
 | ID | Test Name | SIT725 Category | Objective | Preconditions | Steps | Expected Results | Actual Results | Pass/Fail |
 |:---|:---|:---|:---|:---|:---|:---|:---|:---:|
@@ -423,15 +432,15 @@
 |-------|-------|----------|----------|----------|----------|-------------|-------------|---------------|
 | FoundItem | 20 | 4 | 6 | 2 | 3 | 2 | 2 | 1 |
 | LostItem | 15 | 3 | 5 | 2 | 3 | 1 | — | 1 |
-| User | 3 | 1 | 1 | — | — | — | — | 1 |
-| **Total** | **38** | **8** | **12** | **4** | **6** | **3** | **2** | **3** |
+| User | 6 | 3 | 1 | — | — | 1 | — | 1 |
+| **Total** | **41** | **10** | **12** | **4** | **6** | **4** | **2** | **3** |
 
-> **Note:** In addition to the 38 model unit tests above ([§1](#model-unit-test-cases)):
+> **Note:** In addition to the 41 model unit tests above ([§1](#model-unit-test-cases)):
 > - `test/routes/auth.routes.test.js` adds 10 automated API/session tests (`TC-AUTH-04`–`TC-AUTH-12`, see [§2.1](#login-flow-api), requires a local MongoDB).
 > - `test/routes/items.routes.test.js` adds 14 automated API tests (`TC-API-GET-01`–`14`, `TC-API-COUNTS-01`–`02`, see [§2.3](#api-get-reports), requires a local MongoDB) for the Mongo-backed `GET /api/items`/`GET /api/items/counts` endpoints (card #22). The `TC-API-CREATE-01`–`12` tests (see [§2.2](#api-create-report)) for `POST /api/items` are on the still-open card #49 branch and are not yet part of this count.
 > - `TC-CV-12`–`14` ([§3](#integration-ui-test-cases)) are manual/browser-only and have no automated count.
 >
-> Total: 62 automated tests when the model, auth, and browse/get suites run together. There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
+> Total: 65 automated tests when the model, auth, and browse/get suites run together. There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
 
 ---
 
