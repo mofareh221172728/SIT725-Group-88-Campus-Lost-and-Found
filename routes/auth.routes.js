@@ -21,6 +21,7 @@ router.post("/login", async (req, res) => {
       user: {
         id: user._id,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -50,6 +51,7 @@ router.get("/me", requireAuth, async (req, res) => {
       user: {
         id: user._id,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {

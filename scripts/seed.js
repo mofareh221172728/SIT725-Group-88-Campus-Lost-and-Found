@@ -20,6 +20,10 @@ const mockUsers = [
   {
     email: "mock.user@deakin.edu.au",
   },
+  {
+    email: "admin.mock@deakin.edu.au",
+    role: "admin",
+  },
 ];
 
 function readImageUrls(fileName) {
