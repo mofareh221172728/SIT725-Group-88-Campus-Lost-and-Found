@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const path = require("path");
 const authRoutes = require("./routes/auth.routes");
 const itemsRoutes = require("./routes/items.routes");
+const adminRoutes = require("./routes/admin.routes");
+const requireAuth = require("./middleware/auth.middleware");
+const requireAdmin = require("./middleware/requireAdmin.middleware");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,6 +37,7 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/items", itemsRoutes);
+app.use("/api/admin", requireAuth, requireAdmin, adminRoutes);
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
