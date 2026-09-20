@@ -9,7 +9,9 @@ router.get("/counts", async (req, res) => {
     return res.json(await itemsService.getItemCounts());
   } catch (error) {
     console.error("Get item counts error:", error);
-    return res.status(500).json({ message: "Unable to get item counts." });
+    return res.status(500).json({
+      message: "Unable to get item counts.",
+    });
   }
 });
 
@@ -17,8 +19,16 @@ router.get("/", async (req, res) => {
   try {
     return res.json(await itemsService.getItems(req.query));
   } catch (error) {
+    if (error.status === 400) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
+
     console.error("Get items error:", error);
-    return res.status(500).json({ message: "Unable to get items." });
+    return res.status(500).json({
+      message: "Unable to get items.",
+    });
   }
 });
 
