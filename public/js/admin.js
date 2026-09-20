@@ -21,7 +21,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     content.classList.remove("d-none");
   } catch (error) {
     if (error.status === 401) {
-      window.location.replace("index.html");
+      showMessage("Please log in to view this page. Redirecting to login…", true);
+      // Give the user time to read the message before redirecting.
+      setTimeout(() => window.location.replace("index.html"), 2000);
       return;
     }
 
