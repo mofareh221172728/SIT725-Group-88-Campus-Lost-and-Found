@@ -218,6 +218,7 @@ Mock login accepts `{ "email": "mock.user@deakin.edu.au" }` and sets a session c
 GET /api/items
 GET /api/items?type=found&sort=newest&page=1&limit=12
 GET /api/items/counts
+GET /api/items/:id?type=found
 ```
 
 These GET endpoints do not require a session.
@@ -227,6 +228,9 @@ These GET endpoints do not require a session.
 - Without `page`, the item endpoint returns an array of active reports.
 - With `page`, it returns `{ items, total, page, totalPages }`. The default page size is 12.
 - The counts endpoint returns `{ all, found, lost }` for active reports.
+- The detail endpoint requires `type=found` or `type=lost` and returns the selected active report's full details.
+- Found report details include either the owner's email address or a collection location, according to the stored contact method.
+- An invalid or unavailable report ID returns `404`. A missing or unsupported `type` returns `400`.
 
 Reports are read from MongoDB and remain available after a server restart.
 
@@ -257,7 +261,7 @@ Use the login and Create Report pages above to try this flow. The API accepts JS
 - Authentication is a mock email login. Real Deakin SSO and password verification are not implemented.
 - The form has a photo selector, but selected files are not uploaded or included in its report submission. File upload and storage remain Sprint 2 work. Seeded reports can display existing image URLs.
 - Keyword search and category, location and date-range filters are not connected. These remain Sprint 2 work; report-type tabs and API date sorting are already implemented.
-- Item details, My Reports, owner editing and resolving reports still need their stored-data workflows completed in Sprint 2.
+- My Reports, owner editing and resolving reports still need their stored-data workflows completed in Sprint 2.
 - The found-item handover choice is stored with the report. Automated email delivery is not implemented.
 
 ## Team contributions
@@ -308,5 +312,6 @@ Gulireba documented the Item API endpoints implemented for lost and found report
 - `POST /api/items` creates a new lost or found report and saves it to MongoDB. Authentication and required field validation are applied before the report is created.
 - `GET /api/items` retrieves active lost and found reports from MongoDB. It supports type filtering, date sorting and pagination for the Browse page.
 - `GET /api/items/counts` returns the number of active lost, found and total reports.
+- `GET /api/items/:id?type=found|lost` returns the selected active report's details, including its description, relevant date, reported date, status, photos and any Found contact or collection information.
 
 The API maps the LostItem and FoundItem database fields into a consistent response format for the frontend, including `id`, `type`, `title`, `category`, `location`, `date`, `photos` and `status`.
