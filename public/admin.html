@@ -54,7 +54,12 @@
       </div>
 
       <div class="p-4">
-        <div id="admin-content">
+        <!-- Shown until the admin check finishes; the panel stays hidden for non-admins -->
+        <div id="admin-status" class="browse-message" role="status" aria-live="polite">
+          Checking admin access…
+        </div>
+
+        <div id="admin-content" class="d-none">
           <section aria-labelledby="bulk-actions-heading">
             <div class="kicker mono mb-2" id="bulk-actions-heading">Bulk Actions</div>
             <div class="card-wf">
@@ -69,6 +74,7 @@
   <!-- Scripts -->
   <script src="js/mobile-menu.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
 
 </body>
 
