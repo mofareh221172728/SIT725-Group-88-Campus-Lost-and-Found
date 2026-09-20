@@ -43,13 +43,14 @@ function reportCardHTML(report) {
     : 'badge-active';
   const photo = getPrimaryPhoto(report);
   const reportId = encodeURIComponent(report.id ?? '');
+  const reportType = encodeURIComponent(String(report.type || '').toLowerCase());
 
   const photoHTML = photo
     ? `<img class="report-photo" src="${escapeHTML(photo)}" alt="${escapeHTML(report.title || 'Reported item')}">`
     : '<div class="ph report-photo">No photo</div>';
 
   return `
-    <a href="item-detail.html?id=${reportId}" class="no-underline report-card-link">
+    <a href="item-detail.html?id=${reportId}&type=${reportType}" class="no-underline report-card-link">
       <article class="card-wf">
         ${photoHTML}
         <div class="flex justify-between items-center mb-1">
@@ -245,6 +246,7 @@ async function loadReportedItems(page = 1, typeOverride) {
   }
 }
 
+if (typeof document !== 'undefined') {
 document.addEventListener('DOMContentLoaded', () => {
   const browseTabs = document.querySelector(
     '[data-toggle-group="browse-tab"]'
@@ -290,6 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadTabCounts();
   loadReportedItems(1);
 });
+}
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -297,6 +300,7 @@ if (typeof module !== 'undefined' && module.exports) {
     formatReportDate,
     loadReportedItems,
     loadTabCounts,
+    reportCardHTML,
     renderPagination,
   };
 }
