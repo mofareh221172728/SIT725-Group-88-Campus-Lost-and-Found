@@ -1,0 +1,34 @@
+.search-date-range {
+  display: grid;
+  gap: .5rem;
+}
+
+#search-results {
+  width: 100%;
+}
+
+#search-count {
+  font-size: .75rem;
+  color: #5b5f66;
+}
+
+#search-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#search-grid .report-card-title,
+#search-grid .report-card-meta {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1000px) {
+  #search-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  #search-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -55,16 +55,18 @@
       <!-- Main Content -->
       <div class="p-3">
         <!-- Search and Filter Bar -->
-        <div class="flex gap-2 items-center mb-3" style="flex-wrap: wrap;">
+        <form id="browse-search-form" class="flex gap-2 items-center mb-3" style="flex-wrap: wrap;" role="search">
           <input
-            type="text"
+            id="browse-keyword"
+            type="search"
             class="input-wf-real"
             style="flex: 1; min-width: 200px; max-width:420px;"
             placeholder='Search keyword… ("blue bottle")'
             aria-label="Search for lost or found items"
           >
+          <button type="submit" class="btn-wf">Search</button>
           <a href="search-filter.html" class="btn-wf" aria-label="Open advanced filters">Filters ⚙</a>
-        </div>
+        </form>
 
         <!-- Tab Navigation -->
         <div class="tabline mb-3" data-toggle-group="browse-tab">
@@ -72,6 +74,8 @@
           <button type="button" class="tab-btn" data-toggle-option="lost" id="tab-lost">Lost</button>
           <button type="button" class="tab-btn" data-toggle-option="all" id="tab-all">All</button>
         </div>
+
+        <p id="browse-count" class="report-card-meta" role="status"></p>
 
         <!-- Browse Status Message -->
         <div id="browse-status" class="browse-message" role="status" aria-live="polite">
