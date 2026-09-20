@@ -1,7 +1,7 @@
 const express = require("express");
 const adminService = require("../services/admin.service");
 
-// requireAuth and requireAdmin are applied as middeleware for this route.
+// requireAuth and requireAdmin are applied when this router is mounted in server.js.
 const router = express.Router();
 
 router.get("/reports/stale-count", async (req, res) => {
