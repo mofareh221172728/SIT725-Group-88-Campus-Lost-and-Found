@@ -1,0 +1,33 @@
+.screen-label h1 { font-size: 1rem; margin: 0; }
+.edit-container { max-width: 780px; margin: auto; padding: 28px; }
+.edit-container p { line-height: 1.5; }
+.edit-back, .edit-cancel { font-size: .85rem; }
+.edit-cancel { display: inline-block; margin-top: 20px; }
+#edit-report-form fieldset { min-width: 0; padding: 0; margin: 0; border: 0; }
+.edit-section-title { font-size: 1rem; font-weight: 600; margin: 20px 0 16px; padding: 0; }
+.edit-summary { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 24px; font-size: .9rem; }
+.edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+#edit-report-form .field-wf { margin-bottom: 20px; min-width: 0; }
+#edit-report-form label { font-size: .85rem; margin-bottom: 8px; }
+#edit-report-form small { display: block; margin-top: 6px; color: var(--wf-text-muted); font-size: .8rem; }
+#edit-report-form input, #edit-report-form select, #edit-report-form textarea { font-size: 1rem; padding: 10px; }
+#edit-report-form [hidden] { display: none !important; }
+#edit-report-form [aria-invalid="true"] { border: 2px solid var(--wf-danger); }
+.edit-container .field-error-msg { display: block; color: var(--wf-danger); font-size: .85rem; margin-top: 6px; }
+.edit-container .form-alert { padding: 14px; margin: 20px 0; line-height: 1.5; border: 1px solid var(--wf-line); border-radius: 4px; overflow-wrap: anywhere; }
+.edit-container .alert-info { background: #f3f5f7; }
+.edit-container .alert-error { background: #fff5f5; color: #9b1c1c; border-color: #c53030; }
+.edit-container .alert-success { background: #f3faf7; color: #0e6245; border-color: #168358; }
+.edit-container .d-none { display: none; }
+.edit-photos { display: flex; gap: 12px; flex-wrap: wrap; }
+.edit-photos figure { margin: 0; }
+.edit-photos img { width: 120px; height: 100px; object-fit: cover; border: 1px solid var(--wf-line); border-radius: 4px; }
+.edit-photos figcaption { font-size: .8rem; }
+.edit-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 28px; }
+.edit-actions button { min-height: 44px; font-size: .85rem; }
+.edit-actions button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 600px) {
+  .edit-container { padding: 20px 16px; }
+  .edit-grid { grid-template-columns: 1fr; gap: 0; }
+  .edit-actions button { flex: 1; }
+}

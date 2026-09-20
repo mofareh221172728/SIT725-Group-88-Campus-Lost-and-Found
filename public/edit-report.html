@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Report - Campus Lost &amp; Found</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/edit-report.css">
+</head>
+<body>
+  <nav class="switcher">
+    <div class="switcher-inner flex items-center gap-3">
+      <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu"></button>
+      <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links">
+        <li><a class="nav-link" href="index.html">Login</a></li>
+        <li><a class="nav-link" href="browse.html">Main</a></li>
+        <li><a class="nav-link" href="report.html">Create Report</a></li>
+        <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
+        <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
+        <li><a class="nav-link active" href="my-reports.html">My Reports</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="screen-wrap">
+    <div class="screen-label"><h1>Edit Report</h1></div>
+    <div class="device">
+      <div class="wf-navbar">
+        <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
+        <a href="my-reports.html" class="edit-back">← My Reports</a>
+      </div>
+      <div class="edit-container">
+        <p>Update the details of your report. Fields marked * are required.</p>
+        <div id="form-alert" class="form-alert alert-info" role="status" tabindex="-1">Choose a report from My Reports to edit.</div>
+        <noscript><p>Enable JavaScript to edit a report.</p></noscript>
+        <form id="edit-report-form" novalidate aria-busy="false">
+          <fieldset id="edit-fields" disabled>
+            <legend class="edit-section-title">Report details</legend>
+            <div class="edit-summary" aria-label="Report type and status">
+              <span>Type: <strong id="edit-report-type">—</strong></span>
+              <span>Status: <strong id="edit-report-status">—</strong></span>
+            </div>
+            <div class="field-wf">
+              <label for="item-title">Item title *</label>
+              <input class="input-wf-real" id="item-title" name="title" type="text" minlength="5" maxlength="100" required>
+              <small>5–100 characters.</small>
+            </div>
+            <div class="edit-grid">
+              <div class="field-wf">
+                <label for="item-category">Category *</label>
+                <select class="select-wf" id="item-category" name="category" required>
+                  <option value="">Choose a category</option>
+                  <option>Electronics</option>
+                  <option>Cards &amp; Wallets</option>
+                  <option>Keys</option>
+                  <option>Bags &amp; Backpacks</option>
+                  <option>Clothing</option>
+                  <option>Books &amp; Stationery</option>
+                  <option>Bottles &amp; Containers</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field-wf">
+                <label for="item-date" id="edit-date-label">Date *</label>
+                <input class="input-wf-real" id="item-date" name="date" type="date" required>
+              </div>
+            </div>
+            <div class="field-wf">
+              <label for="item-desc">Description *</label>
+              <textarea class="input-wf-real" id="item-desc" name="description" rows="5" minlength="10" maxlength="1000" required></textarea>
+              <small>10–1000 characters.</small>
+            </div>
+            <div class="field-wf">
+              <label for="item-location" id="edit-location-label">Campus location *</label>
+              <input class="input-wf-real" id="item-location" name="location" type="text" list="campus-options" required>
+              <datalist id="campus-options">
+                <option value="Burwood"></option>
+                <option value="Waurn Ponds"></option>
+                <option value="Waterfront"></option>
+                <option value="Warrnambool"></option>
+              </datalist>
+              <small>Include the campus, building and room or area where known.</small>
+            </div>
+            <fieldset id="edit-handover" hidden>
+              <legend class="edit-section-title">Collection &amp; handover</legend>
+              <div class="field-wf">
+                <label for="handover-method">Handover method *</label>
+                <select class="select-wf" id="handover-method" name="handoverMethod">
+                  <option value="">Choose a handover method</option>
+                  <option value="dropoff">Campus Security / Student Central</option>
+                  <option value="email">Contact me via my Deakin email</option>
+                </select>
+              </div>
+              <div class="field-wf" id="edit-collection-field" hidden>
+                <label for="collection-location">Collection location *</label>
+                <input class="input-wf-real" id="collection-location" name="collectionLocation" type="text">
+              </div>
+            </fieldset>
+            <section aria-labelledby="edit-photos-heading">
+              <h2 class="edit-section-title" id="edit-photos-heading">Current photos</h2>
+              <div id="edit-photos" class="edit-photos"></div>
+            </section>
+            <div class="edit-actions">
+              <button class="btn-wf" type="button" id="reset-edit">Reset changes</button>
+              <button class="btn-wf-strong" type="submit" id="save-edit" disabled>Save changes</button>
+            </div>
+          </fieldset>
+        </form>
+        <a class="edit-cancel" href="my-reports.html">Cancel and return to My Reports</a>
+      </div>
+    </div>
+  </main>
+  <script src="js/report-validation.js"></script>
+  <script src="js/form-feedback.js"></script>
+  <script src="js/edit-report-form.js"></script>
+  <script src="js/mobile-menu.js"></script>
+</body>
+</html>
