@@ -90,6 +90,72 @@ function getCategory(fileName) {
   return "Other";
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// old reports for the admin stale-count and bulk-resolve actions.
+// a report is stale when it is active and createdAt is older than 90 days (incident date is not used).
+const staleReports = [
+  { type: "lost", title: "Old Grey Umbrella", category: "Other", createdDaysAgo: 95 },
+  { type: "lost", title: "Old Student Diary", category: "Books & Stationery", createdDaysAgo: 130 },
+  { type: "lost", title: "Old Bike Lock Key", category: "Keys", createdDaysAgo: 200 },
+  { type: "lost", title: "Old Resolved Scarf", category: "Clothing", createdDaysAgo: 150, status: "resolved" },
+  { type: "lost", title: "Recent Report Of An Old Loss", category: "Other", createdDaysAgo: 2, incidentDaysAgo: 200 },
+  { type: "found", title: "Old Black Backpack", category: "Bags & Backpacks", createdDaysAgo: 100 },
+  { type: "found", title: "Old Student Card", category: "Cards & Wallets", createdDaysAgo: 120 },
+  { type: "found", title: "Old Calculator", category: "Electronics", createdDaysAgo: 180 },
+  { type: "found", title: "Old Resolved Jacket", category: "Clothing", createdDaysAgo: 150, status: "resolved" },
+  { type: "found", title: "Recent Report Of An Old Find", category: "Other", createdDaysAgo: 2, incidentDaysAgo: 200 },
+];
+
+async function seedStaleReports(owner) {
+  for (const [index, report] of staleReports.entries()) {
+    const campusLocation = campusLocations[index % campusLocations.length];
+    const createdAt = new Date(Date.now() - report.createdDaysAgo * DAY_MS);
+    const incidentAt = new Date(
+      Date.now() - (report.incidentDaysAgo ?? report.createdDaysAgo + 1) * DAY_MS,
+    );
+    const common = {
+      ownerId: owner._id,
+      title: report.title,
+      category: report.category,
+      campusLocation,
+      photos: [],
+      status: report.status || "active",
+      createdAt,
+      updatedAt: createdAt,
+    };
+
+    if (report.type === "lost") {
+      await LostItem.updateOne(
+        { ownerId: owner._id, title: report.title },
+        {
+          $setOnInsert: {
+            ...common,
+            description: `${report.title} was last seen at ${campusLocation} campus.`,
+            lostAt: incidentAt,
+          },
+        },
+        // timestamps: false keeps the createdAt above instead of setting it to now.
+        { upsert: true, timestamps: false },
+      );
+    } else {
+      await FoundItem.updateOne(
+        { ownerId: owner._id, title: report.title },
+        {
+          $setOnInsert: {
+            ...common,
+            description: `${report.title} found at ${campusLocation} campus.`,
+            foundAt: incidentAt,
+            contactMethod: "collection",
+            collectionLocation: `${campusLocation} Campus Security`,
+          },
+        },
+        { upsert: true, timestamps: false },
+      );
+    }
+  }
+}
+
 async function seedDatabase(mongoUri, label) {
   await mongoose.connect(mongoUri);
 
@@ -150,6 +216,9 @@ async function seedDatabase(mongoUri, label) {
     );
   }
 
+  await seedStaleReports(owner);
+
+  console.log(`✅ ${staleReports.length} old reports are ready (${label}).`);
   console.log(`✅ ${foundItemImageUrls.length} found items are ready (${label}).`);
   console.log(`✅ ${lostItemImageUrls.length} lost items are ready (${label}).`);
   await mongoose.disconnect();
