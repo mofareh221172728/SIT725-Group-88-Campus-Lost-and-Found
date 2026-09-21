@@ -32,4 +32,15 @@ router.post("/reports/bulk-actions", async (req, res) => {
   }
 });
 
+router.get("/reports/stale", async (req, res) => {
+  try {
+    return res.json(await adminService.getStaleReports());
+  } catch (error) {
+    console.error("Get stale reports error:", error);
+    return res.status(500).json({
+      message: "Unable to get the stale reports.",
+    });
+  }
+});
+
 module.exports = router;
