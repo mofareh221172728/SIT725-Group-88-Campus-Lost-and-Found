@@ -4,6 +4,12 @@ const { activeReportFilter } = require("./items.service");
 
 const STALE_AFTER_DAYS = 90;
 
+function validationError(message) {
+  const error = new Error(message);
+  error.status = 400;
+  return error;
+}
+
 // createdAt is used to check if a report is stale (cut off after 90 days).
 // This is used to determine if a report is considered stale and should be counted in the stale report count.
 function getStaleReportFilter() {
@@ -22,6 +28,30 @@ async function getStaleReportCount() {
   return { count: lost + found };
 }
 
+// uses the same filter with getStaleReportCount.
+// update the status of all stale reports to "resolved" and return the count of updated reports.
+async function resolveStaleReports() {
+  const filter = getStaleReportFilter();
+  const update = { $set: { status: "resolved" } };
+  const [lost, found] = await Promise.all([
+    LostItem.updateMany(filter, update),
+    FoundItem.updateMany(filter, update),
+  ]);
+
+  return { count: lost.modifiedCount + found.modifiedCount };
+}
+
+// add bulk actions service, currently only supports resolving stale reports
+async function runBulkAction(action) {
+  switch (action) {
+    case "resolve-stale":
+      return resolveStaleReports();
+    default:
+      throw validationError("Unknown bulk action. Supported actions: resolve-stale.");
+  }
+}
+
 module.exports = {
   getStaleReportCount,
+  runBulkAction,
 };
