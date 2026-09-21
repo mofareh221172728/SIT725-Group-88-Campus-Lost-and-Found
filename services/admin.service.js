@@ -51,7 +51,35 @@ async function runBulkAction(action) {
   }
 }
 
+function toStaleReport(report, type) {
+  return {
+    id: String(report._id),
+    type,
+    title: report.title,
+    category: report.category,
+    location: report.campusLocation,
+    createdAt: report.createdAt,
+  };
+}
+
+async function getStaleReports() {
+  const filter = getStaleReportFilter();
+  const fields = "title category campusLocation createdAt";
+  const [lost, found] = await Promise.all([
+    LostItem.find(filter).select(fields).lean(),
+    FoundItem.find(filter).select(fields).lean(),
+  ]);
+
+  const reports = [
+    ...lost.map((report) => toStaleReport(report, "lost")),
+    ...found.map((report) => toStaleReport(report, "found")),
+  ].sort((a, b) => a.createdAt - b.createdAt);
+
+  return { reports };
+}
+
 module.exports = {
   getStaleReportCount,
   runBulkAction,
+  getStaleReports,
 };
