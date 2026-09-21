@@ -27,6 +27,7 @@ const LostItem = require("../../models/lostItem.model");
 const testUserIds = {
   alice: new mongoose.Types.ObjectId("650000000000000000000001"),
   bob: new mongoose.Types.ObjectId("650000000000000000000002"),
+  admin: new mongoose.Types.ObjectId("650000000000000000000003"),
 };
 
 const sampleUsers = [
@@ -37,6 +38,11 @@ const sampleUsers = [
   {
     _id: testUserIds.bob,
     email: "bob.staff@deakin.edu.au",
+  },
+  {
+    _id: testUserIds.admin,
+    email: "admin.test@deakin.edu.au",
+    role: "admin",
   },
 ];
 
@@ -93,6 +99,77 @@ const sampleLostItems = [
   },
 ];
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+const daysAgo = (n) => new Date(Date.now() - n * DAY_MS);
+
+// Stale report fixtures for admin stale-count and bulk-action tests.
+// Stale threshold: active reports with createdAt older than 90 days.
+const sampleStaleFoundItems = [
+  {
+    // Active, created 100 days ago — counts as stale
+    ownerId: testUserIds.alice,
+    title: "Stale Found Umbrella",
+    category: "Other",
+    description: "Umbrella found at Burwood campus entrance.",
+    foundAt: daysAgo(101),
+    campusLocation: "Burwood",
+    photos: [],
+    contactMethod: "email",
+    status: "active",
+  },
+  {
+    // Resolved, created 110 days ago — does NOT count as stale (already resolved)
+    ownerId: testUserIds.alice,
+    title: "Stale Resolved Found Keys",
+    category: "Keys",
+    description: "Keys found at Burwood campus, already resolved.",
+    foundAt: daysAgo(111),
+    campusLocation: "Burwood",
+    photos: [],
+    contactMethod: "email",
+    status: "resolved",
+  },
+  {
+    // Active, created only 10 days ago — does NOT count as stale (too fresh)
+    ownerId: testUserIds.bob,
+    title: "Fresh Found Calculator",
+    category: "Electronics",
+    description: "Calculator found in Building LC room 2.10.",
+    foundAt: daysAgo(11),
+    campusLocation: "Waurn Ponds",
+    photos: [],
+    contactMethod: "collection",
+    collectionLocation: "Waurn Ponds Campus Security",
+    status: "active",
+  },
+];
+
+const sampleStaleLostItems = [
+  {
+    // Active, created 200 days ago — counts as stale
+    ownerId: testUserIds.bob,
+    title: "Stale Lost Laptop Sleeve",
+    category: "Bags & Backpacks",
+    description: "Laptop sleeve lost at Waterfront campus library.",
+    lostAt: daysAgo(201),
+    campusLocation: "Waterfront",
+    photos: [],
+    status: "active",
+  },
+  {
+    // Active, created 1 day ago but incident 400 days ago — does NOT count as stale
+    // (stale threshold uses createdAt, not lostAt)
+    ownerId: testUserIds.alice,
+    title: "Recent Report Of An Old Loss",
+    category: "Other",
+    description: "Reported today but the item was lost long ago.",
+    lostAt: daysAgo(400),
+    campusLocation: "Burwood",
+    photos: [],
+    status: "active",
+  },
+];
+
 /**
  * Seeds sample users into the database.
  */
@@ -115,6 +192,37 @@ async function seedFoundItems() {
 async function seedLostItems() {
   await LostItem.deleteMany({});
   return LostItem.insertMany(sampleLostItems);
+}
+
+/**
+ * Seeds stale and fresh report fixtures for admin stale-count and bulk-action tests.
+ * Inserts directly with custom createdAt via collection.insertMany to bypass
+ * Mongoose auto-timestamps.
+ */
+async function seedStaleReports() {
+  await FoundItem.deleteMany({});
+  await LostItem.deleteMany({});
+
+  const now = new Date();
+  const foundDocs = sampleStaleFoundItems.map((item) => ({
+    ...item,
+    createdAt: daysAgo(
+      item.title === "Fresh Found Calculator" ? 10
+        : item.title === "Stale Resolved Found Keys" ? 110
+        : 100,
+    ),
+    updatedAt: now,
+  }));
+  const lostDocs = sampleStaleLostItems.map((item) => ({
+    ...item,
+    createdAt: daysAgo(
+      item.title === "Recent Report Of An Old Loss" ? 1 : 200,
+    ),
+    updatedAt: now,
+  }));
+
+  await FoundItem.collection.insertMany(foundDocs);
+  await LostItem.collection.insertMany(lostDocs);
 }
 
 /**
@@ -143,9 +251,12 @@ module.exports = {
   sampleUsers,
   sampleFoundItems,
   sampleLostItems,
+  sampleStaleFoundItems,
+  sampleStaleLostItems,
   seedUsers,
   seedFoundItems,
   seedLostItems,
+  seedStaleReports,
   seedAll,
   clearAll,
 };
