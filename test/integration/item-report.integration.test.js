@@ -10,7 +10,11 @@ describe("Create Report item API integration", () => {
   const seededEmail = seed.sampleUsers[0].email;
 
   before(db.connect);
-  beforeEach(seed.seedUsers);
+  beforeEach(async () => {
+    // Remove existing test reports before every case, including the first one.
+    await db.clearCollections();
+    await seed.seedUsers();
+  });
   afterEach(db.clearCollections);
   after(db.disconnect);
 

@@ -69,6 +69,7 @@ let activeReports = [];
 let currentPage = 1;
 let totalPages = 1;
 let totalReports = 0;
+let latestBrowseRequest = 0;
 
 function getSelectedTab() {
   const activeTab = document.querySelector(
@@ -115,7 +116,7 @@ function renderPagination(currentPage, totalPages) {
   container.innerHTML = html;
 }
 
-function renderReportedItems(selectedType = 'all') {
+function renderReportedItems(selectedType = 'all', keyword = '') {
   const grid = document.getElementById('report-grid');
   const statusMessage = document.getElementById('browse-status');
   const countLabel = document.getElementById('browse-count');
@@ -142,6 +143,11 @@ function renderReportedItems(selectedType = 'all') {
     statusMessage.textContent = selectedType === 'all'
       ? 'No active reports are available.'
       : `No active ${selectedType} reports are available.`;
+    if (keyword) {
+      statusMessage.textContent = selectedType === 'all'
+        ? 'No active reports match your search.'
+        : `No active ${selectedType} reports match your search.`;
+    }
 
     statusMessage.classList.remove('browse-message-error');
     statusMessage.hidden = false;
@@ -197,13 +203,23 @@ async function loadReportedItems(page = 1, typeOverride) {
 
   if (!grid || !statusMessage) return;
 
+  const requestId = ++latestBrowseRequest;
   currentPage = page;
   const selectedType = typeOverride || getSelectedTab();
   const sortSelect = document.getElementById('browse-sort');
   const sortOrder = sortSelect ? sortSelect.value : 'newest';
+  const keyword = document.getElementById('browse-keyword')?.value.trim() || '';
+
+  grid.innerHTML = '';
+  if (countLabel) countLabel.textContent = '';
+  statusMessage.textContent = 'Loading reports...';
+  statusMessage.classList.remove('browse-message-error');
+  statusMessage.hidden = false;
+  renderPagination(1, 0);
 
   try {
     const params = new URLSearchParams();
+    if (keyword) params.append('keyword', keyword);
     if (selectedType && selectedType !== 'all') {
       params.append('type', selectedType);
     }
@@ -216,6 +232,7 @@ async function loadReportedItems(page = 1, typeOverride) {
 
     const url = `/api/items?${params}`;
     const data = await api.get(url);
+    if (requestId !== latestBrowseRequest) return;
 
     const reports = Array.isArray(data)
       ? data
@@ -231,8 +248,9 @@ async function loadReportedItems(page = 1, typeOverride) {
     // Reports are already active, filtered, sorted, and paginated by the backend
     activeReports = reports;
 
-    renderReportedItems(selectedType);
+    renderReportedItems(selectedType, keyword);
   } catch (error) {
+    if (requestId !== latestBrowseRequest) return;
     console.error('Error loading reports:', error);
     activeReports = [];
     totalReports = 0;
@@ -248,12 +266,31 @@ async function loadReportedItems(page = 1, typeOverride) {
 
 if (typeof document !== 'undefined') {
 document.addEventListener('DOMContentLoaded', () => {
+  let searchTimer;
+  const searchInput = document.getElementById('browse-keyword');
+  const searchForm = document.getElementById('browse-search-form');
+
+  if (searchInput && searchForm) {
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      // Ignore any old response as soon as the search text changes.
+      ++latestBrowseRequest;
+      searchTimer = setTimeout(() => loadReportedItems(1), 250);
+    });
+    searchForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      clearTimeout(searchTimer);
+      loadReportedItems(1);
+    });
+  }
+
   const browseTabs = document.querySelector(
     '[data-toggle-group="browse-tab"]'
   );
 
   if (browseTabs) {
     browseTabs.addEventListener('toggle-change', (event) => {
+      clearTimeout(searchTimer);
       loadReportedItems(1, event.detail.value);
     });
   }
@@ -261,6 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sortSelect = document.getElementById('browse-sort');
   if (sortSelect) {
     sortSelect.addEventListener('change', () => {
+      clearTimeout(searchTimer);
       loadReportedItems(1);
     });
   }
