@@ -20,12 +20,24 @@ describe('Edit report form', () => {
     assert.equal(report.data.collectionLocation, 'Campus Security');
   });
 
-  it('supports a Lost report and does not restrict editing to Active reports', () => {
-    const report = prepareReport({ ...found, type: 'lost', lostAt: '2026-09-02T10:00:00Z', status: 'resolved' }, 'owner-1');
+  it('supports a Lost report', () => {
+    const report = prepareReport({
+      ...found,
+      type: 'lost',
+      lostAt: '2026-09-02T10:00:00Z',
+      status: 'active'
+    }, 'owner-1');
     assert.equal(report.data.date, '2026-09-02');
-    assert.equal(report.status, 'Resolved');
+    assert.equal(report.status, 'Active');
     assert.equal(report.data.handoverMethod, '');
     assert.equal(report.data.collectionLocation, '');
+  });
+
+  it('blocks editing a resolved report', () => {
+    assert.throws(
+      () => prepareReport({ ...found, status: 'resolved' }, 'owner-1'),
+      /Only active reports/
+    );
   });
 
   it('blocks missing sessions, other owners, missing ownership and invalid report identity', () => {
