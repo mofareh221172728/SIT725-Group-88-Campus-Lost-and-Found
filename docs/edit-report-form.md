@@ -5,7 +5,7 @@ The form is in `public/edit-report.html`. It reuses the validators in
 
 It supports prefilled Lost/Found details, owner checks in the UI, validation,
 reset, saving/error states and existing photo display. Type and status are
-read-only. Editing details is allowed for both Active and Resolved reports.
+read-only. Editing details is allowed only for Active reports.
 Deletion, status changes and photo upload are outside this form.
 
 ## Local preview (no database required)
