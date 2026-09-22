@@ -376,13 +376,17 @@ async function updateReport(ownerId, type, id, data) {
   }
 
   const report = await Model.findOneAndUpdate(
-    { _id: id, ownerId },
+    { _id: id, ownerId, status: "active" },
     update,
     { new: true, runValidators: true },
   );
 
   if (report) {
     return report;
+  }
+
+  if (await Model.exists({ _id: id, ownerId })) {
+    throw requestError(403, "Only active reports can be updated.");
   }
 
   if (await Model.exists({ _id: id })) {

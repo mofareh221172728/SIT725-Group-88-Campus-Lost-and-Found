@@ -131,6 +131,21 @@ describe("Items Routes - Update own report details", () => {
     expect(await FoundItem.findById(foundId).lean()).to.deep.equal(before);
   });
 
+  it("rejects an update to an owned resolved report", async () => {
+    const agent = await login(1);
+    const resolvedLostId = String(seed.sampleLostItems[1]._id);
+    const before = await LostItem.findById(resolvedLostId).lean();
+    const response = await agent
+      .put(`/api/items/lost/${resolvedLostId}`)
+      .send(lostDetails());
+
+    expect(response.status).to.equal(403);
+    expect(response.body.message).to.equal(
+      "Only active reports can be updated.",
+    );
+    expect(await LostItem.findById(resolvedLostId).lean()).to.deep.equal(before);
+  });
+
   it("returns 404 for a missing report", async () => {
     const agent = await login();
     const response = await agent
