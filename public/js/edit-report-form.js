@@ -19,11 +19,14 @@
     if (!(report.id || report._id) || !['lost', 'found'].includes(report.type)) {
       throw new Error('Unable to load this report. Please return to My Reports.');
     }
+    if (report.status !== 'active') {
+      throw new Error('Only active reports can be edited.');
+    }
     const type = report.type;
     const date = report.date || report[type === 'found' ? 'foundAt' : 'lostAt'] || '';
     return {
       id: String(report.id || report._id), type,
-      status: report.status === 'resolved' ? 'Resolved' : 'Active',
+      status: 'Active',
       photos: Array.isArray(report.photos) ? report.photos.slice(0, 3) : [],
       data: {
         title: report.title || '', category: report.category || '',
