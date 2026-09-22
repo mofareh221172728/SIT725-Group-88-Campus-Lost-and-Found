@@ -313,5 +313,6 @@ Gulireba documented the Item API endpoints implemented for lost and found report
 - `GET /api/items` retrieves active lost and found reports from MongoDB. It supports type filtering, date sorting and pagination for the Browse page.
 - `GET /api/items/counts` returns the number of active lost, found and total reports.
 - `GET /api/items/:id?type=found|lost` returns the selected active report's details, including its description, relevant date, reported date, status, photos and any Found contact or collection information.
+- `PUT /api/items/:type/:id/status` lets the owner mark an active report as resolved. See [request, response and UI connection notes](docs/report-status-api.md).
 
 The API maps the LostItem and FoundItem database fields into a consistent response format for the frontend, including `id`, `type`, `title`, `category`, `location`, `date`, `photos` and `status`.
