@@ -75,6 +75,36 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
+router.put("/:type/:id", requireAuth, async (req, res) => {
+  try {
+    const report = await itemsService.updateReport(
+      req.session.userId,
+      req.params.type,
+      req.params.id,
+      req.body,
+    );
+
+    return res.json({
+      message: "Report updated successfully.",
+      report,
+    });
+  } catch (error) {
+    if (
+      [400, 403, 404].includes(error.status) ||
+      error.name === "ValidationError"
+    ) {
+      return res.status(error.status || 400).json({
+        message: error.message,
+      });
+    }
+
+    console.error("Update report error:", error);
+    return res.status(500).json({
+      message: "Unable to update report.",
+    });
+  }
+});
+
 router.put("/:type/:id/status", requireAuth, async (req, res) => {
   try {
     const report = await reportStatusService.resolveReport(
