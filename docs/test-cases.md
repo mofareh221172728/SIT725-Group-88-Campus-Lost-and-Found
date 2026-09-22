@@ -37,6 +37,7 @@
   - [2.1. Login Flow (Auth API & Session)](#login-flow-api)
   - [2.2. Create Report](#api-create-report)
   - [2.3. Browse / Get Reports](#api-get-reports)
+  - [2.4. Admin Authorization](#admin-authorization)
 - [3. Integration & UI Test Cases](#integration-ui-test-cases)
 - [4. Summary](#summary)
 - [5. Running the Tests](#running-the-tests)
@@ -49,7 +50,7 @@
 **Test Framework:** Mocha + Chai
 **Coverage Tool:** nyc (Istanbul)
 **Scope:** Mongoose model schema validation (no database connection required)
-**Total Tests:** 38
+**Total Tests:** 41
 **Coverage:** 100% (Statements, Branches, Functions, Lines) on all model files
 
 <a id="founditem-model"></a>
@@ -208,7 +209,7 @@
 **Test File:** `test/models/user.model.test.js`
 **Model File:** `models/user.model.js`
 
-**Note:** User model uses mocked DeakinSSO: only `email` field requires schema-level validation.
+**Note:** User model uses mocked DeakinSSO: `email` and `role` are the only fields with schema-level validation.
 
 <a id="u-positive"></a>
 **[POSITIVE] Valid Document Creation**
@@ -216,6 +217,8 @@
 | # | Test Description | Expected Result |
 |---|-----------------|-----------------|
 | U-01 | Valid Deakin email `student@deakin.edu.au` | ✅ Passes validation |
+| U-04 | `role` field omitted (default behaviour) | ✅ Defaults to `'user'` |
+| U-05 | `role: 'admin'` explicitly set | ✅ Passes validation |
 
 <a id="u-required"></a>
 **[REQUIRED] Mandatory Field Validation**
@@ -230,6 +233,13 @@
 | # | Input | Expected Stored Value |
 |---|-------|-----------------------|
 | U-03 | `'   TestUser@DEAKIN.EDU.AU   '` | `'testuser@deakin.edu.au'` (lowercased + trimmed) |
+
+<a id="u-type-enum"></a>
+**[TYPE & ENUM] Enumeration and Allowed Values**
+
+| # | Field | Invalid Value | Expected Error |
+|---|-------|--------------|----------------|
+| U-06 | `role` | `'superadmin'` | `err.errors.role` exists |
 
 ---
 
@@ -402,11 +412,28 @@
 
 ---
 
+<a id="admin-authorization"></a>
+### 2.4. Admin Authorization
+
+**Test File:** `test/middleware/requireAdmin.middleware.test.js`
+**Middleware File:** `middleware/requireAdmin.middleware.js`
+**Scope:** Unit tests for the `requireAdmin` middleware, using hand-built mock `req`/`res`/`next` (no Supertest) with a real seeded `User` document for the role lookup.
+
+**[SECURITY] Session & Role Authorization**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-SEC-01 | Session user is the seeded `mock.user` (default role) | 403, `"Admin access is required."` |
+| TC-SEC-02 | Session has expired (no `req.session.userId`); in the app `requireAuth` returns 401 first | 403, `"Admin access is required."` |
+| TC-SEC-03 | Session user exists, `role: "admin"` | Calls `next()` with no arguments, `res` untouched |
+
+---
+
 <a id="integration-ui-test-cases"></a>
 ## 3. Integration & UI Test Cases
 
 > **Component:** Report Submission & Browse — end-to-end browser flows.
-> **Status:** Manual only — no browser-automation file exists yet (no Cypress/E2E runner in this project). See `docs/draft-ui-test-create-report-form.md` for a more detailed 22-case manual UI test draft for the report form (card #48).
+> **Status:** Manual only — no browser-automation file exists yet (no Cypress/E2E runner in this project).
 
 | ID | Test Name | SIT725 Category | Objective | Preconditions | Steps | Expected Results | Actual Results | Pass/Fail |
 |:---|:---|:---|:---|:---|:---|:---|:---|:---:|
@@ -423,15 +450,16 @@
 |-------|-------|----------|----------|----------|----------|-------------|-------------|---------------|
 | FoundItem | 20 | 4 | 6 | 2 | 3 | 2 | 2 | 1 |
 | LostItem | 15 | 3 | 5 | 2 | 3 | 1 | — | 1 |
-| User | 3 | 1 | 1 | — | — | — | — | 1 |
-| **Total** | **38** | **8** | **12** | **4** | **6** | **3** | **2** | **3** |
+| User | 6 | 3 | 1 | — | — | 1 | — | 1 |
+| **Total** | **41** | **10** | **12** | **4** | **6** | **4** | **2** | **3** |
 
-> **Note:** In addition to the 38 model unit tests above ([§1](#model-unit-test-cases)):
+> **Note:** In addition to the 41 model unit tests above ([§1](#model-unit-test-cases)):
 > - `test/routes/auth.routes.test.js` adds 10 automated API/session tests (`TC-AUTH-04`–`TC-AUTH-12`, see [§2.1](#login-flow-api), requires a local MongoDB).
 > - `test/routes/items.routes.test.js` adds 14 automated API tests (`TC-API-GET-01`–`14`, `TC-API-COUNTS-01`–`02`, see [§2.3](#api-get-reports), requires a local MongoDB) for the Mongo-backed `GET /api/items`/`GET /api/items/counts` endpoints (card #22). The `TC-API-CREATE-01`–`12` tests (see [§2.2](#api-create-report)) for `POST /api/items` are on the still-open card #49 branch and are not yet part of this count.
+> - `test/middleware/requireAdmin.middleware.test.js` adds 3 automated unit tests (`TC-SEC-01`–`03`, see [§2.4](#admin-authorization), requires a local MongoDB) for the `requireAdmin` middleware (card #109).
 > - `TC-CV-12`–`14` ([§3](#integration-ui-test-cases)) are manual/browser-only and have no automated count.
 >
-> Total: 62 automated tests when the model, auth, and browse/get suites run together. There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
+> Total: 120 automated tests when every suite under `test/` runs together (`npm test`): models 41, routes 57, integration 13, middleware 3, public 6. There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
 
 ---
 
