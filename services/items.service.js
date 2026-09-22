@@ -243,6 +243,7 @@ async function createReport(ownerId, data) {
 }
 
 module.exports = {
+  activeReportFilter,
   createReport,
   getItemCounts,
   getItems,
