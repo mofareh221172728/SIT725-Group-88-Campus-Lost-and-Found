@@ -33,6 +33,25 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const report = await itemsService.getItemDetail(req.params.id, req.query.type);
+
+    if (!report) {
+      return res.status(404).json({ message: "Report was not found." });
+    }
+
+    return res.json({ report });
+  } catch (error) {
+    if (error.status === 400) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    console.error("Get item detail error:", error);
+    return res.status(500).json({ message: "Unable to get report details." });
+  }
+});
+
 router.post("/", requireAuth, async (req, res) => {
   try {
     const report = await itemsService.createReport(req.session.userId, req.body);

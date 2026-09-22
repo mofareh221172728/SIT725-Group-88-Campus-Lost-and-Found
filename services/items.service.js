@@ -1,5 +1,6 @@
 const FoundItem = require("../models/foundItem.model");
 const LostItem = require("../models/lostItem.model");
+const mongoose = require("mongoose");
 
 const activeReportFilter = {
   $or: [{ status: "active" }, { status: { $exists: false } }],
@@ -52,6 +53,33 @@ function toCardItem(report, type, dateField) {
     photos: report.photos || [],
     status: report.status || "active",
   };
+}
+
+function toDetailItem(report, type, dateField) {
+  const detail = {
+    id: String(report._id),
+    type,
+    title: report.title,
+    category: report.category,
+    description: report.description,
+    date: report[dateField],
+    location: report.campusLocation,
+    reportedDate: report.createdAt,
+    status: report.status || "active",
+    photos: (report.photos || []).slice(0, 3),
+  };
+
+  if (type === "found") {
+    detail.contactMethod = report.contactMethod;
+
+    if (report.contactMethod === "collection") {
+      detail.collectionLocation = report.collectionLocation;
+    } else if (report.contactMethod === "email") {
+      detail.contactEmail = report.ownerId?.email;
+    }
+  }
+
+  return detail;
 }
 
 async function getActiveItems(type, keyword = "") {
@@ -162,6 +190,33 @@ async function getItems({
   };
 }
 
+async function getItemDetail(id, rawType) {
+  const type = String(rawType || "").toLowerCase();
+
+  if (!['found', 'lost'].includes(type)) {
+    throw validationError('type must be either "found" or "lost".');
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return null;
+  }
+
+  if (type === "found") {
+    const report = await FoundItem.findOne({ _id: id, ...activeReportFilter })
+      .select("title category description foundAt campusLocation createdAt status photos contactMethod collectionLocation ownerId")
+      .populate("ownerId", "email")
+      .lean();
+
+    return report ? toDetailItem(report, type, "foundAt") : null;
+  }
+
+  const report = await LostItem.findOne({ _id: id, ...activeReportFilter })
+    .select("title category description lostAt campusLocation createdAt status photos")
+    .lean();
+
+  return report ? toDetailItem(report, type, "lostAt") : null;
+}
+
 async function getItemCounts() {
   const [found, lost] = await Promise.all([
     FoundItem.countDocuments(activeReportFilter),
@@ -245,6 +300,7 @@ async function createReport(ownerId, data) {
 module.exports = {
   activeReportFilter,
   createReport,
+  getItemDetail,
   getItemCounts,
   getItems,
 };
