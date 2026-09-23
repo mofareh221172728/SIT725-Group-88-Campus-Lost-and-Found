@@ -98,16 +98,23 @@
 
             <h5 id="edit-location-heading">Location</h5>
             <div class="row">
-              <div class="input-field col s12">
-                <input id="item-location" name="location" type="text" class="validate" list="campus-options" required aria-required="true">
-                <label for="item-location" id="edit-location-label">Campus location *</label>
-                <datalist id="campus-options">
-                  <option value="Burwood"></option>
-                  <option value="Waurn Ponds"></option>
-                  <option value="Waterfront"></option>
-                  <option value="Warrnambool"></option>
-                </datalist>
-                <span class="helper-text">Include the campus, building and room or area where known.</span>
+              <div class="input-field col s12 m4">
+                <select id="item-campus" name="campus" required aria-required="true">
+                  <option value="" disabled selected>Choose campus</option>
+                  <option value="Burwood">Melbourne Burwood</option>
+                  <option value="Waurn Ponds">Geelong Waurn Ponds</option>
+                  <option value="Waterfront">Geelong Waterfront</option>
+                  <option value="Warrnambool">Warrnambool</option>
+                </select>
+                <label for="item-campus">Campus</label>
+              </div>
+              <div class="input-field col s12 m4">
+                <input id="item-building" name="building" type="text" class="validate" required aria-required="true">
+                <label for="item-building">Building</label>
+              </div>
+              <div class="input-field col s12 m4">
+                <input id="item-room" name="room" type="text" class="validate">
+                <label for="item-room">Room / Area (Optional)</label>
               </div>
             </div>
 
