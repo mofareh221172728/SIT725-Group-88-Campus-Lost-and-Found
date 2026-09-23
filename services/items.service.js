@@ -1,5 +1,6 @@
 const FoundItem = require("../models/foundItem.model");
 const LostItem = require("../models/lostItem.model");
+const User = require("../models/user.model");
 const mongoose = require("mongoose");
 
 const activeReportFilter = {
@@ -152,6 +153,29 @@ function toCardItem(report, type, dateField) {
     date: report[dateField],
     photos: report.photos || [],
     status: report.status || "active",
+  };
+}
+
+async function getOwnedReports(ownerId) {
+  if (!mongoose.isObjectIdOrHexString(ownerId) ||
+      !(await User.exists({ _id: ownerId }))) {
+    throw requestError(401, "Authentication is required.");
+  }
+
+  const [found, lost] = await Promise.all([
+    FoundItem.find({ ownerId })
+      .select("title category campusLocation foundAt createdAt photos status")
+      .sort({ createdAt: -1 })
+      .lean(),
+    LostItem.find({ ownerId })
+      .select("title category campusLocation lostAt createdAt photos status")
+      .sort({ createdAt: -1 })
+      .lean(),
+  ]);
+
+  return {
+    found: found.map((report) => toCardItem(report, "found", "foundAt")),
+    lost: lost.map((report) => toCardItem(report, "lost", "lostAt")),
   };
 }
 
@@ -453,6 +477,7 @@ async function updateReport(ownerId, type, id, data) {
 module.exports = {
   activeReportFilter,
   createReport,
+  getOwnedReports,
   getItemDetail,
   getItemCounts,
   getItems,
