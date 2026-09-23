@@ -1,5 +1,6 @@
 const FoundItem = require("../models/foundItem.model");
 const LostItem = require("../models/lostItem.model");
+const mongoose = require("mongoose");
 
 const activeReportFilter = {
   $or: [{ status: "active" }, { status: { $exists: false } }],
@@ -9,6 +10,106 @@ function validationError(message) {
   const error = new Error(message);
   error.status = 400;
   return error;
+}
+
+function requestError(status, message) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
+function requiredText(value, fieldName, minLength = 1, maxLength) {
+  if (typeof value !== "string") {
+    throw validationError(`${fieldName} must be provided as text.`);
+  }
+
+  const sanitized = value.trim();
+
+  if (sanitized.length < minLength) {
+    throw validationError(
+      minLength === 1
+        ? `${fieldName} is required.`
+        : `${fieldName} must be at least ${minLength} characters long.`,
+    );
+  }
+
+  if (maxLength && sanitized.length > maxLength) {
+    throw validationError(`${fieldName} cannot exceed ${maxLength} characters.`);
+  }
+
+  return sanitized;
+}
+
+function reportDate(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw validationError("A valid date must be provided in YYYY-MM-DD format.");
+  }
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) {
+    throw validationError("A valid date must be provided in YYYY-MM-DD format.");
+  }
+
+  if (date > new Date()) {
+    throw validationError("Report date cannot be in the future.");
+  }
+
+  return date;
+}
+
+function sanitizeReportUpdate(type, data) {
+  const allowedFields = [
+    "title",
+    "category",
+    "date",
+    "description",
+    "location",
+    "handoverMethod",
+    "collectionLocation",
+  ];
+
+  if (!data || Array.isArray(data) || typeof data !== "object") {
+    throw validationError("Report details must be provided.");
+  }
+
+  const unsupportedFields = Object.keys(data).filter(
+    (field) => !allowedFields.includes(field),
+  );
+
+  if (unsupportedFields.length > 0) {
+    throw validationError(
+      `Unsupported report fields: ${unsupportedFields.join(", ")}.`,
+    );
+  }
+
+  const sanitized = {
+    title: requiredText(data.title, "Title", 5, 100),
+    category: requiredText(data.category, "Category"),
+    description: requiredText(data.description, "Description", 10, 1000),
+    date: reportDate(data.date),
+    location: requiredText(data.location, "Location"),
+  };
+
+  if (type === "found") {
+    if (!["email", "dropoff"].includes(data.handoverMethod)) {
+      throw validationError(
+        'Found items must provide handoverMethod as "email" or "dropoff".',
+      );
+    }
+
+    sanitized.contactMethod =
+      data.handoverMethod === "dropoff" ? "collection" : "email";
+
+    if (sanitized.contactMethod === "collection") {
+      sanitized.collectionLocation = requiredText(
+        data.collectionLocation,
+        "Collection location",
+      );
+    }
+  }
+
+  return sanitized;
 }
 
 function parseDateFilter(rawValue, parameterName, endOfDay = false) {
@@ -52,6 +153,33 @@ function toCardItem(report, type, dateField) {
     photos: report.photos || [],
     status: report.status || "active",
   };
+}
+
+function toDetailItem(report, type, dateField) {
+  const detail = {
+    id: String(report._id),
+    type,
+    title: report.title,
+    category: report.category,
+    description: report.description,
+    date: report[dateField],
+    location: report.campusLocation,
+    reportedDate: report.createdAt,
+    status: report.status || "active",
+    photos: (report.photos || []).slice(0, 3),
+  };
+
+  if (type === "found") {
+    detail.contactMethod = report.contactMethod;
+
+    if (report.contactMethod === "collection") {
+      detail.collectionLocation = report.collectionLocation;
+    } else if (report.contactMethod === "email") {
+      detail.contactEmail = report.ownerId?.email;
+    }
+  }
+
+  return detail;
 }
 
 async function getActiveItems(type, keyword = "") {
@@ -162,6 +290,33 @@ async function getItems({
   };
 }
 
+async function getItemDetail(id, rawType) {
+  const type = String(rawType || "").toLowerCase();
+
+  if (!['found', 'lost'].includes(type)) {
+    throw validationError('type must be either "found" or "lost".');
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return null;
+  }
+
+  if (type === "found") {
+    const report = await FoundItem.findOne({ _id: id, ...activeReportFilter })
+      .select("title category description foundAt campusLocation createdAt status photos contactMethod collectionLocation ownerId")
+      .populate("ownerId", "email")
+      .lean();
+
+    return report ? toDetailItem(report, type, "foundAt") : null;
+  }
+
+  const report = await LostItem.findOne({ _id: id, ...activeReportFilter })
+    .select("title category description lostAt campusLocation createdAt status photos")
+    .lean();
+
+  return report ? toDetailItem(report, type, "lostAt") : null;
+}
+
 async function getItemCounts() {
   const [found, lost] = await Promise.all([
     FoundItem.countDocuments(activeReportFilter),
@@ -242,9 +397,64 @@ async function createReport(ownerId, data) {
   });
 }
 
+async function updateReport(ownerId, type, id, data) {
+  if (!["found", "lost"].includes(type)) {
+    throw validationError('Type must be either "lost" or "found".');
+  }
+
+  if (typeof id !== "string" || !mongoose.isObjectIdOrHexString(id)) {
+    throw validationError("A valid report ID is required.");
+  }
+
+  const details = sanitizeReportUpdate(type, data);
+  const Model = type === "found" ? FoundItem : LostItem;
+  const dateField = type === "found" ? "foundAt" : "lostAt";
+  const update = {
+    $set: {
+      title: details.title,
+      category: details.category,
+      description: details.description,
+      [dateField]: details.date,
+      campusLocation: details.location,
+    },
+  };
+
+  if (type === "found") {
+    update.$set.contactMethod = details.contactMethod;
+
+    if (details.contactMethod === "collection") {
+      update.$set.collectionLocation = details.collectionLocation;
+    } else {
+      update.$unset = { collectionLocation: "" };
+    }
+  }
+
+  const report = await Model.findOneAndUpdate(
+    { _id: id, ownerId, status: "active" },
+    update,
+    { new: true, runValidators: true },
+  );
+
+  if (report) {
+    return report;
+  }
+
+  if (await Model.exists({ _id: id, ownerId })) {
+    throw requestError(403, "Only active reports can be updated.");
+  }
+
+  if (await Model.exists({ _id: id })) {
+    throw requestError(403, "Only the report owner can update its details.");
+  }
+
+  throw requestError(404, "Report was not found.");
+}
+
 module.exports = {
   activeReportFilter,
   createReport,
+  getItemDetail,
   getItemCounts,
   getItems,
+  updateReport,
 };

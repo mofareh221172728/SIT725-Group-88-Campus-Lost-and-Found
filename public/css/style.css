@@ -664,6 +664,101 @@ button[aria-busy="true"] {
   font-size: .68rem;
 }
 
+/* ============================================================================
+   ITEM DETAIL PAGE
+   ============================================================================ */
+.item-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.item-detail-layout[hidden],
+.item-contact-panel[hidden] {
+  display: none;
+}
+
+.item-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem;
+  align-content: start;
+}
+
+.item-photo-grid[data-count="1"] {
+  grid-template-columns: 1fr;
+}
+
+.item-detail-photo,
+.item-photo-fallback {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.item-photo-grid:not([data-count="1"]) .item-detail-photo {
+  height: 156px;
+}
+
+.item-detail-title {
+  margin: 0 0 .5rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  text-wrap: balance;
+}
+
+.item-detail-description {
+  margin: 0;
+  color: var(--wf-text-soft);
+  font-size: .875rem;
+  line-height: 1.25rem;
+  text-wrap: pretty;
+}
+
+.item-detail-fields {
+  display: grid;
+  grid-template-columns: minmax(110px, auto) 1fr;
+  gap: .5rem 1rem;
+  margin: 1rem 0 0;
+  font-size: .75rem;
+  line-height: 1rem;
+}
+
+.item-detail-fields dt {
+  color: var(--wf-text-soft);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.item-detail-fields dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.item-contact-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.item-contact-copy {
+  margin: .5rem 0 0;
+  font-size: .875rem;
+  line-height: 1.25rem;
+}
+
+.item-contact-action {
+  display: block;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .item-detail-layout { grid-template-columns: 1fr; }
+  .item-detail-photo,
+  .item-photo-fallback { height: 250px; }
+  .item-photo-grid:not([data-count="1"]) .item-detail-photo { height: 120px; }
+}
+
 /* Utility text classes */
 .kicker {
   font-size: .68rem;

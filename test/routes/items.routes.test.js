@@ -555,3 +555,94 @@ describe('Items Routes - Browse Active Reports (GET /api/items, GET /api/items/c
     });
   });
 });
+
+describe('Items Routes - Item Detail (GET /api/items/:id)', () => {
+  before(db.connect);
+  beforeEach(seed.seedAll);
+  afterEach(db.clearCollections);
+  after(db.disconnect);
+
+  it('returns an active Found email-contact report', async () => {
+    const report = seed.sampleFoundItems[0];
+    const res = await request(app).get(`/api/items/${report._id}?type=found`);
+
+    expect(res.status).to.equal(200);
+    expect(res.body.report).to.include({
+      id: String(report._id),
+      type: 'found',
+      title: report.title,
+      category: report.category,
+      description: report.description,
+      location: report.campusLocation,
+      status: 'active',
+      contactMethod: 'email',
+      contactEmail: seed.sampleUsers[0].email,
+    });
+    expect(res.body.report.date).to.equal(report.foundAt.toISOString());
+    expect(res.body.report.reportedDate).to.be.a('string');
+    expect(res.body.report.photos).to.deep.equal(report.photos);
+  });
+
+  it('returns collection information for an active Found report', async () => {
+    const report = seed.sampleFoundItems[1];
+    const res = await request(app).get(`/api/items/${report._id}?type=found`);
+
+    expect(res.status).to.equal(200);
+    expect(res.body.report).to.include({
+      contactMethod: 'collection',
+      collectionLocation: report.collectionLocation,
+    });
+    expect(res.body.report).not.to.have.property('contactEmail');
+  });
+
+  it('returns an active Lost report without Found contact fields', async () => {
+    const report = seed.sampleLostItems[0];
+    const res = await request(app).get(`/api/items/${report._id}?type=lost`);
+
+    expect(res.status).to.equal(200);
+    expect(res.body.report).to.include({
+      id: String(report._id),
+      type: 'lost',
+      title: report.title,
+      description: report.description,
+      location: report.campusLocation,
+    });
+    expect(res.body.report.date).to.equal(report.lostAt.toISOString());
+    expect(res.body.report).not.to.have.property('contactMethod');
+  });
+
+  it('returns no more than three photos', async () => {
+    const report = seed.sampleFoundItems[0];
+    const photos = ['one.jpg', 'two.jpg', 'three.jpg'];
+    await FoundItem.findByIdAndUpdate(report._id, { photos });
+
+    const res = await request(app).get(`/api/items/${report._id}?type=found`);
+
+    expect(res.status).to.equal(200);
+    expect(res.body.report.photos).to.deep.equal(photos);
+  });
+
+  it('returns 404 for resolved, missing, or invalid report IDs', async () => {
+    const resolved = await request(app).get(
+      `/api/items/${seed.sampleLostItems[1]._id}?type=lost`,
+    );
+    const missing = await request(app).get(
+      '/api/items/650000000000000000000999?type=found',
+    );
+    const invalid = await request(app).get('/api/items/not-an-id?type=found');
+
+    expect(resolved.status).to.equal(404);
+    expect(missing.status).to.equal(404);
+    expect(invalid.status).to.equal(404);
+  });
+
+  it('requires type to identify the report collection', async () => {
+    const reportId = seed.sampleFoundItems[0]._id;
+    const missing = await request(app).get(`/api/items/${reportId}`);
+    const invalid = await request(app).get(`/api/items/${reportId}?type=other`);
+
+    expect(missing.status).to.equal(400);
+    expect(invalid.status).to.equal(400);
+    expect(missing.body.message).to.equal('type must be either "found" or "lost".');
+  });
+});
