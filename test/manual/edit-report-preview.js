@@ -7,7 +7,7 @@ const path = require('node:path');
 const app = express();
 const publicPath = path.join(__dirname, '../../public');
 
-app.get('/', (_req, res) => res.redirect('/edit-report.html'));
+app.get('/', (_req, res) => res.redirect('/edit-report.html?type=found&id=650000000000000000000101'));
 app.get('/edit-report.html', (_req, res) => {
   const html = fs.readFileSync(path.join(publicPath, 'edit-report.html'), 'utf8');
   res.type('html').send(html.replace('</body>', '<script src="/preview-fixture.js"></script></body>'));

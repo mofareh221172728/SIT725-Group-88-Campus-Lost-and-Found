@@ -1,54 +1,51 @@
 # Edit Report form — Card 29
 
-The form is in `public/edit-report.html`. It reuses the validators in
-`report-validation.js` and the messages in `form-feedback.js`.
+The edit page now uses the real authenticated report flow. Open it with both
+the report type and MongoDB ID in the URL:
 
-It supports prefilled Lost/Found details, owner checks in the UI, validation,
-reset, saving/error states and existing photo display. Type and status are
-read-only. Editing details is allowed only for Active reports.
-Deletion, status changes and photo upload are outside this form.
+```text
+/edit-report.html?type=found&id=650000000000000000000101
+```
 
-## Local preview (no database required)
+The page:
 
-From the project folder in CMD:
+1. verifies the current session with `GET /api/auth/me`;
+2. loads the owned report with `GET /api/items/:type/:id/edit`;
+3. prefills the form from the database; and
+4. saves validated changes with `PUT /api/items/:type/:id`.
+
+The protected edit-load endpoint checks authentication, ownership and Active
+status before returning the editable report. It does not add `ownerId` to the
+public item-detail response. The update endpoint repeats the ownership and
+Active-status checks, so changing the URL or browser data cannot bypass them.
+
+The form follows the Create Report layout. Report type, status, owner and
+photos are fixed. Title, category, report date, description and stored campus
+location can be edited. Found reports can also edit handover method and the
+collection location when the item was handed to a campus desk.
+
+## Run and test
+
+The normal application requires the development database and a signed-in mock
+user:
+
+```cmd
+npm run dev
+```
+
+For the standalone UI preview (no database required):
 
 ```cmd
 node test/manual/edit-report-preview.js
 ```
 
-Open http://127.0.0.1:3001/edit-report.html. The banner links switch between a
-Found report, a Lost report and a non-owner. Try empty fields, a short title,
-a future date, changing the handover method and Reset changes. Save checks
-the form but does **not** save anything in this preview. Stop with Ctrl+C.
+Then open
+`http://127.0.0.1:3001/edit-report.html?type=found&id=650000000000000000000101`.
+The preview validates the form but does not persist changes.
 
-Run the form tests:
+Run the related automated tests:
 
 ```cmd
-npx mocha --no-config test/public/edit-report-form.test.js
+npx mocha --no-config test/public/edit-report-form.test.js test/public/edit-report-page.test.js
+npm test
 ```
-
-## Connection for Card 31
-
-The current backend has no report update endpoint. Card 30 adds the endpoint;
-Card 31 loads the authenticated user/full report and connects saving.
-The normal page stays disabled until that code supplies a report. It does not
-take ownership or report data from URL parameters or browser storage.
-
-Call `window.editReportForm.mount({ report, currentUserId, onSave })` after the
-page scripts load. The report needs `id` or `_id`, `ownerId`, `type`, title,
-category, description, `date` or `foundAt`/`lostAt`, and `location` or
-`campusLocation`. Found reports also accept `contactMethod` (email/collection)
-or `handoverMethod` (email/dropoff), plus `collectionLocation`.
-
-The stored location is edited as one field to avoid losing free-text building
-and room details. The same required-campus validator is reused.
-
-`onSave` receives `{ id, type, changes }`. Changes contain only title, category,
-date, description, location, handoverMethod and collectionLocation. Adapt them
-to the agreed update API. Leave existing photos, ownership, type and status
-unchanged. The server must enforce the authenticated owner check independently.
-
-Return `{ saved: true, message }` **only after** the update API confirms success.
-Throw an error to show failure without losing the edits. If no save handler is
-provided, Save stays disabled. `setLoading()` and `setError(message)` clear
-the current report and lock the form while loading or after an access failure.

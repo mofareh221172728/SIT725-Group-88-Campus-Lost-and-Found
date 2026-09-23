@@ -9,7 +9,7 @@
     handoverMethod: 'handover-method', collectionLocation: 'collection-location'
   };
 
-  // Card 31 supplies the authenticated user and full report after loading them.
+  // The page connector supplies the authenticated user and protected report.
   function prepareReport(report, currentUserId) {
     if (!currentUserId) throw new Error('Please sign in to edit your report.');
     const ownerId = report?.ownerId?._id || report?.ownerId;
@@ -84,6 +84,24 @@
     if (!collection) clearFieldError(fields.collectionLocation);
   }
 
+  function refreshMaterializeFields() {
+    if (!root.M) return;
+    root.M.updateTextFields?.();
+
+    if (!root.M.FormSelect) return;
+    [fields.category, fields.handoverMethod].forEach(select => {
+      root.M.FormSelect.getInstance(select)?.destroy();
+      root.M.FormSelect.init(select);
+    });
+  }
+
+  function showReportType(type) {
+    document.getElementById('edit-report-type').value = type === 'found' ? 'Found' : type === 'lost' ? 'Lost' : '';
+    document.getElementById('edit-report-status').value = type ? 'Active' : '';
+    document.getElementById('btn-mode-found').classList.toggle('active', type === 'found');
+    document.getElementById('btn-mode-lost').classList.toggle('active', type === 'lost');
+  }
+
   function fillFields() {
     const category = fields.category;
     category.querySelectorAll('[data-current-category]').forEach(option => option.remove());
@@ -94,6 +112,7 @@
     }
     for (const [key, input] of Object.entries(fields)) input.value = report.data[key] || '';
     updateHandover();
+    refreshMaterializeFields();
   }
 
   function showPhotos() {
@@ -130,8 +149,7 @@
     form.reset();
     fields.category.querySelectorAll('[data-current-category]').forEach(option => option.remove());
     clearAllErrors(form, alert);
-    document.getElementById('edit-report-type').textContent = '—';
-    document.getElementById('edit-report-status').textContent = '—';
+    showReportType(null);
     document.getElementById('edit-photos').replaceChildren();
     updateHandover();
   }
@@ -142,13 +160,13 @@
       try { report = prepareReport(source, currentUserId); }
       catch (error) { showFormAlert(alert, 'error', error.message); return false; }
       saveHandler = typeof onSave === 'function' ? onSave : null;
-      document.getElementById('edit-report-type').textContent = report.type === 'found' ? 'Found' : 'Lost';
-      document.getElementById('edit-report-status').textContent = report.status;
+      showReportType(report.type);
       document.getElementById('edit-date-label').textContent = report.type === 'found' ? 'Date found *' : 'Date lost *';
       document.getElementById('edit-location-label').textContent = report.type === 'found' ? 'Found at / campus location *' : 'Last seen / campus location *';
       fillFields();
       showPhotos();
       fieldset.disabled = false;
+      refreshMaterializeFields();
       saveButton.disabled = !saveHandler;
       if (!saveHandler) showFormAlert(alert, 'info', 'Saving is currently unavailable. Please try again later.');
       return true;
@@ -207,6 +225,7 @@
       if (currentGeneration === generation) {
         saving = false;
         fieldset.disabled = false;
+        refreshMaterializeFields();
         saveButton.textContent = 'Save changes';
         form.setAttribute('aria-busy', 'false');
         alert.focus();

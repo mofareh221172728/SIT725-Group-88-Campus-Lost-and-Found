@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Edit Report - Campus Lost &amp; Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/report.css">
   <link rel="stylesheet" href="css/edit-report.css">
 </head>
 <body>
@@ -28,82 +32,114 @@
     <div class="device">
       <div class="wf-navbar">
         <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
-        <a href="my-reports.html" class="edit-back">← My Reports</a>
+        <div class="wf-navlinks"><a href="my-reports.html" class="edit-back no-underline">← My Reports</a></div>
       </div>
-      <div class="edit-container">
-        <p>Update the details of your report. Fields marked * are required.</p>
-        <div id="form-alert" class="form-alert alert-info" role="status" tabindex="-1">Choose a report from My Reports to edit.</div>
+
+      <div class="report-container edit-container">
+        <div class="mode-toggle" role="group" aria-label="Current report type">
+          <button type="button" id="btn-mode-lost" class="btn mode-btn" disabled>I Lost Something</button>
+          <button type="button" id="btn-mode-found" class="btn mode-btn" disabled>I Found Something</button>
+        </div>
+
+        <p>Update the details of your active report. Fields marked * are required.</p>
+        <div id="form-alert" class="form-alert alert-info" role="status" tabindex="-1">Loading report…</div>
         <noscript><p>Enable JavaScript to edit a report.</p></noscript>
+
         <form id="edit-report-form" novalidate aria-busy="false">
           <fieldset id="edit-fields" disabled>
-            <legend class="edit-section-title">Report details</legend>
-            <div class="edit-summary" aria-label="Report type and status">
-              <span>Type: <strong id="edit-report-type">—</strong></span>
-              <span>Status: <strong id="edit-report-status">—</strong></span>
+            <h5>Item Overview</h5>
+            <div class="row fixed-fields">
+              <div class="input-field col s12 m6">
+                <input id="edit-report-type" type="text" value="" disabled>
+                <label class="active" for="edit-report-type">Report Type (fixed)</label>
+              </div>
+              <div class="input-field col s12 m6">
+                <input id="edit-report-status" type="text" value="" disabled>
+                <label class="active" for="edit-report-status">Status (fixed)</label>
+              </div>
             </div>
-            <div class="field-wf">
-              <label for="item-title">Item title *</label>
-              <input class="input-wf-real" id="item-title" name="title" type="text" minlength="5" maxlength="100" required>
-              <small>5–100 characters.</small>
+
+            <div class="row">
+              <div class="input-field col s12">
+                <input id="item-title" name="title" type="text" class="validate" minlength="5" maxlength="100" required aria-required="true">
+                <label for="item-title">Item Title *</label>
+                <span class="helper-text">5–100 characters.</span>
+              </div>
             </div>
-            <div class="edit-grid">
-              <div class="field-wf">
+
+            <div class="row">
+              <div class="input-field col s12 m6">
+                <select id="item-category" name="category" required aria-required="true">
+                  <option value="" disabled>Choose a category</option>
+                  <option value="Electronics">Electronics (Laptops, Phones, Audio)</option>
+                  <option value="Cards &amp; Wallets">Student Cards, Wallets, IDs</option>
+                  <option value="Keys">Keys &amp; Security Tokens</option>
+                  <option value="Bags &amp; Backpacks">Bags, Backpacks, Cases</option>
+                  <option value="Clothing">Clothing &amp; Accessories</option>
+                  <option value="Books &amp; Stationery">Books &amp; Stationery</option>
+                  <option value="Bottles &amp; Containers">Bottles &amp; Containers</option>
+                  <option value="Other">Other Items</option>
+                </select>
                 <label for="item-category">Category *</label>
-                <select class="select-wf" id="item-category" name="category" required>
-                  <option value="">Choose a category</option>
-                  <option>Electronics</option>
-                  <option>Cards &amp; Wallets</option>
-                  <option>Keys</option>
-                  <option>Bags &amp; Backpacks</option>
-                  <option>Clothing</option>
-                  <option>Books &amp; Stationery</option>
-                  <option>Bottles &amp; Containers</option>
-                  <option>Other</option>
-                </select>
               </div>
-              <div class="field-wf">
-                <label for="item-date" id="edit-date-label">Date *</label>
-                <input class="input-wf-real" id="item-date" name="date" type="date" required>
+              <div class="input-field col s12 m6">
+                <input id="item-date" name="date" type="date" class="validate" required aria-required="true">
+                <label class="active" for="item-date" id="edit-date-label">Date *</label>
               </div>
             </div>
-            <div class="field-wf">
-              <label for="item-desc">Description *</label>
-              <textarea class="input-wf-real" id="item-desc" name="description" rows="5" minlength="10" maxlength="1000" required></textarea>
-              <small>10–1000 characters.</small>
-            </div>
-            <div class="field-wf">
-              <label for="item-location" id="edit-location-label">Campus location *</label>
-              <input class="input-wf-real" id="item-location" name="location" type="text" list="campus-options" required>
-              <datalist id="campus-options">
-                <option value="Burwood"></option>
-                <option value="Waurn Ponds"></option>
-                <option value="Waterfront"></option>
-                <option value="Warrnambool"></option>
-              </datalist>
-              <small>Include the campus, building and room or area where known.</small>
-            </div>
-            <fieldset id="edit-handover" hidden>
-              <legend class="edit-section-title">Collection &amp; handover</legend>
-              <div class="field-wf">
-                <label for="handover-method">Handover method *</label>
-                <select class="select-wf" id="handover-method" name="handoverMethod">
-                  <option value="">Choose a handover method</option>
-                  <option value="dropoff">Campus Security / Student Central</option>
-                  <option value="email">Contact me via my Deakin email</option>
-                </select>
+
+            <div class="row">
+              <div class="input-field col s12">
+                <textarea id="item-desc" name="description" class="materialize-textarea" minlength="10" maxlength="1000" required aria-required="true"></textarea>
+                <label for="item-desc">Detailed Description *</label>
+                <span class="helper-text">10–1000 characters.</span>
               </div>
-              <div class="field-wf" id="edit-collection-field" hidden>
-                <label for="collection-location">Collection location *</label>
-                <input class="input-wf-real" id="collection-location" name="collectionLocation" type="text">
+            </div>
+
+            <h5 id="edit-location-heading">Location</h5>
+            <div class="row">
+              <div class="input-field col s12">
+                <input id="item-location" name="location" type="text" class="validate" list="campus-options" required aria-required="true">
+                <label for="item-location" id="edit-location-label">Campus location *</label>
+                <datalist id="campus-options">
+                  <option value="Burwood"></option>
+                  <option value="Waurn Ponds"></option>
+                  <option value="Waterfront"></option>
+                  <option value="Warrnambool"></option>
+                </datalist>
+                <span class="helper-text">Include the campus, building and room or area where known.</span>
               </div>
-            </fieldset>
+            </div>
+
+            <div id="edit-handover" hidden>
+              <h5>Collection &amp; Handover Method</h5>
+              <div class="row">
+                <div class="input-field col s12">
+                  <select id="handover-method" name="handoverMethod">
+                    <option value="" disabled>Choose a handover method</option>
+                    <option value="dropoff">Campus Security / Student Central</option>
+                    <option value="email">Contact me via my Deakin email</option>
+                  </select>
+                  <label for="handover-method">Handover method *</label>
+                </div>
+              </div>
+              <div class="row" id="edit-collection-field" hidden>
+                <div class="input-field col s12">
+                  <input id="collection-location" name="collectionLocation" type="text" maxlength="100" class="validate">
+                  <label for="collection-location">Collection location *</label>
+                </div>
+              </div>
+            </div>
+
             <section aria-labelledby="edit-photos-heading">
-              <h2 class="edit-section-title" id="edit-photos-heading">Current photos</h2>
+              <h5 id="edit-photos-heading">Current Photos</h5>
               <div id="edit-photos" class="edit-photos"></div>
+              <p class="helper-text">Photos, owner, report type and status cannot be changed here.</p>
             </section>
-            <div class="edit-actions">
-              <button class="btn-wf" type="button" id="reset-edit">Reset changes</button>
-              <button class="btn-wf-strong" type="submit" id="save-edit" disabled>Save changes</button>
+
+            <div class="row form-actions edit-actions">
+              <button class="btn-flat waves-effect" type="button" id="reset-edit">Reset Changes</button>
+              <button class="btn waves-effect waves-light" type="submit" id="save-edit" disabled>Save Changes</button>
             </div>
           </fieldset>
         </form>
@@ -111,9 +147,13 @@
       </div>
     </div>
   </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/report-validation.js"></script>
   <script src="js/form-feedback.js"></script>
   <script src="js/edit-report-form.js"></script>
+  <script src="js/edit-report-page.js"></script>
   <script src="js/mobile-menu.js"></script>
 </body>
 </html>
