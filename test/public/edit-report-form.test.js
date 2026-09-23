@@ -14,7 +14,8 @@ describe('Edit report form', () => {
   it('prefills a full Found report without losing its stored location', () => {
     const report = prepareReport(found, 'owner-1');
     assert.equal(report.id, 'found-1');
-    assert.equal(report.data.location, found.campusLocation);
+    assert.deepEqual([report.data.campus, report.data.building, report.data.room], ['Burwood', 'Building LC', 'Room 2.10']);
+    assert.equal(validateEdits(report.data, 'found').data.location, found.campusLocation);
     assert.equal(report.data.date, '2026-09-01');
     assert.equal(report.data.handoverMethod, 'dropoff');
     assert.equal(report.data.collectionLocation, 'Campus Security');
@@ -48,17 +49,19 @@ describe('Edit report form', () => {
     assert.throws(() => prepareReport({ ...found, type: 'invalid' }, 'owner-1'), /Unable to load/);
   });
 
-  it('accepts a populated owner and preserves campus-only and custom-category records', () => {
+  it('accepts a populated owner and shows campus-only and custom-category records', () => {
     const report = prepareReport({ ...found, ownerId: { _id: 'owner-1' }, campusLocation: 'Burwood', category: 'Musical Instruments' }, 'owner-1');
-    assert.equal(report.data.location, 'Burwood');
+    assert.equal(report.data.campus, 'Burwood');
+    assert.equal(report.data.building, '');
     assert.equal(report.data.category, 'Musical Instruments');
-    assert.equal(validateEdits(report.data, 'found').isValid, true);
+    assert.equal(validateEdits(report.data, 'found').isValid, false);
+    assert.equal(validateEdits({ ...report.data, building: 'Building B' }, 'found').data.location, 'Burwood, Building B');
   });
 
   it('reuses title, description, required-field and future-date validation', () => {
     const data = prepareReport(found, 'owner-1').data;
-    const invalid = { ...data, title: 'abc', description: 'short', category: '', location: ' ', date: '2999-01-01' };
-    assert.deepEqual(validateEdits(invalid, 'found').errors.map(error => error.field), ['title', 'category', 'date', 'description', 'location']);
+    const invalid = { ...data, title: 'abc', description: 'short', category: '', campus: ' ', building: ' ', date: '2999-01-01' };
+    assert.deepEqual(validateEdits(invalid, 'found').errors.map(error => error.field), ['title', 'category', 'date', 'description', 'campus', 'building']);
     assert.equal(validateEdits({ ...data, title: 'a'.repeat(101), description: 'a'.repeat(1001) }, 'found').errors.length, 2);
     assert.equal(validateEdits({ ...data, title: 'a'.repeat(100), description: 'a'.repeat(1000) }, 'found').isValid, true);
   });
