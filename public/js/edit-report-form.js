@@ -5,9 +5,16 @@
     ? require('./report-validation') : root;
   const fieldIds = {
     title: 'item-title', category: 'item-category', date: 'item-date',
-    description: 'item-desc', location: 'item-location',
+    description: 'item-desc', campus: 'item-campus', building: 'item-building', room: 'item-room',
     handoverMethod: 'handover-method', collectionLocation: 'collection-location'
   };
+  const campuses = ['Burwood', 'Waurn Ponds', 'Waterfront', 'Warrnambool'];
+
+  function splitLocation(location) {
+    const parts = String(location || '').split(',').map(part => part.trim());
+    const campus = campuses.find(value => value.toLowerCase() === parts[0].toLowerCase()) || '';
+    return { campus, building: campus ? (parts[1] || '') : '', room: campus ? parts.slice(2).join(', ') : '' };
+  }
 
   // The page connector supplies the authenticated user and protected report.
   function prepareReport(report, currentUserId) {
@@ -24,6 +31,7 @@
     }
     const type = report.type;
     const date = report.date || report[type === 'found' ? 'foundAt' : 'lostAt'] || '';
+    const location = splitLocation(report.location || report.campusLocation);
     return {
       id: String(report.id || report._id), type,
       status: 'Active',
@@ -31,7 +39,7 @@
       data: {
         title: report.title || '', category: report.category || '',
         date: String(date).slice(0, 10), description: report.description || '',
-        location: report.location || report.campusLocation || '',
+        ...location,
         handoverMethod: type === 'found'
           ? (report.handoverMethod || (report.contactMethod === 'collection' ? 'dropoff' : report.contactMethod) || '') : '',
         collectionLocation: type === 'found' ? (report.collectionLocation || '') : ''
@@ -43,14 +51,18 @@
     const checks = {
       title: rules.validateTitle(values.title), category: rules.validateCategory(values.category),
       date: rules.validateDate(values.date), description: rules.validateDescription(values.description),
-      location: rules.validateCampus(values.location),
+      campus: rules.validateCampus(values.campus), building: rules.validateBuilding(values.building),
       handoverMethod: rules.validateHandoverMethod(values.handoverMethod, type),
       collectionLocation: rules.validateCollectionLocation(values.collectionLocation, type, values.handoverMethod)
     };
     const errors = Object.entries(checks).filter(([, result]) => !result.valid)
       .map(([field, result]) => ({ field, message: result.message }));
     const data = {};
-    for (const key of Object.keys(fieldIds)) data[key] = checks[key].sanitized ?? values[key];
+    for (const key of Object.keys(fieldIds)) data[key] = checks[key]?.sanitized ?? values[key];
+    data.location = [data.campus, data.building, rules.sanitizeText(values.room)].filter(Boolean).join(', ');
+    delete data.campus;
+    delete data.building;
+    delete data.room;
     data.handoverMethod = type === 'found' ? data.handoverMethod : null;
     data.collectionLocation = type === 'found' && data.handoverMethod === 'dropoff'
       ? data.collectionLocation : null;
@@ -89,7 +101,7 @@
     root.M.updateTextFields?.();
 
     if (!root.M.FormSelect) return;
-    [fields.category, fields.handoverMethod].forEach(select => {
+    [fields.category, fields.campus, fields.handoverMethod].forEach(select => {
       root.M.FormSelect.getInstance(select)?.destroy();
       root.M.FormSelect.init(select);
     });
@@ -162,7 +174,6 @@
       saveHandler = typeof onSave === 'function' ? onSave : null;
       showReportType(report.type);
       document.getElementById('edit-date-label').textContent = report.type === 'found' ? 'Date found *' : 'Date lost *';
-      document.getElementById('edit-location-label').textContent = report.type === 'found' ? 'Found at / campus location *' : 'Last seen / campus location *';
       fillFields();
       showPhotos();
       fieldset.disabled = false;
