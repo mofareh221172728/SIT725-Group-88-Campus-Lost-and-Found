@@ -20,8 +20,10 @@ public item-detail response. The update endpoint repeats the ownership and
 Active-status checks, so changing the URL or browser data cannot bypass them.
 
 The form follows the Create Report layout. Report type, status, owner and
-photos are fixed. Title, category, report date, description and stored campus
-location can be edited. Found reports can also edit handover method and the
+photos are fixed. Title, category, report date, description, campus (dropdown),
+building and optional room/area can be edited. These location fields are saved
+as one comma-separated location, as expected by the existing API. Older reports
+with no building need a building entered before saving. Found reports can also edit handover method and the
 collection location when the item was handed to a campus desk.
 
 ## Run and test
