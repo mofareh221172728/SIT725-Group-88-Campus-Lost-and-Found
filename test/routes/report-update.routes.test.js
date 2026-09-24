@@ -50,6 +50,81 @@ describe("Items Routes - Update own report details", () => {
     };
   }
 
+  it("loads an owned active Found report for editing", async () => {
+    const agent = await login();
+    const response = await agent.get(`/api/items/found/${foundId}/edit`);
+
+    expect(response.status).to.equal(200);
+    expect(response.body.report).to.include({
+      id: foundId,
+      ownerId: String(seed.testUserIds.alice),
+      type: "found",
+      title: seed.sampleFoundItems[0].title,
+      location: seed.sampleFoundItems[0].campusLocation,
+      status: "active",
+      handoverMethod: "email",
+      collectionLocation: "",
+    });
+    expect(response.body.report.date).to.equal(
+      seed.sampleFoundItems[0].foundAt.toISOString(),
+    );
+    expect(response.body.report.photos).to.deep.equal(
+      seed.sampleFoundItems[0].photos,
+    );
+  });
+
+  it("loads an owned active Lost report without Found-only fields", async () => {
+    const agent = await login();
+    const response = await agent.get(`/api/items/lost/${lostId}/edit`);
+
+    expect(response.status).to.equal(200);
+    expect(response.body.report).to.include({
+      id: lostId,
+      ownerId: String(seed.testUserIds.alice),
+      type: "lost",
+      status: "active",
+    });
+    expect(response.body.report).not.to.have.property("handoverMethod");
+    expect(response.body.report).not.to.have.property("collectionLocation");
+  });
+
+  it("rejects unauthenticated and non-owner edit loads", async () => {
+    const unauthenticated = await request(app).get(
+      `/api/items/found/${foundId}/edit`,
+    );
+    expect(unauthenticated.status).to.equal(401);
+
+    const agent = await login(1);
+    const nonOwner = await agent.get(`/api/items/found/${foundId}/edit`);
+    expect(nonOwner.status).to.equal(403);
+    expect(nonOwner.body.message).to.equal(
+      "You can only edit your own reports.",
+    );
+  });
+
+  it("rejects loading an owned resolved report for editing", async () => {
+    const agent = await login(1);
+    const resolvedId = String(seed.sampleLostItems[1]._id);
+    const response = await agent.get(`/api/items/lost/${resolvedId}/edit`);
+
+    expect(response.status).to.equal(403);
+    expect(response.body.message).to.equal(
+      "Only active reports can be edited.",
+    );
+  });
+
+  for (const [name, url, status] of [
+    ["invalid type", `/api/items/other/${foundId}/edit`, 400],
+    ["invalid ID", "/api/items/found/not-an-id/edit", 400],
+    ["missing report", "/api/items/found/650000000000000000000999/edit", 404],
+  ]) {
+    it(`rejects ${name} edit link`, async () => {
+      const agent = await login();
+      const response = await agent.get(url);
+      expect(response.status).to.equal(status);
+    });
+  }
+
   it("updates and sanitises an owned Found report", async () => {
     const agent = await login();
     const response = await agent
