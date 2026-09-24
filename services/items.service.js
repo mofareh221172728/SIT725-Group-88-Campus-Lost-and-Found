@@ -206,6 +206,32 @@ function toDetailItem(report, type, dateField) {
   return detail;
 }
 
+function toEditItem(report, type, dateField) {
+  const item = {
+    id: String(report._id),
+    ownerId: String(report.ownerId),
+    type,
+    title: report.title,
+    category: report.category,
+    description: report.description,
+    date: report[dateField],
+    location: report.campusLocation,
+    status: report.status || "active",
+    photos: (report.photos || []).slice(0, 3),
+  };
+
+  if (type === "found") {
+    item.handoverMethod =
+      report.contactMethod === "collection" ? "dropoff" : "email";
+    item.collectionLocation =
+      report.contactMethod === "collection"
+        ? report.collectionLocation || ""
+        : "";
+  }
+
+  return item;
+}
+
 async function getActiveItems(type, keyword = "") {
   const queries = [];
   const matchesKeyword = (report) =>
@@ -350,6 +376,43 @@ async function getItemCounts() {
   return { all: found + lost, found, lost };
 }
 
+async function getOwnedReportForEdit(ownerId, type, id) {
+  if (!["found", "lost"].includes(type)) {
+    throw validationError('Type must be either "lost" or "found".');
+  }
+
+  if (typeof id !== "string" || !mongoose.isObjectIdOrHexString(id)) {
+    throw validationError("A valid report ID is required.");
+  }
+
+  const Model = type === "found" ? FoundItem : LostItem;
+  const dateField = type === "found" ? "foundAt" : "lostAt";
+  const fields =
+    "ownerId title category description campusLocation status photos " +
+    `${dateField} contactMethod collectionLocation`;
+  const report = await Model.findOne({
+    _id: id,
+    ownerId,
+    status: "active",
+  })
+    .select(fields)
+    .lean();
+
+  if (report) {
+    return toEditItem(report, type, dateField);
+  }
+
+  if (await Model.exists({ _id: id, ownerId })) {
+    throw requestError(403, "Only active reports can be edited.");
+  }
+
+  if (await Model.exists({ _id: id })) {
+    throw requestError(403, "You can only edit your own reports.");
+  }
+
+  throw requestError(404, "Report was not found.");
+}
+
 async function createReport(ownerId, data) {
   const {
     type,
@@ -481,5 +544,6 @@ module.exports = {
   getItemDetail,
   getItemCounts,
   getItems,
+  getOwnedReportForEdit,
   updateReport,
 };
