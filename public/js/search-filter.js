@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function createCard(report) {
     const link = document.createElement("a");
     link.className = "no-underline report-card-link";
-    link.href = `item-detail.html?id=${encodeURIComponent(report.id)}`;
+    link.href = `item-detail.html?id=${encodeURIComponent(report.id)}&type=${encodeURIComponent(report.type)}`;
     const card = document.createElement("article");
     card.className = "card-wf";
     link.append(card);
