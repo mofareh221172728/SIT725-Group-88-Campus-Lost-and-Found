@@ -31,7 +31,7 @@ async function getPhoto(id) {
     return null;
   }
 
-  return Photo.findById(id).select("data contentType").lean();
+  return Photo.findById(id).select("data contentType");
 }
 
 module.exports = {
