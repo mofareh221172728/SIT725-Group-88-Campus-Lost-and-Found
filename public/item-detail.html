@@ -11,6 +11,7 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/item-detail.css" rel="stylesheet">
 </head>
 
 <body>
@@ -68,6 +69,14 @@
       </div>
     </article>
   </main>
+
+  <!-- Photo Preview Modal -->
+  <div id="photo-modal" class="photo-modal" role="dialog" aria-modal="true" aria-label="Photo preview">
+    <button type="button" id="photo-modal-close" class="photo-modal-close" aria-label="Close photo preview">&times;</button>
+    <button type="button" id="photo-modal-prev" class="photo-modal-nav photo-modal-prev" aria-label="Previous photo" title="Previous photo">&#10094;</button>
+    <img id="photo-modal-img" class="photo-modal-img" src="" alt="Full-size item photo">
+    <button type="button" id="photo-modal-next" class="photo-modal-nav photo-modal-next" aria-label="Next photo" title="Next photo">&#10095;</button>
+  </div>
 
   <script src="js/mobile-menu.js"></script>
   <script src="js/api.js"></script>

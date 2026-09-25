@@ -22,6 +22,71 @@ function showNoPhoto(container) {
   container.replaceChildren(fallback);
 }
 
+let modalPhotos = [];
+let currentPhotoIndex = 0;
+
+function openPhotoModal(photos, index = 0) {
+  modalPhotos = Array.isArray(photos) ? photos : [];
+  currentPhotoIndex = index >= 0 ? index : 0;
+
+  const modal = document.getElementById('photo-modal');
+  const modalImg = document.getElementById('photo-modal-img');
+  const prevBtn = document.getElementById('photo-modal-prev');
+  const nextBtn = document.getElementById('photo-modal-next');
+
+  if (!modal || !modalImg) return;
+
+  modalImg.src = modalPhotos[currentPhotoIndex] || '';
+
+  const hasMultiple = modalPhotos.length > 1;
+  if (prevBtn) prevBtn.hidden = !hasMultiple;
+  if (nextBtn) nextBtn.hidden = !hasMultiple;
+
+  modal.classList.add('is-open');
+}
+
+function closePhotoModal() {
+  const modal = document.getElementById('photo-modal');
+  if (modal) modal.classList.remove('is-open');
+}
+
+function initPhotoModal() {
+  const modal = document.getElementById('photo-modal');
+  const modalImg = document.getElementById('photo-modal-img');
+  const prevBtn = document.getElementById('photo-modal-prev');
+  const nextBtn = document.getElementById('photo-modal-next');
+
+  if (!modal || !modalImg) return;
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      currentPhotoIndex = (currentPhotoIndex - 1 + modalPhotos.length) % modalPhotos.length;
+      modalImg.src = modalPhotos[currentPhotoIndex];
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      currentPhotoIndex = (currentPhotoIndex + 1) % modalPhotos.length;
+      modalImg.src = modalPhotos[currentPhotoIndex];
+    });
+  }
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal || event.target.id === 'photo-modal-close') {
+      closePhotoModal();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+      closePhotoModal();
+    }
+  });
+}
+
 function renderItemPhotos(photos, title) {
   const container = document.getElementById('item-photos');
   const availablePhotos = Array.isArray(photos)
@@ -38,6 +103,12 @@ function renderItemPhotos(photos, title) {
     image.className = 'item-detail-photo';
     image.src = photo;
     image.alt = `${title || 'Reported item'} photo ${index + 1}`;
+
+    image.addEventListener('click', () => {
+      const activeUrls = Array.from(container.querySelectorAll('.item-detail-photo')).map((img) => img.src);
+      openPhotoModal(activeUrls, activeUrls.indexOf(image.src));
+    });
+
     image.addEventListener('error', () => {
       image.remove();
       const remainingPhotos = container.querySelectorAll('img').length;
@@ -140,9 +211,16 @@ async function loadItemDetail() {
 }
 
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', loadItemDetail);
+  document.addEventListener('DOMContentLoaded', () => {
+    initPhotoModal();
+    loadItemDetail();
+  });
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { formatItemDate };
+  module.exports = {
+    formatItemDate,
+    openPhotoModal,
+    closePhotoModal,
+  };
 }
