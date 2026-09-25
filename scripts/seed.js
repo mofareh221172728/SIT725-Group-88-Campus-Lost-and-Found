@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const User = require("../models/user.model");
 const FoundItem = require("../models/foundItem.model");
 const LostItem = require("../models/lostItem.model");
+const Photo = require("../models/photo.model");
 
 const envPath = path.join(__dirname, "../.env");
 const testEnvPath = path.join(__dirname, "../.env.test");
@@ -38,6 +39,8 @@ function readImageUrls(fileName) {
 
 const foundItemImageUrls = readImageUrls("found-image-urls.txt");
 const lostItemImageUrls = readImageUrls("lost-image-urls.txt");
+const samplePhotoPath = path.join(__dirname, "../data/sample-sparkle.jpeg");
+const samplePhotoId = new mongoose.Types.ObjectId("68d4a0000000000000000066");
 
 const campusLocations = ["Burwood", "Waurn Ponds", "Waterfront", "Warrnambool"];
 
@@ -91,6 +94,52 @@ function getCategory(fileName) {
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+async function seedSamplePhoto(owner, label) {
+  if (!fs.existsSync(samplePhotoPath)) {
+    console.log(`ℹ️  Sample photo was not found and was skipped (${label}).`);
+    return;
+  }
+
+  const data = fs.readFileSync(samplePhotoPath);
+  const photoUrl = `/api/photos/${samplePhotoId}`;
+
+  await Photo.updateOne(
+    { _id: samplePhotoId },
+    {
+      $set: {
+        data,
+        contentType: "image/jpeg",
+        originalName: path.basename(samplePhotoPath),
+        size: data.length,
+      },
+    },
+    { upsert: true },
+  );
+
+  await FoundItem.updateOne(
+    { ownerId: owner._id, title: "Sample Sparkler" },
+    {
+      $set: {
+        category: "Other",
+        description: "A sparkler found at Burwood campus.",
+        foundAt: new Date(Date.UTC(2026, 8, 1)),
+        campusLocation: "Burwood",
+        photos: [photoUrl],
+        contactMethod: "collection",
+        collectionLocation: "Burwood Campus Security",
+        status: "active",
+      },
+      $setOnInsert: {
+        ownerId: owner._id,
+        title: "Sample Sparkler",
+      },
+    },
+    { upsert: true },
+  );
+
+  console.log(`✅ Sample photo is ready (${label}).`);
+}
 
 // old reports for the admin stale-count and bulk-resolve actions.
 // a report is stale when it is active and createdAt is older than 90 days (incident date is not used).
@@ -170,6 +219,8 @@ async function seedDatabase(mongoUri, label) {
   console.log(`✅ Mock users are ready (${label}).`);
 
   const owner = await User.findOne({ email: mockUsers[0].email });
+  await seedSamplePhoto(owner, label);
+
   for (const [index, imageUrl] of foundItemImageUrls.entries()) {
     const fileName = imageUrl.split("/").pop();
     const title = createTitle(fileName);
