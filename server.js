@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const path = require("path");
 const authRoutes = require("./routes/auth.routes");
 const itemsRoutes = require("./routes/items.routes");
+const photosRoutes = require("./routes/photos.routes");
 const adminRoutes = require("./routes/admin.routes");
 const requireAuth = require("./middleware/auth.middleware");
 const requireAdmin = require("./middleware/requireAdmin.middleware");
@@ -37,6 +38,7 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/items", itemsRoutes);
+app.use("/api/photos", photosRoutes);
 app.use("/api/admin", requireAuth, requireAdmin, adminRoutes);
 
 // Serve static frontend files
