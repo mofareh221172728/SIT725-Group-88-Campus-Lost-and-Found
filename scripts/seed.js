@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const User = require("../models/user.model");
 const FoundItem = require("../models/foundItem.model");
 const LostItem = require("../models/lostItem.model");
+const Photo = require("../models/photo.model");
 
 const envPath = path.join(__dirname, "../.env");
 const testEnvPath = path.join(__dirname, "../.env.test");
@@ -20,6 +21,10 @@ const mockUsers = [
   {
     email: "mock.user@deakin.edu.au",
   },
+  {
+    email: "admin.mock@deakin.edu.au",
+    role: "admin",
+  },
 ];
 
 function readImageUrls(fileName) {
@@ -34,6 +39,8 @@ function readImageUrls(fileName) {
 
 const foundItemImageUrls = readImageUrls("found-image-urls.txt");
 const lostItemImageUrls = readImageUrls("lost-image-urls.txt");
+const samplePhotoPath = path.join(__dirname, "../data/sample-sparkle.jpeg");
+const samplePhotoId = new mongoose.Types.ObjectId("68d4a0000000000000000066");
 
 const campusLocations = ["Burwood", "Waurn Ponds", "Waterfront", "Warrnambool"];
 
@@ -86,6 +93,118 @@ function getCategory(fileName) {
   return "Other";
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+async function seedSamplePhoto(owner, label) {
+  if (!fs.existsSync(samplePhotoPath)) {
+    console.log(`ℹ️  Sample photo was not found and was skipped (${label}).`);
+    return;
+  }
+
+  const data = fs.readFileSync(samplePhotoPath);
+  const photoUrl = `/api/photos/${samplePhotoId}`;
+
+  await Photo.updateOne(
+    { _id: samplePhotoId },
+    {
+      $set: {
+        data,
+        contentType: "image/jpeg",
+        originalName: path.basename(samplePhotoPath),
+        size: data.length,
+      },
+    },
+    { upsert: true },
+  );
+
+  await FoundItem.updateOne(
+    { ownerId: owner._id, title: "Sample Sparkler" },
+    {
+      $set: {
+        category: "Other",
+        description: "A sparkler found at Burwood campus.",
+        foundAt: new Date(Date.UTC(2026, 8, 1)),
+        campusLocation: "Burwood",
+        photos: [photoUrl],
+        contactMethod: "collection",
+        collectionLocation: "Burwood Campus Security",
+        status: "active",
+      },
+      $setOnInsert: {
+        ownerId: owner._id,
+        title: "Sample Sparkler",
+      },
+    },
+    { upsert: true },
+  );
+
+  console.log(`✅ Sample photo is ready (${label}).`);
+}
+
+// old reports for the admin stale-count and bulk-resolve actions.
+// a report is stale when it is active and createdAt is older than 90 days (incident date is not used).
+const staleReports = [
+  { type: "lost", title: "Old Grey Umbrella", category: "Other", createdDaysAgo: 95 },
+  { type: "lost", title: "Old Student Diary", category: "Books & Stationery", createdDaysAgo: 130 },
+  { type: "lost", title: "Old Bike Lock Key", category: "Keys", createdDaysAgo: 200 },
+  { type: "lost", title: "Old Resolved Scarf", category: "Clothing", createdDaysAgo: 150, status: "resolved" },
+  { type: "lost", title: "Recent Report Of An Old Loss", category: "Other", createdDaysAgo: 2, incidentDaysAgo: 200 },
+  { type: "found", title: "Old Black Backpack", category: "Bags & Backpacks", createdDaysAgo: 100 },
+  { type: "found", title: "Old Student Card", category: "Cards & Wallets", createdDaysAgo: 120 },
+  { type: "found", title: "Old Calculator", category: "Electronics", createdDaysAgo: 180 },
+  { type: "found", title: "Old Resolved Jacket", category: "Clothing", createdDaysAgo: 150, status: "resolved" },
+  { type: "found", title: "Recent Report Of An Old Find", category: "Other", createdDaysAgo: 2, incidentDaysAgo: 200 },
+];
+
+async function seedStaleReports(owner) {
+  for (const [index, report] of staleReports.entries()) {
+    const campusLocation = campusLocations[index % campusLocations.length];
+    const createdAt = new Date(Date.now() - report.createdDaysAgo * DAY_MS);
+    const incidentAt = new Date(
+      Date.now() - (report.incidentDaysAgo ?? report.createdDaysAgo + 1) * DAY_MS,
+    );
+    const common = {
+      ownerId: owner._id,
+      title: report.title,
+      category: report.category,
+      campusLocation,
+      photos: [],
+      status: report.status || "active",
+      createdAt,
+      updatedAt: createdAt,
+    };
+
+    if (report.type === "lost") {
+      await LostItem.updateOne(
+        { ownerId: owner._id, title: report.title },
+        {
+          $setOnInsert: {
+            ...common,
+            description: `${report.title} was last seen at ${campusLocation} campus.`,
+            lostAt: incidentAt,
+          },
+        },
+        // timestamps: false keeps the createdAt above instead of setting it to now.
+        { upsert: true, timestamps: false },
+      );
+    } else {
+      await FoundItem.updateOne(
+        { ownerId: owner._id, title: report.title },
+        {
+          $setOnInsert: {
+            ...common,
+            description: `${report.title} found at ${campusLocation} campus.`,
+            foundAt: incidentAt,
+            contactMethod: "collection",
+            collectionLocation: `${campusLocation} Campus Security`,
+          },
+        },
+        { upsert: true, timestamps: false },
+      );
+    }
+  }
+}
+
 async function seedDatabase(mongoUri, label) {
   await mongoose.connect(mongoUri);
 
@@ -100,6 +219,8 @@ async function seedDatabase(mongoUri, label) {
   console.log(`✅ Mock users are ready (${label}).`);
 
   const owner = await User.findOne({ email: mockUsers[0].email });
+  await seedSamplePhoto(owner, label);
+
   for (const [index, imageUrl] of foundItemImageUrls.entries()) {
     const fileName = imageUrl.split("/").pop();
     const title = createTitle(fileName);
@@ -146,6 +267,9 @@ async function seedDatabase(mongoUri, label) {
     );
   }
 
+  await seedStaleReports(owner);
+
+  console.log(`✅ ${staleReports.length} old reports are ready (${label}).`);
   console.log(`✅ ${foundItemImageUrls.length} found items are ready (${label}).`);
   console.log(`✅ ${lostItemImageUrls.length} lost items are ready (${label}).`);
   await mongoose.disconnect();

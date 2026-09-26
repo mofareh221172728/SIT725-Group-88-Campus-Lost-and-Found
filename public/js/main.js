@@ -157,20 +157,7 @@ if (reportForm) {
     }
 
     try {
-      const response = await fetch('/api/items', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(reportData)
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        alert(result.message || 'Unable to submit report.');
-        return;
-      }
+      await api.post('/api/items', reportData);
 
       alert('Report submitted successfully.');
       reportForm.reset();

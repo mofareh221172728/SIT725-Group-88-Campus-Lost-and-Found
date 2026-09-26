@@ -6,6 +6,10 @@ const mongoose = require("mongoose");
 const path = require("path");
 const authRoutes = require("./routes/auth.routes");
 const itemsRoutes = require("./routes/items.routes");
+const photosRoutes = require("./routes/photos.routes");
+const adminRoutes = require("./routes/admin.routes");
+const requireAuth = require("./middleware/auth.middleware");
+const requireAdmin = require("./middleware/requireAdmin.middleware");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,75 +38,14 @@ app.use(
 
 app.use("/api/auth", authRoutes);
 app.use("/api/items", itemsRoutes);
+app.use("/api/photos", photosRoutes);
+app.use("/api/admin", requireAuth, requireAdmin, adminRoutes);
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Temporary in-memory storage
-const items = [];
-
-// GET item type counts (overall counts of active lost, found, all items)
-app.get("/api/items/counts", (req, res) => {
-  const activeItems = items.filter(
-    (item) => !item.status || String(item.status).toLowerCase() === "active"
-  );
-
-  res.json({
-    all: activeItems.length,
-    lost: activeItems.filter((i) => i.type && i.type.toLowerCase() === "lost").length,
-    found: activeItems.filter((i) => i.type && i.type.toLowerCase() === "found").length,
-  });
-});
-
-// GET items with filtering, sorting, and pagination
-app.get("/api/items", (req, res) => {
-  // Only active reports are returned
-  const activeItems = items.filter(
-    (item) => !item.status || String(item.status).toLowerCase() === "active"
-  );
-
-  let result = [...activeItems];
-  const { type, sort, page, limit } = req.query;
-
-  // Filter by type (lost / found)
-  if (type && type.toLowerCase() !== "all") {
-    result = result.filter(
-      (item) => item.type && item.type.toLowerCase() === type.toLowerCase()
-    );
-  }
-
-  // Sort by reported date: newest (descending) or oldest (ascending)
-  if (sort === "oldest") {
-    result.sort((a, b) => new Date(a.date) - new Date(b.date));
-  } else if (sort === "newest") {
-    result.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
-
-  // Pagination (when page query param is supplied)
-  if (page) {
-    const pageNum = Math.max(1, parseInt(page, 10) || 1);
-    const limitNum = Math.max(1, parseInt(limit, 10) || 12);
-    const total = result.length;
-    const totalPages = Math.ceil(total / limitNum) || 1;
-    const startIndex = (pageNum - 1) * limitNum;
-    const paginatedItems = result.slice(startIndex, startIndex + limitNum);
-
-    return res.json({
-      items: paginatedItems,
-      total,
-      page: pageNum,
-      totalPages,
-    });
-  }
-
-  res.json(result);
-});
-
-
-
 // Export (used by tests via Supertest)
-
-module.exports = { app, items };
+module.exports = { app };
 
 // Start server
 if (require.main === module) {

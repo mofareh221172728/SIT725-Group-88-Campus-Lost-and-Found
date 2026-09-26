@@ -10,6 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/my-reports.css" rel="stylesheet">
 </head>
 
 <body>
@@ -42,87 +43,23 @@
         </div>
       </div>
       <div class="p-4">
-        <div class="lorem-line w-40" style="height:16px; margin-bottom:16px;"></div>
+        <p id="reports-message" role="status" aria-live="polite">Loading your reports…</p>
 
-        <div class="kicker mono mb-2">Items I Found (3)</div>
-        <div class="box mb-4" style="border-radius:4px; overflow:hidden;">
+        <section aria-labelledby="found-heading" class="mb-4">
+          <h3 id="found-heading" class="kicker mono mb-2">Items I Found (0)</h3>
+          <div id="found-reports" class="box" style="border-radius:4px; overflow:hidden;"></div>
+        </section>
 
-          <div class="flex items-center p-2 report-row" style="border-bottom:1px solid var(--wf-line);">
-            <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
-            <div class="flex-grow">
-              <div class="lorem-line w-40 m-0 mb-1"></div>
-              <span class="badge-wf badge-active status-badge">Active</span>
-            </div>
-            <div class="flex gap-2">
-              <a href="report.html" class="btn-wf" data-action="edit-report">Edit</a>
-              <button type="button" class="btn-wf" data-action="resolve-report">Resolve</button>
-              <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
-            </div>
-          </div>
-
-          <div class="flex items-center p-2 report-row" style="border-bottom:1px solid var(--wf-line);">
-            <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
-            <div class="flex-grow">
-              <div class="lorem-line w-40 m-0 mb-1"></div>
-              <span class="badge-wf badge-resolved status-badge">Resolved</span>
-            </div>
-            <div class="flex gap-2">
-              <button type="button" class="btn-wf" data-action="edit-report" disabled>Edit</button>
-              <button type="button" class="btn-wf" data-action="resolve-report" disabled>Resolve</button>
-              <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
-            </div>
-          </div>
-
-          <div class="flex items-center p-2 report-row">
-            <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
-            <div class="flex-grow">
-              <div class="lorem-line w-40 m-0 mb-1"></div>
-              <span class="badge-wf badge-active status-badge">Active</span>
-            </div>
-            <div class="flex gap-2">
-              <a href="report.html" class="btn-wf" data-action="edit-report">Edit</a>
-              <button type="button" class="btn-wf" data-action="resolve-report">Resolve</button>
-              <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="kicker mono mb-2">Items I Lost (2)</div>
-        <div class="box" style="border-radius:4px; overflow:hidden;">
-
-          <div class="flex items-center p-2 report-row" style="border-bottom:1px solid var(--wf-line);">
-            <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
-            <div class="flex-grow">
-              <div class="lorem-line w-40 m-0 mb-1"></div>
-              <span class="badge-wf badge-resolved status-badge">Resolved</span>
-            </div>
-            <div class="flex gap-2">
-              <button type="button" class="btn-wf" data-action="edit-report" disabled>Edit</button>
-              <button type="button" class="btn-wf" data-action="resolve-report" disabled>Resolve</button>
-              <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
-            </div>
-          </div>
-
-          <div class="flex items-center p-2 report-row">
-            <div class="ph me-3" style="width:48px;height:48px;border-radius:4px;">img</div>
-            <div class="flex-grow">
-              <div class="lorem-line w-40 m-0 mb-1"></div>
-              <span class="badge-wf badge-active status-badge">Active</span>
-            </div>
-            <div class="flex gap-2">
-              <a href="report.html" class="btn-wf" data-action="edit-report">Edit</a>
-              <button type="button" class="btn-wf" data-action="resolve-report">Resolve</button>
-              <button type="button" class="btn-wf" data-action="delete-report">Delete</button>
-            </div>
-          </div>
-
-        </div>
+        <section aria-labelledby="lost-heading">
+          <h3 id="lost-heading" class="kicker mono mb-2">Items I Lost (0)</h3>
+          <div id="lost-reports" class="box" style="border-radius:4px; overflow:hidden;"></div>
+        </section>
       </div>
     </div>
   </div>
 
-  <script src="js/main.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/my-reports.js"></script>
   <script src="js/mobile-menu.js"></script>
 </body>
 

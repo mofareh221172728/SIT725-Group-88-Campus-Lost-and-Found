@@ -87,6 +87,16 @@
     display: none !important;
 }
 
+/* Collection Location Group Indentation & Spacing */
+.collection-location-group {
+    margin-left: 28px;
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+
+.collection-location-group .row {
+    margin-bottom: 0;
+}
 
 /* Radio Buttons */
 [type="radio"]:checked+span:after,
