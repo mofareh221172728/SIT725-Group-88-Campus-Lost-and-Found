@@ -33,6 +33,39 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/mine", requireAuth, async (req, res) => {
+  try {
+    return res.json(await itemsService.getOwnedReports(req.session.userId));
+  } catch (error) {
+    if (error.status === 401) {
+      return res.status(401).json({ message: error.message });
+    }
+    console.error("Get my reports error:", error);
+    return res.status(500).json({ message: "Unable to load your reports." });
+  }
+});
+
+router.get("/:type/:id/edit", requireAuth, async (req, res) => {
+  try {
+    const report = await itemsService.getOwnedReportForEdit(
+      req.session.userId,
+      req.params.type,
+      req.params.id,
+    );
+
+    return res.json({ report });
+  } catch (error) {
+    if ([400, 403, 404].includes(error.status)) {
+      return res.status(error.status).json({ message: error.message });
+    }
+
+    console.error("Get report for edit error:", error);
+    return res.status(500).json({
+      message: "Unable to load the report for editing.",
+    });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const report = await itemsService.getItemDetail(req.params.id, req.query.type);

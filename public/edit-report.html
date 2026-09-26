@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Report - Campus Lost &amp; Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/report.css">
+  <link rel="stylesheet" href="css/edit-report.css">
+</head>
+<body>
+  <nav class="switcher">
+    <div class="switcher-inner flex items-center gap-3">
+      <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu"></button>
+      <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links">
+        <li><a class="nav-link" href="index.html">Login</a></li>
+        <li><a class="nav-link" href="browse.html">Main</a></li>
+        <li><a class="nav-link" href="report.html">Create Report</a></li>
+        <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
+        <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
+        <li><a class="nav-link active" href="my-reports.html">My Reports</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="screen-wrap">
+    <div class="screen-label"><h1>Edit Report</h1></div>
+    <div class="device">
+      <div class="wf-navbar">
+        <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
+        <div class="wf-navlinks"><a href="my-reports.html" class="edit-back no-underline">← My Reports</a></div>
+      </div>
+
+      <div class="report-container edit-container">
+        <div class="mode-toggle" role="group" aria-label="Current report type">
+          <button type="button" id="btn-mode-lost" class="btn mode-btn" disabled>I Lost Something</button>
+          <button type="button" id="btn-mode-found" class="btn mode-btn" disabled>I Found Something</button>
+        </div>
+
+        <p>Update the details of your active report. Fields marked * are required.</p>
+        <div id="form-alert" class="form-alert alert-info" role="status" tabindex="-1">Loading report…</div>
+        <noscript><p>Enable JavaScript to edit a report.</p></noscript>
+
+        <form id="edit-report-form" novalidate aria-busy="false">
+          <fieldset id="edit-fields" disabled>
+            <h5>Item Overview</h5>
+            <div class="row fixed-fields">
+              <div class="input-field col s12 m6">
+                <input id="edit-report-type" type="text" value="" disabled>
+                <label class="active" for="edit-report-type">Report Type (fixed)</label>
+              </div>
+              <div class="input-field col s12 m6">
+                <input id="edit-report-status" type="text" value="" disabled>
+                <label class="active" for="edit-report-status">Status (fixed)</label>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="input-field col s12">
+                <input id="item-title" name="title" type="text" class="validate" minlength="5" maxlength="100" required aria-required="true">
+                <label for="item-title">Item Title *</label>
+                <span class="helper-text">5–100 characters.</span>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="input-field col s12 m6">
+                <select id="item-category" name="category" required aria-required="true">
+                  <option value="" disabled>Choose a category</option>
+                  <option value="Electronics">Electronics (Laptops, Phones, Audio)</option>
+                  <option value="Cards &amp; Wallets">Student Cards, Wallets, IDs</option>
+                  <option value="Keys">Keys &amp; Security Tokens</option>
+                  <option value="Bags &amp; Backpacks">Bags, Backpacks, Cases</option>
+                  <option value="Clothing">Clothing &amp; Accessories</option>
+                  <option value="Books &amp; Stationery">Books &amp; Stationery</option>
+                  <option value="Bottles &amp; Containers">Bottles &amp; Containers</option>
+                  <option value="Other">Other Items</option>
+                </select>
+                <label for="item-category">Category *</label>
+              </div>
+              <div class="input-field col s12 m6">
+                <input id="item-date" name="date" type="date" class="validate" required aria-required="true">
+                <label class="active" for="item-date" id="edit-date-label">Date *</label>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="input-field col s12">
+                <textarea id="item-desc" name="description" class="materialize-textarea" minlength="10" maxlength="1000" required aria-required="true"></textarea>
+                <label for="item-desc">Detailed Description *</label>
+                <span class="helper-text">10–1000 characters.</span>
+              </div>
+            </div>
+
+            <h5 id="edit-location-heading">Location</h5>
+            <div class="row">
+              <div class="input-field col s12 m4">
+                <select id="item-campus" name="campus" required aria-required="true">
+                  <option value="" disabled selected>Choose campus</option>
+                  <option value="Burwood">Melbourne Burwood</option>
+                  <option value="Waurn Ponds">Geelong Waurn Ponds</option>
+                  <option value="Waterfront">Geelong Waterfront</option>
+                  <option value="Warrnambool">Warrnambool</option>
+                </select>
+                <label for="item-campus">Campus</label>
+              </div>
+              <div class="input-field col s12 m4">
+                <input id="item-building" name="building" type="text" class="validate" required aria-required="true">
+                <label for="item-building">Building</label>
+              </div>
+              <div class="input-field col s12 m4">
+                <input id="item-room" name="room" type="text" class="validate">
+                <label for="item-room">Room / Area (Optional)</label>
+              </div>
+            </div>
+
+            <div id="edit-handover" hidden>
+              <h5>Collection &amp; Handover Method</h5>
+              <div class="row">
+                <div class="input-field col s12">
+                  <select id="handover-method" name="handoverMethod">
+                    <option value="" disabled>Choose a handover method</option>
+                    <option value="dropoff">Campus Security / Student Central</option>
+                    <option value="email">Contact me via my Deakin email</option>
+                  </select>
+                  <label for="handover-method">Handover method *</label>
+                </div>
+              </div>
+              <div class="row" id="edit-collection-field" hidden>
+                <div class="input-field col s12">
+                  <input id="collection-location" name="collectionLocation" type="text" maxlength="100" class="validate">
+                  <label for="collection-location">Collection location *</label>
+                </div>
+              </div>
+            </div>
+
+            <section aria-labelledby="edit-photos-heading">
+              <h5 id="edit-photos-heading">Current Photos</h5>
+              <div id="edit-photos" class="edit-photos"></div>
+              <p class="helper-text">Photos, owner, report type and status cannot be changed here.</p>
+            </section>
+
+            <div class="row form-actions edit-actions">
+              <button class="btn-flat waves-effect" type="button" id="reset-edit">Reset Changes</button>
+              <button class="btn waves-effect waves-light" type="submit" id="save-edit" disabled>Save Changes</button>
+            </div>
+          </fieldset>
+        </form>
+        <a class="edit-cancel" href="my-reports.html">Cancel and return to My Reports</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/report-validation.js"></script>
+  <script src="js/form-feedback.js"></script>
+  <script src="js/edit-report-form.js"></script>
+  <script src="js/edit-report-page.js"></script>
+  <script src="js/mobile-menu.js"></script>
+</body>
+</html>

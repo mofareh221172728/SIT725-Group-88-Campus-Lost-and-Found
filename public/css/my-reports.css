@@ -1,0 +1,46 @@
+.report-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border-bottom: 1px solid var(--wf-line);
+}
+
+.report-row:last-child {
+  border-bottom: 0;
+}
+
+.report-photo {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.report-details {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.report-details > div {
+  color: var(--wf-text-soft);
+  font-size: .8rem;
+  margin: 4px 0;
+}
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.reports-empty {
+  padding: 12px;
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .report-row { flex-wrap: wrap; }
+  .report-actions { width: 100%; justify-content: flex-end; }
+}
