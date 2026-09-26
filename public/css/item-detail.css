@@ -1,0 +1,80 @@
+/* Item Detail - Photo Popup Modal */
+
+.item-detail-photo {
+  cursor: pointer;
+}
+
+.photo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.photo-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.photo-modal-img {
+  max-width: 85vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.photo-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 2.25rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.photo-modal-close:hover {
+  opacity: 0.8;
+}
+
+.photo-modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-modal-nav:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.photo-modal-prev {
+  left: 1.25rem;
+}
+
+.photo-modal-next {
+  right: 1.25rem;
+}
+
+.photo-modal-nav[hidden] {
+  display: none;
+}

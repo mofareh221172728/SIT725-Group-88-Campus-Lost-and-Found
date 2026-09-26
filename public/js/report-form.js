@@ -15,29 +15,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitButton = document.getElementById('btn-submit-report');
 
     function updateFoundFields() {
-    const isFound = typeInput.value === 'found';
-    const handoverMethod = document.querySelector('input[name="handoverMethod"]:checked')?.value;
-    const needsCollectionLocation = isFound && handoverMethod === 'dropoff';
+        const isFound = typeInput.value === 'found';
+        const handoverMethod = document.querySelector('input[name="handoverMethod"]:checked')?.value;
+        const needsCollectionLocation = isFound && handoverMethod === 'dropoff';
 
-    foundCollectionSection.classList.toggle('d-none', !isFound);
+        foundCollectionSection.classList.toggle('d-none', !isFound);
 
 
 
-    handoverInputs.forEach(input => {
-        input.disabled = !isFound;
-        input.required = isFound;
-        input.setAttribute('aria-required', String(isFound));
-    });
+        handoverInputs.forEach(input => {
+            input.disabled = !isFound;
+            input.required = isFound;
+            input.setAttribute('aria-required', String(isFound));
+        });
 
-    collectionLocationField.classList.toggle('d-none', !needsCollectionLocation);
-    collectionLocationInput.disabled = !needsCollectionLocation;
-    collectionLocationInput.required = needsCollectionLocation;
-    collectionLocationInput.setAttribute('aria-required', String(needsCollectionLocation));
+        collectionLocationField.classList.toggle('d-none', !needsCollectionLocation);
+        collectionLocationInput.disabled = !needsCollectionLocation;
+        collectionLocationInput.required = needsCollectionLocation;
+        collectionLocationInput.setAttribute('aria-required', String(needsCollectionLocation));
 
-    if (!needsCollectionLocation && typeof clearFieldError === 'function') {
-        clearFieldError(collectionLocationInput);
+        if (!needsCollectionLocation && typeof clearFieldError === 'function') {
+            clearFieldError(collectionLocationInput);
+        }
     }
-}
 
     // Toggle between Lost and Found mode
     function setReportMode(mode) {
@@ -57,20 +57,164 @@ document.addEventListener('DOMContentLoaded', () => {
         btnLost.addEventListener('click', () => setReportMode('lost'));
         btnFound.addEventListener('click', () => setReportMode('found'));
     }
-     handoverInputs.forEach(input => {
-    input.addEventListener('change', () => {
-        handoverInputs.forEach(clearFieldError);
-        updateFoundFields();
-     });
+    handoverInputs.forEach(input => {
+        input.addEventListener('change', () => {
+            handoverInputs.forEach(clearFieldError);
+            updateFoundFields();
+        });
     });
 
-updateFoundFields();
+    updateFoundFields();
     // Default to today's date
     if (dateInput && !dateInput.value) {
         dateInput.value = new Date().toISOString().split('T')[0];
     }
 
     if (!form) return;
+
+    // Drag-and-Drop Photo Upload Initialization
+    function initPhotoDropZone() {
+        const dropZone = document.getElementById('photo-drop-zone');
+        const fileInput = document.getElementById('item-photos');
+        const fileListContainer = document.getElementById('drop-zone-file-list');
+
+        if (!dropZone || !fileInput) return;
+
+        const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+        const ALLOWED_EXTS = /\.(jpe?g|png|webp)$/i;
+        const MAX_PHOTOS = 3;
+
+        function isImageFile(file) {
+            return ALLOWED_MIME_TYPES.includes(file.type) ||
+                file.type === 'image/jpg' ||
+                ALLOWED_EXTS.test(file.name || '');
+        }
+
+        function renderFileList(files) {
+            if (!fileListContainer) return;
+            fileListContainer.innerHTML = '';
+            if (!files || files.length === 0) {
+                fileListContainer.classList.add('d-none');
+                return;
+            }
+
+            Array.from(files).forEach(file => {
+                const item = document.createElement('span');
+                item.className = 'drop-zone-file-item';
+                const sizeKb = Math.round(file.size / 1024);
+                item.textContent = `${file.name} (${sizeKb} KB)`;
+                fileListContainer.appendChild(item);
+            });
+            fileListContainer.classList.remove('d-none');
+        }
+
+        function processFiles(files, isDrop) {
+            if (!files || files.length === 0) {
+                renderFileList([]);
+                return;
+            }
+
+            if (files.length > MAX_PHOTOS) {
+                fileInput.value = '';
+                renderFileList([]);
+                dropZone.classList.add('is-invalid');
+                if (typeof showFieldError === 'function') {
+                    showFieldError(fileInput, `Users cannot select or drop more than ${MAX_PHOTOS} images at a time.`);
+                }
+                return;
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!isImageFile(file)) {
+                    fileInput.value = '';
+                    renderFileList([]);
+                    dropZone.classList.add('is-invalid');
+                    if (typeof showFieldError === 'function') {
+                        showFieldError(fileInput, `File "${file.name}" is not supported. Only JPEG, PNG, and WebP are allowed.`);
+                    }
+                    return;
+                }
+            }
+
+            if (isDrop) {
+                try {
+                    const dt = new DataTransfer();
+                    for (let i = 0; i < files.length; i++) {
+                        dt.items.add(files[i]);
+                    }
+                    fileInput.files = dt.files;
+                } catch (err) {
+                    console.warn('Could not set DataTransfer files on input:', err);
+                }
+            }
+
+            dropZone.classList.remove('is-invalid');
+            if (typeof clearFieldError === 'function') {
+                clearFieldError(fileInput);
+            }
+            renderFileList(files);
+        }
+
+        // Open device file picker when clicking anywhere in the drop zone
+        dropZone.addEventListener('click', (e) => {
+            if (e.target !== fileInput) {
+                fileInput.click();
+            }
+        });
+
+        // Accessibility keyboard support
+        dropZone.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput.click();
+            }
+        });
+
+        // Handle native file selection
+        fileInput.addEventListener('change', () => {
+            processFiles(fileInput.files, false);
+        });
+
+        // Drag and drop event listeners
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'dragend'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('drag-over');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+
+            const droppedFiles = e.dataTransfer?.files;
+            if (droppedFiles && droppedFiles.length > 0) {
+                processFiles(droppedFiles, true);
+            }
+        });
+
+        // Reset drop zone when form is reset
+        form.addEventListener('reset', () => {
+            renderFileList([]);
+            dropZone.classList.remove('is-invalid');
+            if (typeof clearFieldError === 'function') {
+                clearFieldError(fileInput);
+            }
+        });
+    }
+
+    initPhotoDropZone();
 
     // Real-time error clearing when user fixes input
     form.querySelectorAll('input, select, textarea').forEach(input => {
@@ -97,7 +241,14 @@ updateFoundFields();
             validation = validateReportForm(form);
             if (!validation.isValid) {
                 showFormAlert(alertBox, 'error', 'Please fix the highlighted errors before submitting.');
-                validation.errors.forEach(err => showFieldError(err.element, err.message));
+                const dropZone = document.getElementById('photo-drop-zone');
+                const fileInput = document.getElementById('item-photos');
+                validation.errors.forEach(err => {
+                    showFieldError(err.element, err.message);
+                    if (err.element === fileInput && dropZone) {
+                        dropZone.classList.add('is-invalid');
+                    }
+                });
                 scrollToFirstError(validation.errors[0].element);
                 return;
             }
