@@ -140,9 +140,25 @@ function initBulkActions() {
 
   cancelButton.addEventListener("click", closeConfirm);
 
-  confirmButton.addEventListener("click", () => {
+  confirmButton.addEventListener("click", async () => {
     closeConfirm();
-    // Bulk-actions request is not wired up yet.
+    runButton.disabled = true;
+    document.getElementById("bulk-action-result").classList.add("d-none");
+
+    try {
+      const { count } = await api.post("/api/admin/reports/bulk-actions", {
+        action: "resolve-stale",
+      });
+      showBulkResult(count);
+      // Reload the list and counts so the UI reflects the new state.
+      await loadStaleReports();
+    } catch (error) {
+      const result = document.getElementById("bulk-action-result");
+      result.textContent = error.message;
+      result.classList.remove("d-none");
+    } finally {
+      updateSelection();
+    }
   });
 
   updateSelection();
