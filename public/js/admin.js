@@ -85,7 +85,7 @@ function renderStaleReports(reports) {
   document
     .getElementById("stale-report-list")
     .replaceChildren(...reports.map(createReportRow));
-  empty.textContent = "No reports older than 3 months.";
+  empty.textContent = "No reports older than 90 days.";
   empty.classList.toggle("d-none", reports.length > 0);
   updateSelection();
 }
