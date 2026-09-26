@@ -260,3 +260,98 @@ textarea::placeholder {
     border: 1px solid #84e1bc;
     color: #0e6245;
 }
+
+/* Drag and Drop Photo Upload Box */
+.drop-zone {
+    border: 2px dashed #b0b0b0;
+    border-radius: 6px;
+    padding: 24px 16px;
+    text-align: center;
+    background-color: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    position: relative;
+    outline: none;
+}
+
+.drop-zone:hover {
+    border-color: #5e5e5e;
+    background-color: #f5f5f5;
+}
+
+.drop-zone:focus {
+    border-color: #1c1e22;
+    outline: 2px solid #1c1e22;
+    outline-offset: 2px;
+}
+
+/* Visually highlight when a file is dragged over it */
+.drop-zone.drag-over {
+    border-color: #1c1e22;
+    background-color: #eeeeee;
+    border-style: solid;
+}
+
+.drop-zone.is-invalid {
+    border-color: #c53030 !important;
+    background-color: #fdf2f2;
+}
+
+.drop-zone-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    pointer-events: none;
+}
+
+.drop-zone-content * {
+    pointer-events: none;
+}
+
+.drop-zone-icon {
+    display: block;
+    margin: 0 auto 8px;
+    color: #5e5e5e;
+}
+
+.drop-zone-prompt {
+    font-size: 0.82rem;
+    color: #2b2b2b;
+    margin: 0 0 4px 0;
+}
+
+.drop-zone-browse {
+    color: #1c1e22;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.drop-zone-help {
+    display: block;
+    font-size: 0.72rem;
+    color: #6e6e6e;
+}
+
+.drop-zone-file-list {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.drop-zone-file-item {
+    display: inline-flex;
+    align-items: center;
+    background: #e4e4e4;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    font-family: 'IBM Plex Mono', monospace;
+    color: #2b2b2b;
+}
