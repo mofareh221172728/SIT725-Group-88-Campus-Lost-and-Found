@@ -232,41 +232,41 @@ function toEditItem(report, type, dateField) {
   return item;
 }
 
-async function getActiveItems(type, keyword = "") {
-  const queries = [];
-  const matchesKeyword = (report) =>
-    !keyword ||
-    report.title.toLowerCase().includes(keyword) ||
-    (report.description || "").toLowerCase().includes(keyword);
-
-  if (type === "all" || type === "found") {
-    queries.push(
-      FoundItem.find(activeReportFilter)
-        .select("title description category campusLocation foundAt photos status")
-        .lean()
-        .then((reports) =>
-          reports
-            .filter(matchesKeyword)
-            .map((report) => toCardItem(report, "found", "foundAt")),
-        ),
-    );
-  }
-
-  if (type === "all" || type === "lost") {
-    queries.push(
-      LostItem.find(activeReportFilter)
-        .select("title description category campusLocation lostAt photos status")
-        .lean()
-        .then((reports) =>
-          reports
-            .filter(matchesKeyword)
-            .map((report) => toCardItem(report, "lost", "lostAt")),
-        ),
-    );
-  }
-
-  return (await Promise.all(queries)).flat();
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+
+function buildModelFilter(dateField, { keyword, category, location, fromDate, toDate }) {
+  const filter = { ...activeReportFilter };
+
+  if (category) {
+    filter.category = new RegExp(`^${escapeRegex(category)}$`, "i");
+  }
+
+  if (location) {
+    filter.campusLocation = new RegExp(escapeRegex(location), "i");
+  }
+
+  if (fromDate || toDate) {
+    filter[dateField] = {};
+    if (fromDate) filter[dateField].$gte = fromDate;
+    if (toDate) filter[dateField].$lte = toDate;
+  }
+
+  if (keyword) {
+    const regex = new RegExp(escapeRegex(keyword), "i");
+    return {
+      $and: [filter, { $or: [{ title: regex }, { description: regex }] }],
+    };
+  }
+
+  return filter;
+}
+
+const MODEL_CONFIG = {
+  found: { model: FoundItem, dateField: "foundAt" },
+  lost: { model: LostItem, dateField: "lostAt" },
+};
 
 async function getItems({
   type: rawType,
@@ -280,9 +280,9 @@ async function getItems({
   toDate: rawToDate,
 }) {
   const type = String(rawType || "all").toLowerCase();
-  const keyword = String(rawKeyword || "").trim().toLowerCase();
-  const category = String(rawCategory || "").trim().toLowerCase();
-  const location = String(rawLocation || "").trim().toLowerCase();
+  const keyword = String(rawKeyword || "").trim();
+  const category = String(rawCategory || "").trim();
+  const location = String(rawLocation || "").trim();
   const fromDate = parseDateFilter(rawFromDate, "fromDate");
   const toDate = parseDateFilter(rawToDate, "toDate", true);
 
@@ -290,54 +290,69 @@ async function getItems({
     throw validationError("fromDate cannot be after toDate.");
   }
 
-  let items = await getActiveItems(type, keyword);
-
-  if (category) {
-    items = items.filter(
-      (item) => item.category.toLowerCase() === category,
-    );
-  }
-
-  if (location) {
-    items = items.filter((item) =>
-      item.location.toLowerCase().includes(location),
-    );
-  }
-
-  if (fromDate) {
-    items = items.filter(
-      (item) => new Date(item.date) >= fromDate,
-    );
-  }
-
-  if (toDate) {
-    items = items.filter(
-      (item) => new Date(item.date) <= toDate,
-    );
-  }
-
-  if (sort === "oldest") {
-    items.sort((a, b) => new Date(a.date) - new Date(b.date));
-  } else if (sort === "newest") {
-    items.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
-
-  if (!page) {
-    return items;
-  }
-
+  const isPaginated = Boolean(page);
   const pageNumber = Math.max(1, parseInt(page, 10) || 1);
   const pageSize = Math.max(1, parseInt(limit, 10) || 12);
-  const total = items.length;
-  const totalPages = Math.ceil(total / pageSize) || 1;
   const startIndex = (pageNumber - 1) * pageSize;
+  const sortDirection = sort === "oldest" ? 1 : sort === "newest" ? -1 : null;
 
-  return {
-    items: items.slice(startIndex, startIndex + pageSize),
-    total,
-    page: pageNumber,
-    totalPages,
-  };
+  const validTypes = type === "all"
+    ? ["found", "lost"]
+    : MODEL_CONFIG[type] ? [type] : [];
+
+  if (validTypes.length === 0) {
+    return isPaginated
+      ? { items: [], total: 0, page: pageNumber, totalPages: 1 }
+      : [];
+  }
+
+  const isSingle = validTypes.length === 1;
+
+  const results = await Promise.all(
+    validTypes.map(async (itemType) => {
+      const { model, dateField } = MODEL_CONFIG[itemType];
+      const filter = buildModelFilter(dateField, { keyword, category, location, fromDate, toDate });
+
+      let query = model
+        .find(filter)
+        .select(`title description category campusLocation ${dateField} photos status`);
+
+      if (sortDirection) {
+        query = query.sort({ [dateField]: sortDirection });
+      }
+
+      if (isPaginated && isSingle) {
+        query = query.skip(startIndex).limit(pageSize);
+      }
+
+      const [count, docs] = await Promise.all([
+        model.countDocuments(filter),
+        query.lean(),
+      ]);
+
+      return {
+        count,
+        items: docs.map((doc) => toCardItem(doc, itemType, dateField)),
+      };
+    })
+  );
+
+  const total = results.reduce((sum, r) => sum + r.count, 0);
+  const totalPages = Math.ceil(total / pageSize) || 1;
+  let items = results.flatMap((r) => r.items);
+
+  if (!isSingle && sortDirection) {
+    items.sort((a, b) => (sortDirection === 1 ? new Date(a.date) - new Date(b.date) : new Date(b.date) - new Date(a.date)));
+  }
+
+  if (isPaginated) {
+    if (!isSingle) {
+      items = items.slice(startIndex, startIndex + pageSize);
+    }
+    return { items, total, page: pageNumber, totalPages };
+  }
+
+  return items;
 }
 
 async function getItemDetail(id, rawType) {

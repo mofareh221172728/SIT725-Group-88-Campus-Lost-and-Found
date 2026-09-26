@@ -618,8 +618,30 @@ button[aria-busy="true"] {
 }
 
 /* ============================================================================
-   BROWSE PAGE - Report cards and status messages
+   BROWSE PAGE - Report cards, search bar, sort controls, and status messages
    ============================================================================ */
+#browse-search-form {
+  flex-wrap: wrap;
+}
+
+#browse-keyword {
+  flex: 1;
+  min-width: 200px;
+  max-width: 420px;
+}
+
+#browse-count {
+  font-size: .75rem;
+  color: #5b5f66;
+}
+
+.browse-sort-label,
+label[for="browse-sort"] {
+  font-size: .72rem;
+  color: #5b5f66;
+  margin-right: .25rem;
+}
+
 .browse-message {
   border: 1px solid var(--wf-line);
   background: #fbfbfa;
