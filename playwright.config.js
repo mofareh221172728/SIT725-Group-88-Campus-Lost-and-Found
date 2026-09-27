@@ -7,6 +7,8 @@ const port = process.env.PORT || '3001';
 
 module.exports = defineConfig({
   testDir: './test/e2e',
+  globalSetup: require.resolve('./test/e2e/support/global-setup'),
+  globalTeardown: require.resolve('./test/e2e/support/global-teardown'),
   fullyParallel: false,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
