@@ -3,6 +3,7 @@
 const mongoose = require("mongoose");
 const HelpQuestion = require("../models/helpQuestion.model");
 const HelpReply = require("../models/helpReply.model");
+const User = require("../models/user.model");
 
 const QUESTION_FIELDS = ["title", "body", "category"];
 const REPLY_FIELDS = ["body"];
@@ -126,7 +127,20 @@ async function listQuestions(user, scope) {
   const questions = await HelpQuestion.find(filter)
     .sort({ createdAt: -1 })
     .lean();
-  return questions.map(questionJson);
+
+  if (scope !== "all") {
+    return questions.map(questionJson);
+  }
+
+  // Admins see who asked each question.
+  const ownerIds = [...new Set(questions.map((question) => String(question.ownerId)))];
+  const owners = await User.find({ _id: { $in: ownerIds } }).select("email").lean();
+  const emailById = new Map(owners.map((owner) => [String(owner._id), owner.email]));
+
+  return questions.map((question) => ({
+    ...questionJson(question),
+    ownerEmail: emailById.get(String(question.ownerId)) || null,
+  }));
 }
 
 async function createQuestion(user, data) {

@@ -160,6 +160,18 @@ describe("Help Routes - Authentication and authorization", () => {
       expect(mine.body.questions).to.have.length(0);
     });
 
+    it("HELP-AUTH-11: shows admins who asked each question", async () => {
+      const alice = await login(ALICE);
+      const admin = await login(ADMIN);
+      await createQuestion(alice);
+
+      const all = await admin.get("/api/help/questions?scope=all");
+      const mine = await alice.get("/api/help/questions");
+
+      expect(all.body.questions[0].ownerEmail).to.equal(seed.sampleUsers[ALICE].email);
+      expect(mine.body.questions[0]).to.not.have.property("ownerEmail");
+    });
+
     it("HELP-AUTH-10: rejects scope=all for a student and an unknown scope", async () => {
       const alice = await login(ALICE);
       await createQuestion(alice);
