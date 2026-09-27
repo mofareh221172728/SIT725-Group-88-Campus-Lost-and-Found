@@ -183,6 +183,43 @@ function renderItemDetail(report) {
   renderFoundContact(report);
 }
 
+async function loadPotentialMatches(report) {
+  const section = document.getElementById('potential-matches');
+  const grid = document.getElementById('potential-matches-grid');
+  const message = document.getElementById('potential-matches-message');
+
+  if (!section || !grid || !message || !report) return;
+
+  section.hidden = false;
+
+  const oppositeType = report.type === 'lost' ? 'found' : 'lost';
+  const params = new URLSearchParams({ type: oppositeType });
+  if (report.category) params.set('category', report.category);
+  if (report.location) params.set('location', report.location);
+
+  try {
+    const data = await api.get(`/api/items?${params}`);
+    const results = Array.isArray(data) ? data : (data.items || []);
+    const matches = results
+      .filter((item) => (item.status || 'active').toLowerCase() === 'active')
+      .slice(0, 3);
+
+    if (matches.length === 0) {
+      grid.innerHTML = '';
+      message.textContent = 'No potential matches found in the system right now.';
+      message.hidden = false;
+      return;
+    }
+
+    message.hidden = true;
+    grid.innerHTML = matches.map(reportCardHTML).join('');
+  } catch (error) {
+    grid.innerHTML = '';
+    message.textContent = 'No potential matches found in the system right now.';
+    message.hidden = false;
+  }
+}
+
 async function loadItemDetail() {
   const message = document.getElementById('item-detail-message');
   const content = document.getElementById('item-detail-content');
@@ -202,6 +239,7 @@ async function loadItemDetail() {
     renderItemDetail(data.report);
     content.hidden = false;
     message.hidden = true;
+    loadPotentialMatches(data.report);
   } catch (error) {
     message.textContent = error.status === 404
       ? 'This report could not be found.'
@@ -222,5 +260,6 @@ if (typeof module !== 'undefined' && module.exports) {
     formatItemDate,
     openPhotoModal,
     closePhotoModal,
+    loadPotentialMatches,
   };
 }
