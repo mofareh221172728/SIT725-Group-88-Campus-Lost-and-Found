@@ -62,6 +62,16 @@ describe('Edit report page connector', () => {
       `/api/items/found/${reportId}`,
       changes,
     ]);
+
+    assert.deepEqual(
+      await mounted.onResolve({ id: reportId, type: 'found' }),
+      { resolved: true, message: 'Report updated successfully.' },
+    );
+    assert.deepEqual(calls[3], [
+      'put',
+      `/api/items/found/${reportId}/status`,
+      { status: 'resolved' },
+    ]);
   });
 
   it('locks the form and shows API or invalid-link errors', async () => {

@@ -85,6 +85,10 @@
   letter-spacing: normal;
 }
 
+#resolve-edit {
+  border: 1px solid #c7cbd1;
+}
+
 #save-edit {
   color: #f5f5f5;
   background-color: #5e5e5e !important;
