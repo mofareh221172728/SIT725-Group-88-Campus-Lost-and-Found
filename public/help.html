@@ -10,6 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/ui-state.css" rel="stylesheet">
   <link href="css/help.css" rel="stylesheet">
 </head>
 
@@ -171,7 +172,12 @@
         <!-- My questions (students) or All questions (admins): loaded from GET /api/help/questions. -->
         <section class="help-mine mt-4" aria-labelledby="mine-heading">
           <h2 id="mine-heading" class="kicker mono mb-2">My questions</h2>
-          <p id="my-questions-message" class="box help-mine-empty p-3 m-0" role="status" aria-live="polite">Loading your questions…</p>
+          <!-- Loading, empty and error states come from js/ui-state.js (card #77). -->
+          <div id="my-questions-message">
+            <div class="ui-state ui-state-loading" role="status" aria-live="polite" aria-busy="true">
+              <p class="ui-state-title">Loading your questions…</p>
+            </div>
+          </div>
           <div id="my-questions" class="help-mine-list"></div>
         </section>
       </main>
@@ -179,6 +185,7 @@
   </div>
 
   <script src="js/api.js"></script>
+  <script src="js/ui-state.js"></script>
   <script src="js/help.js"></script>
   <script src="js/mobile-menu.js"></script>
 </body>
