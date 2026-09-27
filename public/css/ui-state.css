@@ -1,0 +1,101 @@
+/* ============================================================================
+   FALLBACK UI STATES - Loading, empty, not found and error (js/ui-state.js)
+   Form validation errors use form-feedback.js instead.
+   Add <link href="css/ui-state.css" rel="stylesheet"> after style.css to use them.
+   ============================================================================ */
+.screen-label-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.ui-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .5rem;
+  padding: 2rem 1rem;
+  border: 1px dashed var(--wf-line);
+  border-radius: 4px;
+  background: var(--wf-white);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.ui-state-error {
+  border-style: solid;
+  border-color: var(--wf-danger);
+  background: #fff5f5;
+}
+
+.ui-state-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1.5px solid var(--wf-line-strong);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  color: var(--wf-line-strong);
+}
+
+.ui-state-error .ui-state-icon {
+  border-color: var(--wf-danger);
+  color: var(--wf-danger);
+}
+
+.ui-state-title {
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--wf-ink);
+}
+
+.ui-state-message {
+  margin: 0;
+  font-size: .8rem;
+  line-height: 1.5;
+  color: var(--wf-text-soft);
+  overflow-wrap: anywhere;
+}
+
+.ui-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+.ui-state-link {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.ui-state-link:focus-visible,
+.ui-state-action:focus-visible {
+  outline: 2px solid var(--wf-link);
+  outline-offset: 2px;
+}
+
+.ui-state-spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--wf-ph);
+  border-top-color: var(--wf-line-strong);
+  border-radius: 50%;
+  animation: ui-state-spin .8s linear infinite;
+}
+
+@keyframes ui-state-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-state-spinner {
+    animation: none;
+  }
+}
