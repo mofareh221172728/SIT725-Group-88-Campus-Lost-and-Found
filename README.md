@@ -207,7 +207,7 @@ See [docs/test-cases.md](docs/test-cases.md) for test-case descriptions. Use the
 | Method and path | Purpose | Session required |
 | --- | --- | --- |
 | `POST /api/auth/login` | Log in with a seeded user email in a JSON body | No |
-| `GET /api/auth/me` | Return the current user's ID and email | Yes |
+| `GET /api/auth/me` | Return the current user's ID, email and role | Yes |
 | `POST /api/auth/logout` | Destroy the current session | Yes |
 
 Mock login accepts `{ "email": "mock.user@deakin.edu.au" }` and sets a session cookie. Keep that cookie when making authenticated requests.
@@ -255,6 +255,22 @@ An authenticated session is required. The owner is taken from the session.
 A successful request returns HTTP `201` with `{ message, report }`. Missing authentication returns `401`; invalid report data returns `400`.
 
 Use the login and Create Report pages above to try this flow. The API accepts JSON; it does not upload image files.
+
+### Admin role and bulk actions
+
+| Method and path | Purpose | Role required |
+| --- | --- | --- |
+| `GET /api/admin/reports/stale-count` | Return `{ count }` of stale reports | `admin` |
+| `GET /api/admin/reports/stale` | List stale reports, oldest first | `admin` |
+| `POST /api/admin/reports/bulk-actions` | Run `{ "action": "resolve-stale" }` and return `{ count }` resolved | `admin` |
+
+A report is stale when it is Active and was created more than 90 days ago (the lost/found date is not used). `resolve-stale` marks only those reports as resolved. Missing authentication returns `401`, a non-admin session returns `403` and an unknown action returns `400`.
+
+To test locally, log in as the seeded admin account `admin.mock@deakin.edu.au` and open [http://localhost:3000/admin.html](http://localhost:3000/admin.html). The Admin nav link is only shown to admin sessions. To make another account an admin, set its `role` to `admin` in the `users` collection:
+
+```cmd
+mongosh "mongodb://127.0.0.1:27017/sit725-group-88" --eval "db.users.updateOne({ email: 'mock.user@deakin.edu.au' }, { $set: { role: 'admin' } })"
+```
 
 ## Known limitations and Sprint 2 work
 
