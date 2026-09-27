@@ -38,6 +38,7 @@
   - [2.2. Create Report](#api-create-report)
   - [2.3. Browse / Get Reports](#api-get-reports)
   - [2.4. Admin Authorization](#admin-authorization)
+  - [2.5. Admin Reports API](#admin-reports-api)
 - [3. Integration & UI Test Cases](#integration-ui-test-cases)
 - [4. Summary](#summary)
 - [5. Running the Tests](#running-the-tests)
@@ -429,6 +430,65 @@
 
 ---
 
+<a id="admin-reports-api"></a>
+### 2.5. Admin Reports API
+
+**Test File:** `test/routes/admin.routes.test.js`
+**Route File:** `routes/admin.routes.js` (service: `services/admin.service.js`)
+**Scope:** Supertest API tests for `GET /api/admin/reports/stale-count`, `GET /api/admin/reports/stale` and `POST /api/admin/reports/bulk-actions` (cards #110–#113). Each test seeds `seed.seedUsers()` + `seed.seedStaleReports()`: 2 stale active reports (`Stale Found Umbrella`, 100 days; `Stale Lost Laptop Sleeve`, 200 days), 1 stale resolved report, and 2 fresh active reports. A report is stale when it is active and its `createdAt` is more than 90 days ago.
+
+**[SECURITY] Access Control** (card #113)
+
+`SEC-01`–`03` run once per admin route (stale-count, stale, bulk-actions), 9 tests in total.
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-SEC-01 | Unauthenticated request to each `/api/admin/*` route | 401 |
+| TC-ADMIN-SEC-02 | Non-admin session (`alice.student`) calls each `/api/admin/*` route | 403, `"Admin access is required."` |
+| TC-ADMIN-SEC-03 | Admin session (`admin.test`) calls each `/api/admin/*` route | ✅ 200 |
+| TC-ADMIN-SEC-04 | Non-admin runs `resolve-stale` | 403, stale reports stay `active` |
+| TC-ADMIN-SEC-05 | Admin logs out, then calls stale-count again | 401 on the next request |
+
+**[POSITIVE] Stale Count — `GET /api/admin/reports/stale-count`** (card #110)
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-COUNT-01 | Seeded data | ✅ 200, `{ count: 2 }` (resolved and fresh reports excluded) |
+| TC-ADMIN-COUNT-02 | No reports in the database | ✅ 200, `{ count: 0 }` |
+| TC-ADMIN-COUNT-03 | `[BOUNDARY]` Extra active reports created 89 and 91 days ago | ✅ `{ count: 3 }` (91 days counted, 89 not) |
+| TC-ADMIN-COUNT-04 | Extra 120-day-old report with no `status` field | ✅ `{ count: 3 }` (missing status treated as active) |
+
+**[POSITIVE] Stale Report List — `GET /api/admin/reports/stale`** (card #112)
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-LIST-01 | Seeded data | ✅ 200, `reports` oldest first (`Stale Lost Laptop Sleeve`, `Stale Found Umbrella`), each with `id, type, title, category, location, createdAt` |
+
+**[POSITIVE] Bulk Resolve — `POST /api/admin/reports/bulk-actions`** (cards #111, #112)
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-BULK-01 | `{ action: "resolve-stale" }` | ✅ 200, `{ count: 2 }`; only the 2 stale active reports become `resolved`, fresh and already-resolved reports unchanged |
+| TC-ADMIN-BULK-02 | Preview stale-count, run, then stale-count again | ✅ Run count equals preview count; stale-count afterwards is `{ count: 0 }` |
+| TC-ADMIN-BULK-05 | Run, then fetch the stale list and `GET /api/items` | ✅ Stale list is `{ reports: [] }`; resolved reports are gone from the browse feed, fresh reports still listed |
+
+**[BOUNDARY] Idempotency & Empty Runs**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-BULK-03 | Run `resolve-stale` twice | ✅ First `{ count: 2 }`, second 200 `{ count: 0 }` |
+| TC-ADMIN-BULK-06 | Run with no reports in the database | ✅ 200, `{ count: 0 }` |
+
+**[TYPE & ENUM] Invalid Action**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-BULK-04 | `{ action: "delete-everything" }` | 400, `"Unknown bulk action. Supported actions: resolve-stale."`; no report changed |
+| TC-ADMIN-BULK-07 | `{}` (missing `action`) | 400, same message |
+| TC-ADMIN-BULK-08 | `{ action: ["resolve-stale"] }` (non-string) | 400; no report changed |
+
+---
+
 <a id="integration-ui-test-cases"></a>
 ## 3. Integration & UI Test Cases
 
@@ -440,6 +500,7 @@
 | **TC-CV-12** | Create Report UI - Form Submission | `INTEGRATION` | Verify user can fill and submit a new report from the web interface. | 1. Server running at `http://localhost:3000`.<br>2. User on `/report.html`. | 1. Fill title, category, date, location, description.<br>2. Click "Submit Report". | 1. Success confirmation is displayed.<br>2. New item is posted to backend. | Pass | Pass |
 | **TC-CV-13** | View Reports UI - Browse Active Items | `UI` | Verify that browse page renders all active reported items with tags and photos. | 1. Server running.<br>2. User on `/browse.html`. | 1. Open `/browse.html`.<br>2. Check displayed cards. | 1. Active items list is displayed.<br>2. Cards show title, category, location, date, and thumbnail photo. | Pass | Pass |
 | **TC-CV-14** | View Reports UI - Filter & Search | `UI` | Verify that search keywords and category filters correctly filter the items list. | 1. `/browse.html` open with sample items loaded. | 1. Enter keyword in search input.<br>2. Select category dropdown filter. | 1. Item list updates instantly to only match the keyword and category. | Pass | Pass |
+| **TC-ADMIN-UI-01** | Admin Bulk Actions - End-to-End Flow (card #112) | `INTEGRATION` | Verify an admin can preview and resolve stale reports from the admin panel. | 1. `npm run seed` has loaded stale reports.<br>2. Logged in as `admin.test@deakin.edu.au`.<br>3. On `/admin.html`. | 1. Note the preview count and stale list.<br>2. Click Run and confirm.<br>3. Click Run again.<br>4. Open `/browse.html`. | 1. Preview count matches the number of seeded stale reports.<br>2. Results panel shows the same count resolved.<br>3. Second run shows a clean "no reports to resolve" result.<br>4. Resolved reports no longer appear in the browse feed. | | |
 
 ---
 
@@ -457,9 +518,10 @@
 > - `test/routes/auth.routes.test.js` adds 10 automated API/session tests (`TC-AUTH-04`–`TC-AUTH-12`, see [§2.1](#login-flow-api), requires a local MongoDB).
 > - `test/routes/items.routes.test.js` adds 14 automated API tests (`TC-API-GET-01`–`14`, `TC-API-COUNTS-01`–`02`, see [§2.3](#api-get-reports), requires a local MongoDB) for the Mongo-backed `GET /api/items`/`GET /api/items/counts` endpoints (card #22). The `TC-API-CREATE-01`–`12` tests (see [§2.2](#api-create-report)) for `POST /api/items` are on the still-open card #49 branch and are not yet part of this count.
 > - `test/middleware/requireAdmin.middleware.test.js` adds 3 automated unit tests (`TC-SEC-01`–`03`, see [§2.4](#admin-authorization), requires a local MongoDB) for the `requireAdmin` middleware (card #109).
-> - `TC-CV-12`–`14` ([§3](#integration-ui-test-cases)) are manual/browser-only and have no automated count.
+> - `test/routes/admin.routes.test.js` adds 24 automated API tests (`TC-ADMIN-SEC-01`–`05`, `TC-ADMIN-COUNT-01`–`04`, `TC-ADMIN-LIST-01`, `TC-ADMIN-BULK-01`–`08`, see [§2.5](#admin-reports-api), requires a local MongoDB) for the admin reports endpoints (cards #110–#113). `SEC-01`–`03` run once per admin route.
+> - `TC-CV-12`–`14` and `TC-ADMIN-UI-01` ([§3](#integration-ui-test-cases)) are manual/browser-only and have no automated count.
 >
-> Total: 120 automated tests when every suite under `test/` runs together (`npm test`): models 41, routes 57, integration 13, middleware 3, public 6. There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
+> Total: 310 automated tests when every suite under `test/` runs together (`npm test`): models 68, routes 174, integration 13, middleware 3, public 47, services 5. There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
 
 ---
 
