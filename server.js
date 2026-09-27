@@ -46,6 +46,16 @@ app.use("/api/help", helpRoutes);
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
+
+// Unknown API routes answer in JSON; unknown pages show the 404 page.
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: "API route was not found." });
+});
+
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+});
+
 // Export (used by tests via Supertest)
 module.exports = { app };
 
