@@ -124,14 +124,18 @@
           <p id="faq-empty" class="help-empty" role="status" aria-live="polite" hidden>No questions match your search. Try another word or ask us below.</p>
         </section>
 
-        <!-- Ask a question: UI only. Submission is connected to the API in a later card. -->
-        <section class="help-ask mt-4" aria-labelledby="ask-heading">
+        <!-- Ask a question: sends to POST /api/help/questions (logged-in users only). -->
+        <section id="help-ask-section" class="help-ask mt-4" aria-labelledby="ask-heading">
           <h2 id="ask-heading" class="kicker mono mb-2">Ask a question</h2>
 
           <form id="help-question-form" class="box-strong p-3 help-form" novalidate>
             <p class="help-notice" role="note">Can't find your answer in the FAQ? Send us your question</p>
 
-            <fieldset disabled>
+            <p id="help-login-prompt" class="help-notice" hidden>Please <a href="index.html">log in</a> to ask a question and see your questions.</p>
+            <p id="help-form-message" class="help-message" role="status" aria-live="polite" hidden></p>
+
+            <!-- Enabled by js/help.js once the user is logged in. -->
+            <fieldset id="help-question-fields" disabled>
               <legend class="d-none">Question details</legend>
 
               <div class="field-wf mb-2">
@@ -148,31 +152,33 @@
               <div class="field-wf mb-2">
                 <label for="question-title">Title</label>
                 <input id="question-title" name="title" class="input-wf-real" type="text" minlength="5" maxlength="150" placeholder="Summarise your question" required>
+                <p id="question-title-error" class="help-field-error" hidden></p>
               </div>
 
               <div class="field-wf mb-3">
                 <label for="question-body">Question</label>
                 <textarea id="question-body" name="body" class="input-wf-real" rows="4" minlength="10" maxlength="2000" placeholder="Describe what you need help with" required></textarea>
+                <p id="question-body-error" class="help-field-error" hidden></p>
               </div>
 
               <div class="flex justify-end">
-                <button type="submit" class="btn-wf-strong">Send question</button>
+                <button type="submit" id="help-submit" class="btn-wf-strong">Send question</button>
               </div>
             </fieldset>
           </form>
         </section>
 
-        <!-- My questions: placeholder until the API is connected. -->
+        <!-- My questions (students) or All questions (admins): loaded from GET /api/help/questions. -->
         <section class="help-mine mt-4" aria-labelledby="mine-heading">
           <h2 id="mine-heading" class="kicker mono mb-2">My questions</h2>
-          <div class="box help-mine-empty p-3">
-            <p class="m-0">You have not asked any questions yet.</p>
-          </div>
+          <p id="my-questions-message" class="box help-mine-empty p-3 m-0" role="status" aria-live="polite">Loading your questions…</p>
+          <div id="my-questions" class="help-mine-list"></div>
         </section>
       </main>
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script src="js/help.js"></script>
   <script src="js/mobile-menu.js"></script>
 </body>
