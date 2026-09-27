@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Page not found - Campus Lost and Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <!-- Absolute paths: this page is shown for any unknown URL, including nested ones. -->
+  <link href="/css/style.css" rel="stylesheet">
+  <link href="/css/ui-state.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <nav class="switcher" aria-label="Main navigation">
+    <div class="switcher-inner flex items-center gap-3">
+      <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu"></button>
+      <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links">
+        <li><a class="nav-link" href="/index.html">Login</a></li>
+        <li><a class="nav-link" href="/browse.html">Main</a></li>
+        <li><a class="nav-link" href="/report.html">Create Report</a></li>
+        <li><a class="nav-link" href="/search-filter.html">Search &amp; Filter</a></li>
+        <li><a class="nav-link" href="/my-reports.html">My Reports</a></li>
+        <li><a class="nav-link" href="/help.html">Help</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="screen-wrap">
+    <div class="screen-label">
+      <h1 class="screen-label-title">Page not found</h1>
+    </div>
+    <div class="device">
+      <div class="wf-navbar">
+        <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
+      </div>
+
+      <div class="p-4">
+        <!-- Filled by js/ui-state.js; this text is the no-JavaScript fallback. -->
+        <div id="not-found-state">
+          <div class="ui-state ui-state-not-found" role="status">
+            <p class="ui-state-title">Page not found</p>
+            <p class="ui-state-message">The page you are looking for does not exist or has moved.</p>
+            <div class="ui-state-actions">
+              <a class="btn-wf-strong ui-state-link" href="/browse.html">Browse reports</a>
+              <a class="btn-wf ui-state-link" href="/help.html">Get help</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/ui-state.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let path = window.location.pathname;
+      try { path = decodeURIComponent(path); } catch (error) { /* keep the encoded path */ }
+      showUiState(document.getElementById('not-found-state'), {
+        type: 'not-found',
+        title: 'Page not found',
+        message: `We could not find "${path}". It may have moved or the link may be wrong.`,
+        links: [
+          { href: '/browse.html', label: 'Browse reports' },
+          { href: '/help.html', label: 'Get help' },
+        ],
+      });
+    });
+  </script>
+  <script src="/js/mobile-menu.js"></script>
+</body>
+
+</html>
