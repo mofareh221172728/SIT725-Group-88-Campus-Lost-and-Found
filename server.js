@@ -8,6 +8,7 @@ const authRoutes = require("./routes/auth.routes");
 const itemsRoutes = require("./routes/items.routes");
 const photosRoutes = require("./routes/photos.routes");
 const adminRoutes = require("./routes/admin.routes");
+const helpRoutes = require("./routes/help.routes");
 const requireAuth = require("./middleware/auth.middleware");
 const requireAdmin = require("./middleware/requireAdmin.middleware");
 
@@ -40,6 +41,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/items", itemsRoutes);
 app.use("/api/photos", photosRoutes);
 app.use("/api/admin", requireAuth, requireAdmin, adminRoutes);
+app.use("/api/help", helpRoutes);
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
