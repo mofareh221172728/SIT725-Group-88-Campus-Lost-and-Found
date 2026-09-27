@@ -7,12 +7,108 @@ document.addEventListener('DOMContentLoaded', () => {
     const locationHeading = document.getElementById('location-heading');
     const foundCollectionSection = document.getElementById('section-found-collection');
     const alertBox = document.getElementById('form-alert');
+    const warningBox = document.getElementById('duplicate-warning');
     const dateInput = document.getElementById('item-date');
+
+    const categorySelect = document.getElementById('item-category');
+    const campusSelect = document.getElementById('item-campus');
 
     const collectionLocationField = document.getElementById('collection-location-field');
     const collectionLocationInput = document.getElementById('collection-location');
     const handoverInputs = document.querySelectorAll('input[name="handoverMethod"]');
     const submitButton = document.getElementById('btn-submit-report');
+
+    function clearWarning() {
+        if (!warningBox) return;
+        warningBox.classList.add('d-none');
+        warningBox.replaceChildren();
+    }
+
+    // Real-time duplicate item suggestions
+    let duplicateTimer;
+    let latestCheckId = 0;
+
+    function checkDuplicates() {
+        clearTimeout(duplicateTimer);
+        duplicateTimer = setTimeout(async () => {
+            const category = categorySelect?.value;
+            const location = campusSelect?.value;
+
+            if (!warningBox) return;
+
+            if (!category || !location) {
+                clearWarning();
+                return;
+            }
+
+            const checkId = ++latestCheckId;
+
+            try {
+                const query = new URLSearchParams({
+                    type: typeInput.value,
+                    category,
+                    location,
+                });
+
+                const response = await api.get(`/api/items?${query.toString()}`);
+                if (checkId !== latestCheckId) return;
+
+                const items = Array.isArray(response) ? response : (response?.items || []);
+                const duplicates = items.filter(item => (item.status || 'active').toLowerCase() === 'active');
+
+                if (duplicates.length === 0) {
+                    clearWarning();
+                    return;
+                }
+
+                warningBox.replaceChildren();
+
+                const header = document.createElement('div');
+                header.className = 'flex justify-between items-center';
+
+                const title = document.createElement('strong');
+                title.textContent = 'Wait! We found similar items already reported:';
+                header.appendChild(title);
+
+                const dismissBtn = document.createElement('button');
+                dismissBtn.type = 'button';
+                dismissBtn.className = 'duplicate-warning-dismiss';
+                dismissBtn.setAttribute('aria-label', 'Dismiss notice');
+                dismissBtn.textContent = '×';
+                dismissBtn.onclick = () => warningBox.classList.add('d-none');
+                header.appendChild(dismissBtn);
+
+                const list = document.createElement('ul');
+                list.className = 'duplicate-warning-list';
+
+                duplicates.slice(0, 3).forEach(item => {
+                    const li = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = `item-detail.html?id=${encodeURIComponent(item.id)}&type=${encodeURIComponent(item.type)}`;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = item.location ? `${item.title} (${item.location})` : item.title;
+                    li.appendChild(link);
+                    list.appendChild(li);
+                });
+
+                if (duplicates.length > 3) {
+                    const more = document.createElement('li');
+                    more.className = 'text-muted';
+                    more.textContent = `...and ${duplicates.length - 3} more similar active items.`;
+                    list.appendChild(more);
+                }
+
+                warningBox.append(header, list);
+                warningBox.classList.remove('d-none');
+            } catch (error) {
+                console.warn('Duplicate check could not complete:', error);
+            }
+        }, 300);
+    }
+
+    categorySelect?.addEventListener('change', checkDuplicates);
+    campusSelect?.addEventListener('change', checkDuplicates);
 
     function updateFoundFields() {
         const isFound = typeInput.value === 'found';
@@ -51,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dateLabel.textContent = isLost ? 'Date Lost' : 'Date Found';
         locationHeading.textContent = isLost ? 'Last-Seen Location' : 'Discovery Location';
         updateFoundFields();
+        checkDuplicates();
     }
 
     if (btnLost && btnFound) {
@@ -71,6 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!form) return;
+
+    form.addEventListener('reset', clearWarning);
 
     // Drag-and-Drop Photo Upload Initialization
     function initPhotoDropZone() {
@@ -286,6 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showFormAlert(alertBox, 'success', result.message || `Report submitted successfully! Your ${submittedType} item has been added.`);
             form.reset();
             setReportMode('found');
+            clearWarning();
 
             if (dateInput) {
                 dateInput.value = new Date().toISOString().split('T')[0];
