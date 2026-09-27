@@ -211,6 +211,8 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
+Run both the Mocha suite and E2E suite in order with `npm run test:full`.
+
 Use `npm run test:e2e:headed` to watch the browser, and `npm run test:e2e:report` to open the latest HTML report. Playwright stores failure screenshots, videos, and traces in ignored `test-results/` and `playwright-report/` directories.
 
 The automated flows cover mock login, report submission, browsing, search and filtering, report details, editing, and resolving an active report. See [docs/e2e-test-results.md](docs/e2e-test-results.md) for the latest recorded run.
