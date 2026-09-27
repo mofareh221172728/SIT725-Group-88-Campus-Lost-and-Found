@@ -15,6 +15,7 @@
     "test": "mocha test/**/*.test.js --timeout 10000 --exit",
     "test:coverage": "nyc mocha test/**/*.test.js --timeout 10000 --exit",
     "test:e2e": "playwright test",
+    "test:full": "npm test && npm run test:e2e",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report",
     "preflight-check": "node preflight-check.js",
