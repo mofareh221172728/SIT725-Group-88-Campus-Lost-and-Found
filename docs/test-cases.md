@@ -33,12 +33,15 @@
   - [1.1. FoundItem Model](#founditem-model)
   - [1.2. LostItem Model](#lostitem-model)
   - [1.3. User Model](#user-model)
+  - [1.4. Help Models](#help-models)
 - [2. API Test Cases](#api-test-cases)
   - [2.1. Login Flow (Auth API & Session)](#login-flow-api)
   - [2.2. Create Report](#api-create-report)
   - [2.3. Browse / Get Reports](#api-get-reports)
   - [2.4. Admin Authorization](#admin-authorization)
+  - [2.5. Help Page API](#help-api)
 - [3. Integration & UI Test Cases](#integration-ui-test-cases)
+  - [3.1. Help Page CRUD Flows](#help-integration)
 - [4. Summary](#summary)
 - [5. Running the Tests](#running-the-tests)
 
@@ -243,6 +246,19 @@
 
 ---
 
+<a id="help-models"></a>
+### 1.4. Help Models
+
+**Test Files:** `test/models/helpQuestion.model.test.js`, `test/models/helpReply.model.test.js`
+**Model Files:** `models/helpQuestion.model.js`, `models/helpReply.model.js`
+
+| Model | IDs | What is checked |
+|-------|-----|-----------------|
+| HelpQuestion | HQ-01 – HQ-13 | Valid question; defaults (`status: open`, `category: other`); required `ownerId`, `title`, `body`; trimming and lowercase category; title 5–150 and body 10–2000 characters; category and status enums; `ownerId` must be an ObjectId; timestamps |
+| HelpReply | HR-01 – HR-09 | Valid reply; required `questionId`, `authorId`, `body`; trimming; body 2–1000 characters; ObjectId references; index on `{ questionId, createdAt }`; timestamps |
+
+---
+
 <a id="api-test-cases"></a>
 ## 2. API Test Cases
 
@@ -429,6 +445,50 @@
 
 ---
 
+<a id="help-api"></a>
+### 2.5. Help Page API
+
+**Test Files:** `test/routes/help.routes.test.js`, `test/routes/help-auth.routes.test.js`
+**Route / Service Files:** `routes/help.routes.js`, `services/help.service.js`
+**Scope:** Supertest against `/api/help` with seeded users (`alice` and `bob` are students, `admin.test` is an admin). Requires a local MongoDB.
+
+**[AUTHENTICATION] & [POSITIVE] CRUD — `help.routes.test.js`**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| HELP-01 | Every Help endpoint without a session | 401 on all six endpoints, nothing saved |
+| HELP-02 | `POST /questions` with valid data | 201, owner taken from the session, `status: open` |
+| HELP-03 | `POST /questions` without `category` | ✅ Defaults to `other` |
+| HELP-04 | Missing/short/invalid fields, non-text title, `status` or `ownerId` in the body | 400, nothing saved |
+| HELP-05 | `GET /questions` | ✅ Only the current user's questions, newest first |
+| HELP-06 | `GET /questions` with no questions | ✅ `questions: []` |
+| HELP-07 | `GET /questions/:id` | ✅ Question with replies, oldest first |
+| HELP-08 | Invalid ID / missing question | 400 / 404 |
+| HELP-09 | `PUT /questions/:id` title, body, category | ✅ 200, trimmed values saved |
+| HELP-10 | Empty body, short title, `status` or `ownerId` in the update | 400, question unchanged |
+| HELP-11 | `PUT` a missing question | 404 |
+| HELP-12 | `DELETE /questions/:id` | ✅ Question and its replies removed |
+| HELP-13 | `DELETE` a missing question | 404 |
+| HELP-14 | `POST /questions/:id/replies` | ✅ 201, author taken from the session, body trimmed |
+| HELP-15 | Empty/short reply, `authorId` in the body, missing question | 400 / 404, nothing saved |
+
+**[SECURITY] & [SESSION] Owner and admin rules — `help-auth.routes.test.js`**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| HELP-AUTH-01 | Session whose user was deleted | 401 |
+| HELP-AUTH-02 | Another student views, edits, deletes or replies to a question | 403, question and replies unchanged |
+| HELP-AUTH-03 | Another student requests a missing question | 404 (existence checked before access) |
+| HELP-AUTH-04 | Admin views a student's question | ✅ 200 |
+| HELP-AUTH-05 | Admin edits a student's question | 403, wording unchanged |
+| HELP-AUTH-06 | Admin deletes a student's question | ✅ Question and replies removed |
+| HELP-AUTH-07 | Admin replies | ✅ Question becomes `answered` |
+| HELP-AUTH-08 | Owner replies after an admin reply | ✅ Question goes back to `open` |
+| HELP-AUTH-09 | Admin `GET /questions?scope=all` | ✅ Every student's questions; admin's own list is empty |
+| HELP-AUTH-10 | Student uses `scope=all`; unknown scope | 403; 400 |
+
+---
+
 <a id="integration-ui-test-cases"></a>
 ## 3. Integration & UI Test Cases
 
@@ -440,6 +500,33 @@
 | **TC-CV-12** | Create Report UI - Form Submission | `INTEGRATION` | Verify user can fill and submit a new report from the web interface. | 1. Server running at `http://localhost:3000`.<br>2. User on `/report.html`. | 1. Fill title, category, date, location, description.<br>2. Click "Submit Report". | 1. Success confirmation is displayed.<br>2. New item is posted to backend. | Pass | Pass |
 | **TC-CV-13** | View Reports UI - Browse Active Items | `UI` | Verify that browse page renders all active reported items with tags and photos. | 1. Server running.<br>2. User on `/browse.html`. | 1. Open `/browse.html`.<br>2. Check displayed cards. | 1. Active items list is displayed.<br>2. Cards show title, category, location, date, and thumbnail photo. | Pass | Pass |
 | **TC-CV-14** | View Reports UI - Filter & Search | `UI` | Verify that search keywords and category filters correctly filter the items list. | 1. `/browse.html` open with sample items loaded. | 1. Enter keyword in search input.<br>2. Select category dropdown filter. | 1. Item list updates instantly to only match the keyword and category. | Pass | Pass |
+
+
+<a id="help-integration"></a>
+### 3.1. Help Page CRUD Flows
+
+**Automated — `test/integration/help-crud.integration.test.js`** (card #120, requires a local MongoDB)
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| HELP-INT-01 | A student creates a question, updates it, the admin sees it in `scope=all` and replies, the student follows up, then deletes it | ✅ Status goes `open` → `answered` → `open`; replies listed oldest first with the right authors; after delete the question and replies are gone for both users |
+| HELP-INT-02 | Log out and log back in after an admin reply | ✅ 401 while logged out; after login the question is still `answered` with its reply |
+| HELP-INT-03 | Another student tries every action on the question; the admin then deletes it | 403 for every action by the other student; after the admin delete the owner gets 404 and an empty list |
+
+**Manual — Help page UI** (`/help.html`, run with `npm run seed` and `npm run start`)
+
+| ID | Test Name | SIT725 Category | Objective | Preconditions | Steps | Expected Results | Actual Results | Pass/Fail |
+|:---|:---|:---|:---|:---|:---|:---|:---|:---:|
+| **TC-HELP-UI-01** | FAQ search and filter | `UI` | Verify the FAQ can be searched and filtered. | Open `/help.html`. | 1. Type "photo".<br>2. Click the "Managing" chip.<br>3. Type "zzz". | 1. Only matching FAQs show.<br>2. Only Managing FAQs show.<br>3. "No questions match your search" is shown. | | |
+| **TC-HELP-UI-02** | Logged-out state | `SECURITY` | Verify logged-out users cannot ask questions. | Not logged in. | Open `/help.html`. | Form is disabled, a log-in prompt is shown, "Log in to see your questions." | | |
+| **TC-HELP-UI-03** | Create question | `INTEGRATION` | Verify a student can ask a question. | Logged in as `mock.user@deakin.edu.au`. | 1. Submit title "Help".<br>2. Submit a valid title, question and category. | 1. "Title must be at least 5 characters."<br>2. Success message; question appears in My questions as **Open** with date and time. | | |
+| **TC-HELP-UI-04** | Update question | `INTEGRATION` | Verify the owner can edit a question. | TC-HELP-UI-03 done. | 1. Open the question, click **Edit**.<br>2. Change title and category, click **Save changes**.<br>3. Refresh the page. | Updated title and category are shown and still there after refresh. | | |
+| **TC-HELP-UI-05** | Admin reads and replies | `INTEGRATION` | Verify an admin can see and answer student questions. | Logged in as `admin.mock@deakin.edu.au`. | 1. Open `/help.html`.<br>2. Open the student's question and send a reply. | 1. Heading is "All questions", the Ask form is hidden, the sender's email is shown, no Edit button.<br>2. Reply appears as **You**; status becomes **Answered**. | | |
+| **TC-HELP-UI-06** | Student follow-up | `INTEGRATION` | Verify the student sees the reply and can follow up. | TC-HELP-UI-05 done; log in as the student. | 1. Open the question.<br>2. Send a follow-up. | 1. Admin reply is labelled **Admin**; status **Answered**.<br>2. Follow-up labelled **You**; status back to **Open**. | | |
+| **TC-HELP-UI-07** | Delete question | `INTEGRATION` | Verify owner and admin can delete. | A question exists. | 1. As the student, click **Delete** and cancel.<br>2. Click **Delete** and confirm. | 1. Nothing changes.<br>2. Question disappears; list shows "You have not asked any questions yet." The admin no longer sees it. | | |
+| **TC-HELP-UI-08** | Access between students | `SECURITY` | Verify students only see their own questions. | Questions from two different students. | Log in as each student and open `/help.html`. | Each student sees only their own questions. | | |
+
+> TC-HELP-UI-02 to 08 need the Help page to be connected to the API (Help connect PR). Fill in **Actual Results** and **Pass/Fail** when running them.
 
 ---
 
@@ -458,6 +545,7 @@
 > - `test/routes/items.routes.test.js` adds 14 automated API tests (`TC-API-GET-01`–`14`, `TC-API-COUNTS-01`–`02`, see [§2.3](#api-get-reports), requires a local MongoDB) for the Mongo-backed `GET /api/items`/`GET /api/items/counts` endpoints (card #22). The `TC-API-CREATE-01`–`12` tests (see [§2.2](#api-create-report)) for `POST /api/items` are on the still-open card #49 branch and are not yet part of this count.
 > - `test/middleware/requireAdmin.middleware.test.js` adds 3 automated unit tests (`TC-SEC-01`–`03`, see [§2.4](#admin-authorization), requires a local MongoDB) for the `requireAdmin` middleware (card #109).
 > - `TC-CV-12`–`14` ([§3](#integration-ui-test-cases)) are manual/browser-only and have no automated count.
+> - Help page (cards #117–#120): 22 model tests (`HQ`, `HR`, [§1.4](#help-models)), 25 API tests (`HELP`, `HELP-AUTH`, [§2.5](#help-api)) and 3 integration tests (`HELP-INT`, [§3.1](#help-integration)). `TC-HELP-UI-01`–`08` are manual.
 >
 > Total: 120 automated tests when every suite under `test/` runs together (`npm test`): models 41, routes 57, integration 13, middleware 3, public 6. There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
 
