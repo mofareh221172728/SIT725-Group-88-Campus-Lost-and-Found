@@ -2,8 +2,22 @@ const express = require("express");
 const itemsService = require("../services/items.service");
 const reportStatusService = require("../services/report-status.service");
 const requireAuth = require("../middleware/auth.middleware");
+const uploadPhotos = require("../middleware/photo-upload.middleware");
+const photosService = require("../services/photos.service");
 
 const router = express.Router();
+
+function parseUploadedPhotos(req, res, next) {
+  uploadPhotos.array("photos", 3)(req, res, (error) => {
+    if (!error) {
+      return next();
+    }
+
+    return res.status(400).json({
+      message: error.message || "Invalid photo upload.",
+    });
+  });
+}
 
 router.get("/counts", async (req, res) => {
   try {
@@ -85,8 +99,16 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", requireAuth, parseUploadedPhotos, async (req, res) => {
+  let photos = [];
+
   try {
+    photos = await photosService.createPhotos(req.files || []);
+
+    if (req.files && req.files.length > 0) {
+      req.body.photos = photos.map((photo) => `/api/photos/${photo._id}`);
+    }
+
     const report = await itemsService.createReport(req.session.userId, req.body);
 
     return res.status(201).json({
@@ -94,6 +116,12 @@ router.post("/", requireAuth, async (req, res) => {
       report,
     });
   } catch (error) {
+    if (photos.length > 0) {
+      await photosService.deletePhotos(
+        photos.map((photo) => photo._id)
+      );
+    }
+
     if (error.status === 400 || error.name === "ValidationError") {
       return res.status(400).json({
         message: error.message,
