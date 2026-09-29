@@ -57,9 +57,11 @@ This project was built for **SIT725 Applied Software Engineering** by **Group 88
 - Role-based administration (`requireAdmin` middleware) with an Admin panel (`admin.html`) tracking stale reports older than 90 days and enabling bulk resolution.
 - Role-gated navigation (`nav-admin.js`) revealing the Admin link only to verified administrator sessions.
 - Interactive Help Desk (`help.html`) with expandable FAQ accordion, authenticated student question CRUD, and administrator reply threads.
+- Help link on every page, in the top navigation and the mobile menu.
 - Internal binary photo storage service and retrieval API (`/api/photos/:id`).
 - Centralized UI state component (`ui-state.js` and `ui-state.css`) providing standardized loading spinners, empty states, and error alerts.
 - Custom 404 page (`404.html`) and structured JSON error responses for unknown API endpoints.
+- WCAG 2.1 AA accessibility audit with axe DevTools, Lighthouse and keyboard testing, with fixes for colour contrast, form labels, focus order and visible keyboard focus ([docs/accessibility-audit.md](docs/accessibility-audit.md)).
 - Playwright end-to-end browser automation suite covering mock login and the complete active-to-resolved report lifecycle.
 - Expansion of automated test suite to 293 unit and integration tests with >91% statement coverage.
 
@@ -186,6 +188,10 @@ All application routes exchange data formatted as JSON over HTTP/HTTPS.
 | `PUT /api/help/questions/:id` | Owner only | `{ "title", "body", "category" }` | Edits an existing question before or after resolution. |
 | `DELETE /api/help/questions/:id` | Owner or Admin | None | Deletes a question and cascades removal of associated replies. Admins use this for moderation. |
 | `POST /api/help/questions/:id/replies` | Owner or Admin | `{ "body" }` | Adds a reply to the question thread. When an admin replies, question status updates to `answered`. |
+
+- Validation: title 5–150 characters, question 10–2000 characters, reply 2–1000 characters.
+- Categories: `getting-started`, `reporting`, `finding`, `managing`, `other` (default).
+- An admin reply sets the status to `answered`; a follow-up reply from the owner sets it back to `open`.
 
 ## How to Run the Application
 
@@ -374,7 +380,8 @@ The system delivers a comprehensive lost and found management platform tailored 
 - **Relative Timestamps**: Humanized time indicators (`just now`, `5m ago`, `2d ago`) for recent questions and replies.
 
 ### 8. User Experience, Resilience & Accessibility
-- **Accessible Design System**: Semantic HTML5 and vanilla CSS design tokens compliant with WCAG 2.1 AA standards for keyboard navigation and contrast.
+- **Accessibility (WCAG 2.1 AA)**: Audited with axe DevTools, Lighthouse and keyboard-only testing. Fixed low colour contrast, unlabeled report form dropdowns, a double keyboard stop on the photo upload, and missing focus outlines on buttons. axe reports 0 issues on every page, and Lighthouse accessibility scores are 97–100. See [docs/accessibility-audit.md](docs/accessibility-audit.md).
+- **Keyboard Navigation**: Every link, button and field can be reached with Tab and shows a visible focus outline; the mobile menu opens with Enter and closes with Esc.
 - **Centralized UI States**: Reusable state handler (`ui-state.js`) for uniform loading spinners, empty-state illustrations, and error alerts.
 - **Custom 404 Routing**: Styled `404.html` page for missing pages and structured JSON error responses for invalid API routes.
 - **Secure Photo Storage**: Dedicated binary photo storage endpoint (`/api/photos/:id`) with MIME validation and nosniff protection.
