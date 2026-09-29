@@ -195,7 +195,7 @@ async function loadTabCounts() {
   }
 }
 
-async function loadFavouriteItems() {
+async function loadFavouriteItems(requestId) {
   const grid = document.getElementById('report-grid');
   const statusMessage = document.getElementById('browse-status');
   const countLabel = document.getElementById('browse-count');
@@ -216,6 +216,8 @@ async function loadFavouriteItems() {
       api.get('/api/favourites'),
       api.get('/api/items?type=all&limit=1000'),
     ]);
+
+    if (requestId !== latestBrowseRequest) return;
 
     const favourites = favouritesData.favourites || [];
 
@@ -258,6 +260,8 @@ async function loadFavouriteItems() {
     grid.innerHTML = activeReports.map(reportCardHTML).join('');
     statusMessage.hidden = true;
   } catch (error) {
+    if (requestId !== latestBrowseRequest) return;
+
     console.error('Error loading favourites:', error);
 
     activeReports = [];
@@ -290,7 +294,7 @@ async function loadReportedItems(page = 1, typeOverride) {
   currentPage = page;
   const selectedType = typeOverride || getSelectedTab();
   if (selectedType === 'favourites') {
-    await loadFavouriteItems();
+    await loadFavouriteItems(requestId);
     return;
   }
   
