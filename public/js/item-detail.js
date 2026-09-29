@@ -183,6 +183,13 @@ function renderItemDetail(report) {
   renderFoundContact(report);
 }
 
+const campuses = ['Burwood', 'Waurn Ponds', 'Waterfront', 'Warrnambool'];
+
+function extractCampus(location) {
+  const firstPart = String(location || '').split(',')[0].trim();
+  return campuses.find((c) => firstPart.toLowerCase().includes(c.toLowerCase())) || firstPart;
+}
+
 async function loadPotentialMatches(report) {
   const section = document.getElementById('potential-matches');
   const grid = document.getElementById('potential-matches-grid');
@@ -195,7 +202,9 @@ async function loadPotentialMatches(report) {
   const oppositeType = report.type === 'lost' ? 'found' : 'lost';
   const params = new URLSearchParams({ type: oppositeType });
   if (report.category) params.set('category', report.category);
-  if (report.location) params.set('location', report.location);
+
+  const campus = extractCampus(report.campus || report.location);
+  if (campus) params.set('location', campus);
 
   try {
     const data = await api.get(`/api/items?${params}`);
@@ -261,5 +270,6 @@ if (typeof module !== 'undefined' && module.exports) {
     openPhotoModal,
     closePhotoModal,
     loadPotentialMatches,
+    extractCampus,
   };
 }
