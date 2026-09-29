@@ -5,6 +5,7 @@ const request = require('supertest');
 const { app } = require('../../server');
 const FoundItem = require('../../models/foundItem.model');
 const LostItem = require('../../models/lostItem.model');
+const adminService = require('../../services/admin.service');
 const db = require('../helpers/db');
 const seed = require('../helpers/seed');
 
@@ -269,6 +270,33 @@ describe('Admin Routes (/api/admin/*)', () => {
 
       expect(res.status).to.equal(400);
       expect(await statusOf(FoundItem, 'Stale Found Umbrella')).to.equal('active');
+    });
+  });
+
+  describe('[ERROR HANDLING] Database Failures', () => {
+    const failures = [
+      { name: 'getStaleReportCount', method: 'get', url: COUNT_URL, message: 'Unable to get the stale report count.' },
+      { name: 'getStaleReports', method: 'get', url: STALE_URL, message: 'Unable to get the stale reports.' },
+      { name: 'runBulkAction', method: 'post', url: BULK_URL, body: { action: 'resolve-stale' }, message: 'Unable to run the bulk action.' },
+    ];
+
+    failures.forEach(({ name, message, ...route }) => {
+      it(`TC-ADMIN-ERR-01: should return 500 when ${name} fails`, async () => {
+        const original = adminService[name];
+        adminService[name] = async () => {
+          throw new Error('Private database details');
+        };
+
+        try {
+          const admin = await adminAgent();
+          const res = await send(admin, route);
+
+          expect(res.status).to.equal(500);
+          expect(res.body).to.deep.equal({ message });
+        } finally {
+          adminService[name] = original;
+        }
+      });
     });
   });
 });
