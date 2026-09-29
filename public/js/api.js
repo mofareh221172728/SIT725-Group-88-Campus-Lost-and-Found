@@ -18,11 +18,15 @@ async function request(method, url, data) {
     credentials: "include",
   };
 
-  if (data !== undefined) {
+if (data !== undefined) {
+  if (data instanceof FormData) {
+    // Let the browser set the multipart/form-data Content-Type and boundary.
+    options.body = data;
+  } else {
     options.headers["Content-Type"] = "application/json";
     options.body = JSON.stringify(data);
   }
-
+}
   let response;
 
   try {

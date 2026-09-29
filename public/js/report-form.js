@@ -279,7 +279,27 @@ document.addEventListener('DOMContentLoaded', () => {
             submitButton.disabled = true;
             submitButton.textContent = 'Submitting...';
 
-            const result = await api.post('/api/items', reportData);
+            const formData = new FormData();
+
+            // Add report fields to multipart form data
+            Object.entries(reportData).forEach(([key, value]) => {
+               if (value !== undefined && value !== null) {
+                   formData.append(key, value);
+                }
+            });
+
+            // Add selected photos to multipart form data
+           const photoInput = document.getElementById('item-photos');
+
+           if (photoInput && photoInput.files) {
+               Array.from(photoInput.files)
+                   .slice(0, 3)
+                   .forEach(file => {
+                       formData.append('photos', file);
+                   });
+            }
+
+            const result = await api.post('/api/items', formData);
 
             // Success UI feedback
             const submittedType = typeInput.value;
