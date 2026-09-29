@@ -31,7 +31,7 @@ describe("Card #125 - Favourite Dashboard Filter", () => {
 
   it("loads favourite items when the Favourite filter is selected", () => {
     expect(browseJS).to.include("selectedType === 'favourites'");
-    expect(browseJS).to.include("loadFavouriteItems()");
+    expect(browseJS).to.include("loadFavouriteItems(requestId)");
   });
 
   it("filters reports using the current user's favourites", () => {
