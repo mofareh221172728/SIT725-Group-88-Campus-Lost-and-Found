@@ -41,7 +41,7 @@ router.post("/", requireAuth, async (req, res) => {
       favourite,
     });
   } catch (error) {
-    if ([400, 404, 409].includes(error.status)) {
+    if ([400, 401, 404, 409].includes(error.status)) {
       return res.status(error.status).json({
         message: error.message,
       });
@@ -76,7 +76,7 @@ router.delete("/:itemType/:itemId", requireAuth, async (req, res) => {
       message: "Item removed from favourites.",
     });
   } catch (error) {
-    if ([400, 404].includes(error.status)) {
+    if ([400, 401, 404].includes(error.status)) {
       return res.status(error.status).json({
         message: error.message,
       });
