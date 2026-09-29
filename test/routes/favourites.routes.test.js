@@ -178,7 +178,21 @@ describe("Card #123 - Favourite Items API", () => {
     expect(ownerResponse.body.favourites).to.have.lengthOf(1);
   });
 
-      it("rejects unauthenticated favourite requests", async () => {
+      it("rejects a valid item ID when the report does not exist", async () => {
+    const missingItemId = new LostItem()._id.toString();
+
+    const response = await agent
+      .post("/api/favourites")
+      .send({
+        itemId: missingItemId,
+        itemType: "lost",
+     });
+
+      expect(response.status).to.equal(404);
+      expect(response.body.message).to.equal("Item was not found.");
+  });
+    
+    it("rejects unauthenticated favourite requests", async () => {
     const getResponse = await request(app).get("/api/favourites");
 
     const postResponse = await request(app)
