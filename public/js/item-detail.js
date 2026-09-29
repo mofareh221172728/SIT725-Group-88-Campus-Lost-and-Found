@@ -362,5 +362,9 @@ if (typeof module !== 'undefined' && module.exports) {
     closePhotoModal,
     loadPotentialMatches,
     extractCampus,
+    loadFavouriteState,
+    toggleFavourite,
+    updateFavouriteButton,
   };
 }
+
