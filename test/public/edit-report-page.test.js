@@ -62,7 +62,186 @@ describe('Edit report page connector', () => {
       `/api/items/found/${reportId}`,
       changes,
     ]);
+
+    assert.deepEqual(
+      await mounted.onResolve({ id: reportId, type: 'found' }),
+      { resolved: true, message: 'Report updated successfully.' },
+    );
+    assert.deepEqual(calls[3], [
+      'put',
+      `/api/items/found/${reportId}/status`,
+      { status: 'resolved' },
+    ]);
   });
+
+  it('sends edited report fields to the correct API endpoint', async () => {
+  const calls = [];
+
+  const report = {
+    id: reportId,
+    ownerId: 'owner-1',
+    type: 'found',
+  };
+
+  const client = {
+    async get(url) {
+      if (url === '/api/auth/me') {
+        return { user: { id: 'owner-1' } };
+      }
+
+      return { report };
+    },
+
+    async put(url, data) {
+      calls.push({ url, data });
+      return { message: 'Report updated successfully.' };
+    },
+  };
+
+  let mounted;
+
+  const formView = {
+    setLoading() {},
+    setError() {
+      assert.fail('setError should not be called');
+    },
+    mount(options) {
+      mounted = options;
+      return true;
+    },
+  };
+
+  await loadEditPage({
+    search: `?type=found&id=${reportId}`,
+    client,
+    formView,
+  });
+
+  const changes = {
+    title: 'Updated Laptop',
+    description: 'Updated report description',
+    category: 'Electronics',
+    location: 'Burwood Library',
+  };
+
+  await mounted.onSave({
+    id: reportId,
+    type: 'found',
+    changes,
+  });
+
+  assert.deepEqual(calls, [
+    {
+      url: `/api/items/found/${reportId}`,
+      data: changes,
+    },
+  ]);
+});
+
+  it('returns confirmation feedback after a successful report update', async () => {
+  const report = {
+    id: reportId,
+    ownerId: 'owner-1',
+    type: 'found',
+  };
+
+  const client = {
+    async get(url) {
+      if (url === '/api/auth/me') {
+        return { user: { id: 'owner-1' } };
+      }
+
+      return { report };
+    },
+
+    async put() {
+      return { message: 'Report updated successfully.' };
+    },
+  };
+
+  let mounted;
+
+  const formView = {
+    setLoading() {},
+    setError() {
+      assert.fail('setError should not be called');
+    },
+    mount(options) {
+      mounted = options;
+      return true;
+    },
+  };
+
+  await loadEditPage({
+    search: `?type=found&id=${reportId}`,
+    client,
+    formView,
+  });
+
+  const result = await mounted.onSave({
+    id: reportId,
+    type: 'found',
+    changes: {
+      title: 'Updated title',
+      description: 'Updated description',
+    },
+  });
+
+  assert.deepEqual(result, {
+    saved: true,
+    message: 'Report updated successfully.',
+  });
+});
+
+  it('returns an appropriate error when the report update fails', async () => {
+  const report = {
+    id: reportId,
+    ownerId: 'owner-1',
+    type: 'found',
+  };
+
+  const client = {
+    async get(url) {
+      if (url === '/api/auth/me') {
+        return { user: { id: 'owner-1' } };
+      }
+
+      return { report };
+    },
+
+    async put() {
+      throw new Error('Unable to update report.');
+    },
+  };
+
+  let mounted;
+
+  const formView = {
+    setLoading() {},
+    setError() {
+      assert.fail('setError should not be called while loading');
+    },
+    mount(options) {
+      mounted = options;
+      return true;
+    },
+  };
+
+  await loadEditPage({
+    search: `?type=found&id=${reportId}`,
+    client,
+    formView,
+  });
+
+  await assert.rejects(
+    mounted.onSave({
+      id: reportId,
+      type: 'found',
+      changes: { title: 'Updated title' },
+    }),
+    /Unable to update report/,
+  );
+});
 
   it('locks the form and shows API or invalid-link errors', async () => {
     const errors = [];

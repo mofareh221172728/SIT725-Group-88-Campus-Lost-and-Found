@@ -17,7 +17,8 @@ router.get("/reports/stale-count", async (req, res) => {
 
 router.post("/reports/bulk-actions", async (req, res) => {
   try {
-    return res.json(await adminService.runBulkAction(req.body?.action));
+    const { action, reports } = req.body ?? {};
+    return res.json(await adminService.runBulkAction(action, { reports }));
   } catch (error) {
     if (error.status === 400) {
       return res.status(400).json({

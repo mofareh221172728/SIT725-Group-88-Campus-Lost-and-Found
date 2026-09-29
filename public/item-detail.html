@@ -18,7 +18,8 @@
   <nav class="switcher" aria-label="Main navigation">
     <div class="switcher-inner flex items-center gap-3">
       <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
-      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu"></button>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links"
+        aria-label="Toggle navigation menu"></button>
       <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links">
         <li><a class="nav-link" href="index.html">Login</a></li>
         <li><a class="nav-link" href="browse.html">Main</a></li>
@@ -26,13 +27,16 @@
         <li><a class="nav-link active" href="item-detail.html">Item Detail</a></li>
         <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
         <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
+        <li><a class="nav-link" href="help.html">Help</a></li>
         <li data-admin-only hidden><a class="nav-link" href="admin.html">Admin</a></li>
       </ul>
     </div>
   </nav>
 
   <main class="screen-wrap">
-    <div class="screen-label"><h2>Item Detail View</h2></div>
+    <div class="screen-label">
+      <h2>Item Detail View</h2>
+    </div>
     <article class="device" aria-labelledby="item-title">
       <div class="wf-navbar">
         <div class="wf-logo"><span class="dot"></span> Campus Lost &amp; Found</div>
@@ -53,13 +57,36 @@
           </div>
 
           <h1 id="item-title" class="item-detail-title"></h1>
+          <div class="item-favourite-control mb-2">
+            <button
+              type="button"
+              id="favourite-toggle"
+              class="btn-wf-strong"
+              aria-pressed="false"
+              hidden
+            >
+              ♡ Save to favourites
+            </button>
+            <span
+              id="favourite-message"
+              class="browse-message"
+              role="status"
+              aria-live="polite"
+              hidden
+            ></span>
+          </div>
+
           <p id="item-description" class="item-detail-description"></p>
 
           <dl class="item-detail-fields">
-            <dt>Category</dt><dd id="item-category"></dd>
-            <dt id="item-date-label">Relevant date</dt><dd id="item-date"></dd>
-            <dt>Campus location</dt><dd id="item-location"></dd>
-            <dt>Reported date</dt><dd id="item-reported-date"></dd>
+            <dt>Category</dt>
+            <dd id="item-category"></dd>
+            <dt id="item-date-label">Relevant date</dt>
+            <dd id="item-date"></dd>
+            <dt>Campus location</dt>
+            <dd id="item-location"></dd>
+            <dt>Reported date</dt>
+            <dd id="item-reported-date"></dd>
           </dl>
 
           <section id="item-contact" class="box-strong item-contact-panel" hidden>
@@ -68,20 +95,30 @@
           </section>
         </section>
       </div>
+
+      <section id="potential-matches" class="potential-matches p-4" aria-labelledby="potential-matches-title" hidden>
+        <h2 id="potential-matches-title" class="potential-matches-title">Potential Matches</h2>
+        <div id="potential-matches-message" class="browse-message" role="status" aria-live="polite" hidden></div>
+        <div id="potential-matches-grid" class="grid grid-3" aria-label="Potential matching items"></div>
+      </section>
     </article>
   </main>
 
   <!-- Photo Preview Modal -->
   <div id="photo-modal" class="photo-modal" role="dialog" aria-modal="true" aria-label="Photo preview">
-    <button type="button" id="photo-modal-close" class="photo-modal-close" aria-label="Close photo preview">&times;</button>
-    <button type="button" id="photo-modal-prev" class="photo-modal-nav photo-modal-prev" aria-label="Previous photo" title="Previous photo">&#10094;</button>
+    <button type="button" id="photo-modal-close" class="photo-modal-close"
+      aria-label="Close photo preview">&times;</button>
+    <button type="button" id="photo-modal-prev" class="photo-modal-nav photo-modal-prev" aria-label="Previous photo"
+      title="Previous photo">&#10094;</button>
     <img id="photo-modal-img" class="photo-modal-img" src="" alt="Full-size item photo">
-    <button type="button" id="photo-modal-next" class="photo-modal-nav photo-modal-next" aria-label="Next photo" title="Next photo">&#10095;</button>
+    <button type="button" id="photo-modal-next" class="photo-modal-nav photo-modal-next" aria-label="Next photo"
+      title="Next photo">&#10095;</button>
   </div>
 
   <script src="js/mobile-menu.js"></script>
   <script src="js/api.js"></script>
-  <script src="js/nav-admin.js"></script>
+  <script src="js/nav-auth.js"></script>
+  <script src="js/browse.js"></script>
   <script src="js/item-detail.js"></script>
 </body>
 

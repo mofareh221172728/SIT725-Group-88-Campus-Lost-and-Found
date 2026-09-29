@@ -77,8 +77,11 @@ const api = {
   put(url, data) {
     return request("PUT", url, data);
   },
+  delete(url) {
+    return request("DELETE", url);
+  },
 };
-
+ 
 if (typeof window !== "undefined") {
   window.api = api;
 }
