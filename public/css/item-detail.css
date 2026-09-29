@@ -78,3 +78,18 @@
 .photo-modal-nav[hidden] {
   display: none;
 }
+
+/* Potential Matches */
+
+.potential-matches {
+  border-top: 1.5px solid var(--wf-line-strong);
+}
+
+.potential-matches[hidden] {
+  display: none;
+}
+
+.potential-matches-title {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+}
