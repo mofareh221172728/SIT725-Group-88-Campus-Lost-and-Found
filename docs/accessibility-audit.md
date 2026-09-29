@@ -12,8 +12,9 @@
 |------|-----------------|
 | axe DevTools | Edge extension, axe-core 4.13.0, "Scan ALL of my page", WCAG 2.1 AA rules, Best Practices off, device mode iPhone 16 |
 | Lighthouse | Edge DevTools → Lighthouse (Navigation mode); reports saved as PDF |
+| Keyboard | Keyboard only (Tab, Shift+Tab, Enter, Esc), no mouse) |
 
-Each page was scanned on `main` and again on this branch after a hard refresh (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>).
+Each page was scanned on `main` and again on this branch after a hard refresh (Ctrl+Shift+R).
 
 | Page | URL | Signed in as |
 |------|-----|--------------|
@@ -64,6 +65,14 @@ Lighthouse items still reported on the branch (best practice, not WCAG 2.1 AA fa
 | Heading elements are not in a sequentially-descending order | Create report |
 | Identical links have the same purpose | My Reports |
 
+### 2.3 Keyboard test
+
+| Test | Before (`main`) | After (branch) |
+|------|-----------------|----------------|
+| Tab through Create report: focus outline visible on every button and field | ❌ No outline on "I Lost Something", "I Found Something" and "Cancel" | ✅ Pass |
+| Photo upload opens with Enter (Create report) | ✅ Pass | ✅ Pass (one Tab stop instead of two) |
+| Mobile menu (☰) opens with Enter and closes with Esc | ✅ Pass | ✅ Pass |
+
 ---
 
 ## 3. Findings
@@ -77,6 +86,7 @@ Lighthouse items still reported on the branch (best practice, not WCAG 2.1 AA fa
 | A11Y-05 | Minor | Best practice | Login, Browse, Search & Filter, My Reports, Admin | No `<main>` landmark. | Lighthouse | ⏳ Recommended for the team |
 | A11Y-06 | Minor | Best practice | Create report | Heading levels are skipped. | Lighthouse | ⏳ Recommended for the team |
 | A11Y-07 | Minor | Best practice | My Reports | Several "Edit" links have the same text but open different reports. | Lighthouse | ⏳ Recommended for the team |
+| A11Y-08 | Serious | 2.4.7 Focus Visible (AA) | Create report, Edit report | Materialize buttons (`.btn`, `.btn-flat`) such as "I Lost Something", "Cancel", "Reset Changes" and "Mark as Resolved" showed no focus outline, so keyboard users could not see where they were. | Keyboard test | ✅ Fixed |
 
 ---
 
@@ -85,13 +95,12 @@ Lighthouse items still reported on the branch (best practice, not WCAG 2.1 AA fa
 | File | Change | Finding |
 |------|--------|---------|
 | `public/css/style.css` | `.kicker` and `.tab-btn` text colour changed from `--wf-line` (`#8a8f98`) to `--wf-text-muted` (`#6a6e76`) | A11Y-01 |
+| `public/css/style.css` | `.btn` and `.btn-flat` added to the existing `:focus-visible` outline rule | A11Y-08 |
 | `public/index.html` | Login footer note colour changed to `var(--wf-text-muted)` | A11Y-01 |
 | `public/js/admin.js` | Stale report meta text colour changed from `#9a9a95` to `var(--wf-text-muted)` | A11Y-02 |
 | `public/js/select-labels.js` | New: copies each `<label>` text onto Materialize's generated select input as `aria-label` | A11Y-03 |
 | `public/report.html` | Loads `select-labels.js` and runs it after `M.AutoInit()`; file input moved beside the drop zone with `tabindex="-1"` | A11Y-03, A11Y-04 |
 | `public/edit-report.html`, `public/js/edit-report-form.js` | Same dropdown label fix for Edit report, which uses the same Materialize selects | A11Y-03 |
 | `test/public/select-labels.test.js` | New unit tests A11Y-SEL-01..03 | A11Y-03 |
-| `docs/accessibility-audit.md` | This report | — |
 
 `npm test`: 303 passing.
-
