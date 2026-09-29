@@ -148,6 +148,7 @@ function initBulkActions() {
     try {
       const { count } = await api.post("/api/admin/reports/bulk-actions", {
         action: "resolve-stale",
+        reports: getSelectedReports(),
       });
       showBulkResult(count);
       // Reload the list and counts so the UI reflects the new state.
