@@ -303,6 +303,7 @@ describe('Items Routes - Create Report (POST /api/items)', () => {
       });
     });
   });
+});
 
 
 describe('Items Routes - Browse Active Reports (GET /api/items, GET /api/items/counts)', () => {
@@ -718,5 +719,4 @@ describe('Items Routes - Item Detail (GET /api/items/:id)', () => {
     expect(invalid.status).to.equal(400);
     expect(missing.body.message).to.equal('type must be either "found" or "lost".');
   });    
-});
 });
