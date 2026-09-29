@@ -107,6 +107,7 @@
       root.M.FormSelect.getInstance(select)?.destroy();
       root.M.FormSelect.init(select);
     });
+    root.labelMaterializeSelects?.();
   }
 
   function showReportType(type) {
