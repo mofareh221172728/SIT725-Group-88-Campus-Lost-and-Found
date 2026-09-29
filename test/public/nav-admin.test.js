@@ -6,7 +6,7 @@ const vm = require("vm");
 const { expect } = require("chai");
 
 const PUBLIC_DIR = path.join(__dirname, "../../public");
-const SCRIPT = fs.readFileSync(path.join(PUBLIC_DIR, "js/nav-admin.js"), "utf8");
+const SCRIPT = fs.readFileSync(path.join(PUBLIC_DIR, "js/nav-auth.js"), "utf8");
 
 // Pages whose nav includes the Admin link.
 const NAV_PAGES = [
@@ -19,7 +19,7 @@ const NAV_PAGES = [
   "search-filter.html",
 ];
 
-// Runs nav-admin.js against a fake nav item and a stubbed /api/auth/me response.
+// Runs nav-auth.js against a fake nav item and a stubbed /api/auth/me response.
 async function runNavAdmin(meResponse) {
   const item = {
     hidden: true,
@@ -35,6 +35,8 @@ async function runNavAdmin(meResponse) {
         onReady = handler;
       },
       querySelectorAll: () => [item],
+      // No Login link, so only the admin-link logic runs.
+      querySelector: () => null,
     },
     api: { get: meResponse },
   });
@@ -44,14 +46,14 @@ async function runNavAdmin(meResponse) {
 }
 
 describe("Admin nav link visibility", () => {
-  it("NAV-ADMIN-01: every nav page ships the Admin link hidden and loads nav-admin.js", () => {
+  it("NAV-ADMIN-01: every nav page ships the Admin link hidden and loads nav-auth.js", () => {
     NAV_PAGES.forEach((page) => {
       const html = fs.readFileSync(path.join(PUBLIC_DIR, page), "utf8");
       const adminItem = html.match(/<li[^>]*data-admin-only[^>]*>/);
 
       expect(adminItem, `${page} has no data-admin-only nav item`).to.not.equal(null);
       expect(adminItem[0], `${page} Admin link is not hidden by default`).to.match(/\shidden[\s>]/);
-      expect(html, `${page} does not load nav-admin.js`).to.include('src="js/nav-admin.js"');
+      expect(html, `${page} does not load nav-auth.js`).to.include('src="js/nav-auth.js"');
     });
   });
 

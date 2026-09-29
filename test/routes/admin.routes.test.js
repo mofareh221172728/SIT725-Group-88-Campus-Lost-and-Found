@@ -299,4 +299,58 @@ describe('Admin Routes (/api/admin/*)', () => {
       });
     });
   });
+
+  describe('[CONDITIONAL] Selected Reports Only', () => {
+    const selectionOf = async (Model, type, title) => ({
+      type,
+      id: String((await Model.findOne({ title }))._id),
+    });
+
+    it('TC-ADMIN-BULK-09: should resolve only the selected stale reports', async () => {
+      const admin = await adminAgent();
+      const umbrella = await selectionOf(FoundItem, 'found', 'Stale Found Umbrella');
+
+      const res = await admin.post(BULK_URL).send({ action: 'resolve-stale', reports: [umbrella] });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.deep.equal({ count: 1 });
+      expect(await statusOf(FoundItem, 'Stale Found Umbrella')).to.equal('resolved');
+      expect(await statusOf(LostItem, 'Stale Lost Laptop Sleeve')).to.equal('active');
+    });
+
+    it('TC-ADMIN-BULK-10: should not resolve a selected report that is not stale', async () => {
+      const admin = await adminAgent();
+      const fresh = await selectionOf(FoundItem, 'found', 'Fresh Found Calculator');
+
+      const res = await admin.post(BULK_URL).send({ action: 'resolve-stale', reports: [fresh] });
+
+      expect(res.body).to.deep.equal({ count: 0 });
+      expect(await statusOf(FoundItem, 'Fresh Found Calculator')).to.equal('active');
+    });
+
+    it('TC-ADMIN-BULK-11: should resolve nothing for an empty selection', async () => {
+      const admin = await adminAgent();
+
+      const res = await admin.post(BULK_URL).send({ action: 'resolve-stale', reports: [] });
+
+      expect(res.body).to.deep.equal({ count: 0 });
+      expect(await statusOf(FoundItem, 'Stale Found Umbrella')).to.equal('active');
+    });
+
+    [
+      ['not a list', 'lost'],
+      ['an unknown type', [{ type: 'claim', id: '650000000000000000000001' }]],
+      ['an invalid id', [{ type: 'lost', id: 'not-an-id' }]],
+    ].forEach(([label, reports]) => {
+      it(`TC-ADMIN-BULK-12: should reject a selection with ${label} with 400 and change nothing`, async () => {
+        const admin = await adminAgent();
+
+        const res = await admin.post(BULK_URL).send({ action: 'resolve-stale', reports });
+
+        expect(res.status).to.equal(400);
+        expect(res.body.message).to.equal('reports must be a list of { type, id } with type lost or found.');
+        expect(await statusOf(LostItem, 'Stale Lost Laptop Sleeve')).to.equal('active');
+      });
+    });
+  });
 });
