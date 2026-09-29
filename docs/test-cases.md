@@ -505,6 +505,15 @@
 | TC-ADMIN-BULK-07 | `{}` (missing `action`) | 400, same message |
 | TC-ADMIN-BULK-08 | `{ action: ["resolve-stale"] }` (non-string) | 400; no report changed |
 
+**[CONDITIONAL] Selected Reports Only** — optional `reports: [{ type, id }]` from the admin panel's checkboxes
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-BULK-09 | Select only `Stale Found Umbrella` | ✅ `{ count: 1 }`; `Stale Lost Laptop Sleeve` stays `active` |
+| TC-ADMIN-BULK-10 | Select a fresh (not stale) report | ✅ `{ count: 0 }`; report stays `active` |
+| TC-ADMIN-BULK-11 | `reports: []` | ✅ `{ count: 0 }`; nothing changed |
+| TC-ADMIN-BULK-12 | `reports` is not a list, has an unknown `type`, or an invalid `id` (3 tests) | 400, `"reports must be a list of { type, id } with type lost or found."`; nothing changed |
+
 **[ERROR HANDLING] Database Failures**
 
 | # | Test Description | Expected Result |
@@ -517,14 +526,14 @@
 ### 2.6. Admin Nav Link Visibility
 
 **Test File:** `test/public/nav-admin.test.js`
-**Script File:** `public/js/nav-admin.js`
-**Scope:** Frontend unit tests for the Admin nav link (card #113, feature from card #108). `NAV-ADMIN-01` reads the page HTML from disk; `02`–`04` run `nav-admin.js` in a Node `vm` sandbox with a fake `document` and a stubbed `api.get("/api/auth/me")` (no browser or database needed).
+**Script File:** `public/js/nav-auth.js`
+**Scope:** Frontend unit tests for the Admin nav link (card #113, feature from card #108). `NAV-ADMIN-01` reads the page HTML from disk; `02`–`04` run `nav-auth.js` in a Node `vm` sandbox with a fake `document` and a stubbed `api.get("/api/auth/me")` (no browser or database needed).
 
 **[SECURITY] Admin Link Hidden by Default**
 
 | # | Test Description | Expected Result |
 |---|-----------------|-----------------|
-| NAV-ADMIN-01 | Nav pages (`browse`, `edit-report`, `help`, `item-detail`, `my-reports`, `report`, `search-filter`) | ✅ Each has a `<li data-admin-only hidden>` Admin item and loads `js/nav-admin.js` |
+| NAV-ADMIN-01 | Nav pages (`browse`, `edit-report`, `help`, `item-detail`, `my-reports`, `report`, `search-filter`) | ✅ Each has a `<li data-admin-only hidden>` Admin item and loads `js/nav-auth.js` |
 | NAV-ADMIN-02 | `/me` returns `role: "admin"` | ✅ `hidden` removed, Admin link shown |
 | NAV-ADMIN-03 | `/me` returns `role: "user"` | Admin link stays hidden |
 | NAV-ADMIN-04 | `/me` throws (logged out / 401 / network error) | Admin link stays hidden |
@@ -626,6 +635,7 @@
 | **TC-ADMIN-UI-02** | Cancel confirmation | `UI` | Verify nothing changes when the admin cancels. | Stale reports exist. | Click **Resolve selected**, then **Cancel**. | Confirm panel closes; list and counts unchanged. | | |
 | **TC-ADMIN-UI-03** | Selection controls | `UI` | Verify ticking controls the Resolve button. | Stale reports exist. | 1. Untick **Select all**.<br>2. Tick one report. | 1. "0 selected"; **Resolve selected** disabled.<br>2. "1 selected"; button enabled. | | |
 | **TC-ADMIN-UI-04** | Non-admin and logged-out access | `SECURITY` | Verify only admins can use the panel. | — | 1. Log in as `mock.user@deakin.edu.au`, open `/admin.html`.<br>2. Log out, open `/admin.html`. | 1. "You are not authorized to view this page."; no Admin nav link.<br>2. Log-in message, then redirect to the login page. | | |
+| **TC-ADMIN-UI-05** | Unticked reports are kept | `CONDITIONAL` | Verify only the selected reports are resolved. | At least 2 stale reports. | 1. Untick one report.<br>2. Click **Resolve selected**, then **Confirm**. | 1. Confirm message counts one fewer report.<br>2. "N reports resolved." matches the selection; the unticked report is still listed and Active. | | |
 
 ---
 
@@ -643,12 +653,12 @@
 > - `test/routes/auth.routes.test.js` adds 10 automated API/session tests (`TC-AUTH-04`–`TC-AUTH-12`, see [§2.1](#login-flow-api), requires a local MongoDB).
 > - `test/routes/items.routes.test.js` adds 14 automated API tests (`TC-API-GET-01`–`14`, `TC-API-COUNTS-01`–`02`, see [§2.3](#api-get-reports), requires a local MongoDB) for the Mongo-backed `GET /api/items`/`GET /api/items/counts` endpoints (card #22). The `TC-API-CREATE-01`–`12` tests (see [§2.2](#api-create-report)) for `POST /api/items` are on the still-open card #49 branch and are not yet part of this count.
 > - `test/middleware/requireAdmin.middleware.test.js` adds 3 automated unit tests (`TC-SEC-01`–`03`, see [§2.4](#admin-authorization), requires a local MongoDB) for the `requireAdmin` middleware (card #109).
-> - `test/routes/admin.routes.test.js` adds 27 automated API tests (`TC-ADMIN-SEC-01`–`05`, `TC-ADMIN-COUNT-01`–`04`, `TC-ADMIN-LIST-01`, `TC-ADMIN-BULK-01`–`08`, `TC-ADMIN-ERR-01`, see [§2.5](#admin-reports-api), requires a local MongoDB) for the admin reports endpoints (cards #110–#113). `SEC-01`–`03` and `ERR-01` run once per admin route.
+> - `test/routes/admin.routes.test.js` adds 33 automated API tests (`TC-ADMIN-SEC-01`–`05`, `TC-ADMIN-COUNT-01`–`04`, `TC-ADMIN-LIST-01`, `TC-ADMIN-BULK-01`–`12`, `TC-ADMIN-ERR-01`, see [§2.5](#admin-reports-api), requires a local MongoDB) for the admin reports endpoints (cards #110–#113). `SEC-01`–`03` and `ERR-01` run once per admin route; `BULK-12` runs 3 invalid selections.
 > - `test/public/nav-admin.test.js` adds 4 automated frontend tests (`NAV-ADMIN-01`–`04`, see [§2.6](#admin-nav-link), no database needed) for the hidden-by-default Admin nav link (cards #108, #113).
-> - `TC-CV-12`–`14` ([§3](#integration-ui-test-cases)) and `TC-ADMIN-UI-01`–`04` ([§3.2](#admin-integration)) are manual/browser-only and have no automated count.
+> - `TC-CV-12`–`14` ([§3](#integration-ui-test-cases)) and `TC-ADMIN-UI-01`–`05` ([§3.2](#admin-integration)) are manual/browser-only and have no automated count.
 > - Help page (cards #117–#120): 22 model tests (`HQ`, `HR`, [§1.4](#help-models)), 25 API tests (`HELP`, `HELP-AUTH`, [§2.7](#help-api)) and 3 integration tests (`HELP-INT`, [§3.1](#help-integration)). `TC-HELP-UI-01`–`08` are manual.
 >
-> Total: 327 automated tests when every suite under `test/` runs together (`npm test`): models 68, routes 177, integration 16, middleware 3, public 58, services 5. Browser end-to-end tests run separately with Playwright (`npm run test:e2e`, see [e2e-test-results.md](e2e-test-results.md)). There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
+> Total: 338 automated tests when every suite under `test/` runs together (`npm test`): models 68, routes 183, integration 16, middleware 3, public 58, services 10. Browser end-to-end tests run separately with Playwright (`npm run test:e2e`, see [e2e-test-results.md](e2e-test-results.md)). There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
 
 ---
 
