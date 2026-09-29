@@ -200,6 +200,23 @@ start "" "coverage\index.html"
 
 See [docs/test-cases.md](docs/test-cases.md) for test-case descriptions. Use the output from your current run for pass/fail counts and coverage. Browser workflows also need manual checks; the coverage report does not measure the frontend pages.
 
+## End-to-end tests
+
+Playwright runs the browser against the dedicated database configured in `.env.test`. The E2E setup refuses a non-test database through the existing test database guard, clears the E2E records before and after the suite, and creates the mock login account it needs.
+
+Install the Chromium browser once, then run the suite:
+
+```cmd
+npx playwright install chromium
+npm run test:e2e
+```
+
+Run both the Mocha suite and E2E suite in order with `npm run test:full`.
+
+Use `npm run test:e2e:headed` to watch the browser, and `npm run test:e2e:report` to open the latest HTML report. Playwright stores failure screenshots, videos, and traces in ignored `test-results/` and `playwright-report/` directories.
+
+The automated flows cover mock login, report submission, browsing, search and filtering, report details, editing, and resolving an active report. See [docs/e2e-test-results.md](docs/e2e-test-results.md) for the latest recorded run.
+
 ## Implemented API endpoints
 
 ### Authentication
