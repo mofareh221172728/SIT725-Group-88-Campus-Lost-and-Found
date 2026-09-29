@@ -5,6 +5,9 @@ const {
   formatItemDate,
   extractCampus,
   loadPotentialMatches,
+  loadFavouriteState,
+  toggleFavourite,
+  updateFavouriteButton,
 } = require("../../public/js/item-detail");
 const { reportCardHTML } = require("../../public/js/browse");
 
@@ -139,7 +142,169 @@ describe("Item detail frontend helpers", () => {
       expect(elements["potential-matches-grid"].innerHTML).to.equal("");
     });
   });
+
+        describe("Favourite item UI", () => {
+    let originalDocument;
+    let originalApi;
+    let elements;
+
+    beforeEach(() => {
+      originalDocument = global.document;
+      originalApi = global.api;
+
+      elements = {
+        "favourite-toggle": {
+          hidden: true,
+          disabled: false,
+          textContent: "",
+          attributes: {},
+          setAttribute(name, value) {
+            this.attributes[name] = value;
+          },
+        },
+        "favourite-message": {
+          hidden: true,
+          textContent: "",
+        },
+      };
+
+      global.document = {
+        getElementById: (id) => elements[id] || null,
+      };
+    });
+
+    afterEach(() => {
+      global.document = originalDocument;
+      global.api = originalApi;
+    });
+
+    it("loads an existing favourite state from the API", async () => {
+      global.api = {
+        get: async () => ({
+          favourites: [
+            {
+              itemId: "650000000000000000000101",
+              itemType: "found",
+            },
+          ],
+        }),
+      };
+
+      await loadFavouriteState({
+        id: "650000000000000000000101",
+        type: "found",
+      });
+
+      expect(elements["favourite-toggle"].hidden).to.be.false;
+      expect(elements["favourite-toggle"].textContent).to.equal(
+        "♥ Remove from favourites",
+      );
+      expect(
+        elements["favourite-toggle"].attributes["aria-pressed"],
+      ).to.equal("true");
+    });
+
+    it("adds an item to favourites using the toggle", async () => {
+      let postData = null;
+
+      global.api = {
+        get: async () => ({ favourites: [] }),
+        post: async (url, data) => {
+          postData = { url, data };
+          return { message: "Item added to favourites." };
+        },
+      };
+
+      await loadFavouriteState({
+        id: "650000000000000000000102",
+        type: "lost",
+      });
+
+      await toggleFavourite();
+
+      expect(postData.url).to.equal("/api/favourites");
+      expect(postData.data).to.deep.equal({
+        itemId: "650000000000000000000102",
+        itemType: "lost",
+      });
+
+      expect(elements["favourite-toggle"].textContent).to.equal(
+        "♥ Remove from favourites",
+      );
+
+      expect(elements["favourite-message"].textContent).to.equal(
+        "Saved to favourites.",
+      );
+    });
+
+    it("removes an existing favourite using the same toggle", async () => {
+      let deleteUrl = null;
+
+      global.api = {
+        get: async () => ({
+          favourites: [
+            {
+              itemId: "650000000000000000000103",
+              itemType: "found",
+            },
+          ],
+        }),
+        delete: async (url) => {
+          deleteUrl = url;
+          return { message: "Item removed from favourites." };
+        },
+      };
+
+      await loadFavouriteState({
+        id: "650000000000000000000103",
+        type: "found",
+      });
+
+      await toggleFavourite();
+
+      expect(deleteUrl).to.equal(
+        "/api/favourites/found/650000000000000000000103",
+      );
+
+      expect(elements["favourite-toggle"].textContent).to.equal(
+        "♡ Save to favourites",
+      );
+
+      expect(elements["favourite-message"].textContent).to.equal(
+        "Removed from favourites.",
+      );
+    });
+
+    it("restores the favourite state when the item is loaded again", async () => {
+      global.api = {
+        get: async () => ({
+          favourites: [
+            {
+              itemId: "650000000000000000000104",
+              itemType: "lost",
+            },
+          ],
+        }),
+      };
+
+      await loadFavouriteState({
+        id: "650000000000000000000104",
+        type: "lost",
+      });
+
+      expect(elements["favourite-toggle"].textContent).to.equal(
+        "♥ Remove from favourites",
+      );
+
+      await loadFavouriteState({
+        id: "650000000000000000000104",
+        type: "lost",
+      });
+
+      expect(elements["favourite-toggle"].textContent).to.equal(
+        "♥ Remove from favourites",
+      );
+    });
+  });
+
 });
-
-
-

@@ -7,6 +7,18 @@ const photosService = require("../services/photos.service");
 
 const router = express.Router();
 
+function parseUploadedPhotos(req, res, next) {
+  uploadPhotos.array("photos", 3)(req, res, (error) => {
+    if (!error) {
+      return next();
+    }
+
+    return res.status(400).json({
+      message: error.message || "Invalid photo upload.",
+    });
+  });
+}
+
 router.get("/counts", async (req, res) => {
   try {
     return res.json(await itemsService.getItemCounts());
@@ -87,28 +99,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post(
-  "/",
-  requireAuth,
-  (req, res, next) => {
-    uploadPhotos.array("photos", 3)(req, res, (error) => {
-      if (error) {
-        return res.status(400).json({
-          message: error.message,
-        });
-      }
-
-      next();
-    });
-  },
-  async (req, res) => {
+router.post("/", requireAuth, parseUploadedPhotos, async (req, res) => {
   let photos = [];
 
   try {
     photos = await photosService.createPhotos(req.files || []);
 
     if (req.files && req.files.length > 0) {
-       req.body.photos = photos.map((photo) => photo._id.toString());
+      req.body.photos = photos.map((photo) => `/api/photos/${photo._id}`);
     }
 
     const report = await itemsService.createReport(req.session.userId, req.body);
