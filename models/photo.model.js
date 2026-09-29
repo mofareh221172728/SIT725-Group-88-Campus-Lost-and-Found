@@ -17,7 +17,7 @@ const photoSchema = new mongoose.Schema(
     contentType: {
       type: String,
       required: true,
-      enum: ["image/jpeg", "image/png"],
+      enum: ["image/jpeg", "image/png", "image/webp"],
     },
     originalName: {
       type: String,

@@ -229,8 +229,82 @@ describe('Items Routes - Create Report (POST /api/items)', () => {
 
       expect(res.status).to.equal(400);
     });
+      describe('Card #88 - Photo Upload Validation and Error Handling', () => {
+      it('accepts a valid JPEG photo', async () => {
+        const agent = await authenticatedAgent();
+
+        const res = await agent
+          .post('/api/items')
+          .field(getValidFoundReport())
+          .attach('photos', 'test/fixtures/test.jpg');
+
+        expect(res.status).to.equal(201);
+      });
+
+      it('accepts a valid PNG photo', async () => {
+        const agent = await authenticatedAgent();
+
+        const res = await agent
+          .post('/api/items')
+          .field(getValidFoundReport())
+          .attach('photos', 'test/fixtures/test.png');
+
+        expect(res.status).to.equal(201);
+      });
+
+      it('rejects more than three photos', async () => {
+       const agent = await authenticatedAgent();
+       const imageBuffer = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
+
+       const res = await agent
+         .post('/api/items')
+         .field(getValidFoundReport())
+         .attach('photos', imageBuffer, {
+           filename: 'photo1.jpg',
+           contentType: 'image/jpeg',
+        })
+         .attach('photos', imageBuffer, {
+           filename: 'photo2.jpg',
+           contentType: 'image/jpeg',
+        })
+         .attach('photos', imageBuffer, {
+           filename: 'photo3.jpg',
+           contentType: 'image/jpeg',
+        })
+         .attach('photos', imageBuffer, {
+           filename: 'photo4.jpg',
+           contentType: 'image/jpeg',
+        });
+
+        expect(res.status).to.equal(400);
+        });
+        
+
+      it('rejects unsupported file types', async () => {
+        const agent = await authenticatedAgent();
+
+        const res = await agent
+          .post('/api/items')
+          .field(getValidFoundReport())
+          .attach('photos', 'test/fixtures/test.txt');
+
+        expect(res.status).to.equal(400);
+      });
+
+      it('rejects files larger than the allowed size', async () => {
+        const agent = await authenticatedAgent();
+
+        const res = await agent
+          .post('/api/items')
+          .field(getValidFoundReport())
+          .attach('photos', 'test/fixtures/large.jpg');
+
+        expect(res.status).to.equal(400);
+      });
+    });
   });
 });
+
 
 describe('Items Routes - Browse Active Reports (GET /api/items, GET /api/items/counts)', () => {
   before(db.connect);
@@ -644,5 +718,5 @@ describe('Items Routes - Item Detail (GET /api/items/:id)', () => {
     expect(missing.status).to.equal(400);
     expect(invalid.status).to.equal(400);
     expect(missing.body.message).to.equal('type must be either "found" or "lost".');
-  });
+  });    
 });

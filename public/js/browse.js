@@ -195,6 +195,92 @@ async function loadTabCounts() {
   }
 }
 
+async function loadFavouriteItems(requestId) {
+  const grid = document.getElementById('report-grid');
+  const statusMessage = document.getElementById('browse-status');
+  const countLabel = document.getElementById('browse-count');
+
+  if (!grid || !statusMessage) return;
+
+  grid.innerHTML = '';
+  if (countLabel) countLabel.textContent = '';
+
+  statusMessage.textContent = 'Loading favourites...';
+  statusMessage.classList.remove('browse-message-error');
+  statusMessage.hidden = false;
+
+  renderPagination(1, 0);
+
+  try {
+    const [favouritesData, itemsData] = await Promise.all([
+      api.get('/api/favourites'),
+      api.get('/api/items?type=all&limit=1000'),
+    ]);
+
+    if (requestId !== latestBrowseRequest) return;
+
+    const favourites = favouritesData.favourites || [];
+
+    const reports = Array.isArray(itemsData)
+      ? itemsData
+      : (itemsData.items || itemsData.reports || []);
+
+    const favouriteKeys = new Set(
+      favourites.map(
+        favourite =>
+          `${String(favourite.itemType).toLowerCase()}:${String(favourite.itemId)}`
+      )
+    );
+
+    activeReports = reports.filter(report =>
+      favouriteKeys.has(
+        `${String(report.type).toLowerCase()}:${String(report.id)}`
+      )
+    );
+
+    totalReports = activeReports.length;
+    totalPages = 1;
+    currentPage = 1;
+
+    if (activeReports.length === 0) {
+      grid.innerHTML = '';
+      if (countLabel) countLabel.textContent = '';
+
+      statusMessage.textContent = 'You have no favourite items yet.';
+      statusMessage.classList.remove('browse-message-error');
+      statusMessage.hidden = false;
+      return;
+    }
+
+    if (countLabel) {
+      countLabel.textContent =
+        totalReports === 1 ? '1 favourite' : `${totalReports} favourites`;
+    }
+
+    grid.innerHTML = activeReports.map(reportCardHTML).join('');
+    statusMessage.hidden = true;
+  } catch (error) {
+    if (requestId !== latestBrowseRequest) return;
+
+    console.error('Error loading favourites:', error);
+
+    activeReports = [];
+    totalReports = 0;
+    totalPages = 1;
+
+    grid.innerHTML = '';
+    if (countLabel) countLabel.textContent = '';
+
+    statusMessage.textContent =
+      error.status === 401
+        ? 'Please log in to view your favourites.'
+        : 'Unable to load favourites. Please try again.';
+
+    statusMessage.classList.add('browse-message-error');
+    statusMessage.hidden = false;
+  }
+}
+
 // Loads reports from the API.
 // Backend (server.js / MongoDB in Card #27) handles all filtering, sorting & pagination.
 async function loadReportedItems(page = 1, typeOverride) {
@@ -207,6 +293,11 @@ async function loadReportedItems(page = 1, typeOverride) {
   const requestId = ++latestBrowseRequest;
   currentPage = page;
   const selectedType = typeOverride || getSelectedTab();
+  if (selectedType === 'favourites') {
+    await loadFavouriteItems(requestId);
+    return;
+  }
+  
   const sortSelect = document.getElementById('browse-sort');
   const sortOrder = sortSelect ? sortSelect.value : 'newest';
   const keyword = document.getElementById('browse-keyword')?.value.trim() || '';
