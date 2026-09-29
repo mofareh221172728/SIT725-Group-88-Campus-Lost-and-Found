@@ -74,6 +74,70 @@ describe('Edit report page connector', () => {
     ]);
   });
 
+  it('sends edited report fields to the correct API endpoint', async () => {
+  const calls = [];
+
+  const report = {
+    id: reportId,
+    ownerId: 'owner-1',
+    type: 'found',
+  };
+
+  const client = {
+    async get(url) {
+      if (url === '/api/auth/me') {
+        return { user: { id: 'owner-1' } };
+      }
+
+      return { report };
+    },
+
+    async put(url, data) {
+      calls.push({ url, data });
+      return { message: 'Report updated successfully.' };
+    },
+  };
+
+  let mounted;
+
+  const formView = {
+    setLoading() {},
+    setError() {
+      assert.fail('setError should not be called');
+    },
+    mount(options) {
+      mounted = options;
+      return true;
+    },
+  };
+
+  await loadEditPage({
+    search: `?type=found&id=${reportId}`,
+    client,
+    formView,
+  });
+
+  const changes = {
+    title: 'Updated Laptop',
+    description: 'Updated report description',
+    category: 'Electronics',
+    location: 'Burwood Library',
+  };
+
+  await mounted.onSave({
+    id: reportId,
+    type: 'found',
+    changes,
+  });
+
+  assert.deepEqual(calls, [
+    {
+      url: `/api/items/found/${reportId}`,
+      data: changes,
+    },
+  ]);
+});
+
   it('returns confirmation feedback after a successful report update', async () => {
   const report = {
     id: reportId,
