@@ -74,6 +74,57 @@ describe('Edit report page connector', () => {
     ]);
   });
 
+
+  it('returns an appropriate error when the report update fails', async () => {
+  const report = {
+    id: reportId,
+    ownerId: 'owner-1',
+    type: 'found',
+  };
+
+  const client = {
+    async get(url) {
+      if (url === '/api/auth/me') {
+        return { user: { id: 'owner-1' } };
+      }
+
+      return { report };
+    },
+
+    async put() {
+      throw new Error('Unable to update report.');
+    },
+  };
+
+  let mounted;
+
+  const formView = {
+    setLoading() {},
+    setError() {
+      assert.fail('setError should not be called while loading');
+    },
+    mount(options) {
+      mounted = options;
+      return true;
+    },
+  };
+
+  await loadEditPage({
+    search: `?type=found&id=${reportId}`,
+    client,
+    formView,
+  });
+
+  await assert.rejects(
+    mounted.onSave({
+      id: reportId,
+      type: 'found',
+      changes: { title: 'Updated title' },
+    }),
+    /Unable to update report/,
+  );
+});
+
   it('locks the form and shows API or invalid-link errors', async () => {
     const errors = [];
     let loadingCount = 0;
