@@ -200,6 +200,23 @@ start "" "coverage\index.html"
 
 See [docs/test-cases.md](docs/test-cases.md) for test-case descriptions. Use the output from your current run for pass/fail counts and coverage. Browser workflows also need manual checks; the coverage report does not measure the frontend pages.
 
+## End-to-end tests
+
+Playwright runs the browser against the dedicated database configured in `.env.test`. The E2E setup refuses a non-test database through the existing test database guard, clears the E2E records before and after the suite, and creates the mock login account it needs.
+
+Install the Chromium browser once, then run the suite:
+
+```cmd
+npx playwright install chromium
+npm run test:e2e
+```
+
+Run both the Mocha suite and E2E suite in order with `npm run test:full`.
+
+Use `npm run test:e2e:headed` to watch the browser, and `npm run test:e2e:report` to open the latest HTML report. Playwright stores failure screenshots, videos, and traces in ignored `test-results/` and `playwright-report/` directories.
+
+The automated flows cover mock login, report submission, browsing, search and filtering, report details, editing, and resolving an active report. See [docs/e2e-test-results.md](docs/e2e-test-results.md) for the latest recorded run.
+
 ## Implemented API endpoints
 
 ### Authentication
@@ -207,7 +224,7 @@ See [docs/test-cases.md](docs/test-cases.md) for test-case descriptions. Use the
 | Method and path | Purpose | Session required |
 | --- | --- | --- |
 | `POST /api/auth/login` | Log in with a seeded user email in a JSON body | No |
-| `GET /api/auth/me` | Return the current user's ID and email | Yes |
+| `GET /api/auth/me` | Return the current user's ID, email and role | Yes |
 | `POST /api/auth/logout` | Destroy the current session | Yes |
 
 Mock login accepts `{ "email": "mock.user@deakin.edu.au" }` and sets a session cookie. Keep that cookie when making authenticated requests.
@@ -255,6 +272,22 @@ An authenticated session is required. The owner is taken from the session.
 A successful request returns HTTP `201` with `{ message, report }`. Missing authentication returns `401`; invalid report data returns `400`.
 
 Use the login and Create Report pages above to try this flow. The API accepts JSON; it does not upload image files.
+
+### Admin role and bulk actions
+
+| Method and path | Purpose | Role required |
+| --- | --- | --- |
+| `GET /api/admin/reports/stale-count` | Return `{ count }` of stale reports | `admin` |
+| `GET /api/admin/reports/stale` | List stale reports, oldest first | `admin` |
+| `POST /api/admin/reports/bulk-actions` | Run `{ "action": "resolve-stale" }` and return `{ count }` resolved | `admin` |
+
+A report is stale when it is Active and was created more than 90 days ago (the lost/found date is not used). `resolve-stale` marks only those reports as resolved. Missing authentication returns `401`, a non-admin session returns `403` and an unknown action returns `400`.
+
+To test locally, log in as the seeded admin account `admin.mock@deakin.edu.au` and open [http://localhost:3000/admin.html](http://localhost:3000/admin.html). The Admin nav link is only shown to admin sessions. To make another account an admin, set its `role` to `admin` in the `users` collection:
+
+```cmd
+mongosh "mongodb://127.0.0.1:27017/sit725-group-88" --eval "db.users.updateOne({ email: 'mock.user@deakin.edu.au' }, { $set: { role: 'admin' } })"
+```
 
 ## Known limitations and Sprint 2 work
 

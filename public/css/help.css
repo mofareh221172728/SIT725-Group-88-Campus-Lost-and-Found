@@ -297,3 +297,13 @@
   box-sizing: border-box;
   max-width: 100%;
 }
+
+/* Shared fallback states (js/ui-state.js) inside the Help list */
+.help-mine .ui-state {
+  max-width: none;
+}
+
+.help-replies .ui-state {
+  max-width: none;
+  padding: 1rem;
+}

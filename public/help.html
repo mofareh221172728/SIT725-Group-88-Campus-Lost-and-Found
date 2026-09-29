@@ -10,6 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
+  <link href="css/ui-state.css" rel="stylesheet">
   <link href="css/help.css" rel="stylesheet">
 </head>
 
@@ -18,7 +19,8 @@
   <nav class="switcher">
     <div class="switcher-inner flex items-center gap-3">
       <span class="brand mono lh-1 text-center">Campus<br>Lost &amp; Found</span>
-      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links" aria-label="Toggle navigation menu"></button>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-expanded="false" aria-controls="nav-links"
+        aria-label="Toggle navigation menu"></button>
       <ul class="switcher-links flex items-center gap-1 nowrap" id="nav-links">
         <li><a class="nav-link" href="index.html">Login</a></li>
         <li><a class="nav-link" href="browse.html">Main</a></li>
@@ -26,6 +28,7 @@
         <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
         <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
         <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
+        <li data-admin-only hidden><a class="nav-link" href="admin.html">Admin</a></li>
         <li><a class="nav-link active" href="help.html" aria-current="page">Help</a></li>
       </ul>
     </div>
@@ -58,12 +61,14 @@
 
           <div class="field-wf mb-2">
             <label for="faq-search">Search the FAQ</label>
-            <input id="faq-search" class="input-wf-real" type="search" placeholder="e.g. photo, return" autocomplete="off">
+            <input id="faq-search" class="input-wf-real" type="search" placeholder="e.g. photo, return"
+              autocomplete="off">
           </div>
 
           <div class="help-categories flex gap-1 mb-3" role="group" aria-label="Filter FAQ by category">
             <button type="button" class="chip-btn active" data-category="all" aria-pressed="true">All</button>
-            <button type="button" class="chip-btn" data-category="getting-started" aria-pressed="false">Getting started</button>
+            <button type="button" class="chip-btn" data-category="getting-started" aria-pressed="false">Getting
+              started</button>
             <button type="button" class="chip-btn" data-category="reporting" aria-pressed="false">Reporting</button>
             <button type="button" class="chip-btn" data-category="finding" aria-pressed="false">Finding</button>
             <button type="button" class="chip-btn" data-category="managing" aria-pressed="false">Managing</button>
@@ -72,17 +77,20 @@
           <div id="faq-list" class="help-faq-list">
             <details class="faq-item" data-category="getting-started">
               <summary>Who can use Campus Lost &amp; Found?</summary>
-              <p>Deakin students. Log in with your Deakin email address to report items and manage your reports. Browsing reports does not need a login.</p>
+              <p>Deakin students. Log in with your Deakin email address to report items and manage your reports.
+                Browsing reports does not need a login.</p>
             </details>
 
             <details class="faq-item" data-category="getting-started">
               <summary>How do I log in?</summary>
-              <p>Open the <a href="index.html">Login</a> page and enter your Deakin email address. Your session ends when you log out or close the browser.</p>
+              <p>Open the <a href="index.html">Login</a> page and enter your Deakin email address. Your session ends
+                when you log out or close the browser.</p>
             </details>
 
             <details class="faq-item" data-category="reporting">
               <summary>How do I report a lost or found item?</summary>
-              <p>Go to <a href="report.html">Create Report</a>, choose Lost or Found, then fill in the title, category, description, campus location and date. The date cannot be in the future.</p>
+              <p>Go to <a href="report.html">Create Report</a>, choose Lost or Found, then fill in the title, category,
+                description, campus location and date. The date cannot be in the future.</p>
             </details>
 
             <details class="faq-item" data-category="reporting">
@@ -92,27 +100,34 @@
 
             <details class="faq-item" data-category="reporting">
               <summary>What is the difference between email contact and drop-off?</summary>
-              <p>When you report a found item, choose how it will be returned. <strong>Email</strong> lets the owner contact you. <strong>Drop-off</strong> means you leave the item at a campus location, such as Campus Security, and the owner collects it there.</p>
+              <p>When you report a found item, choose how it will be returned. <strong>Email</strong> lets the owner
+                contact you. <strong>Drop-off</strong> means you leave the item at a campus location, such as Campus
+                Security, and the owner collects it there.</p>
             </details>
 
             <details class="faq-item" data-category="finding">
               <summary>How do I search for my lost item?</summary>
-              <p>Use <a href="search-filter.html">Search &amp; Filter</a> to search by keyword and narrow the results by category, location and date. You can also browse all reports from the <a href="browse.html">Main</a> page.</p>
+              <p>Use <a href="search-filter.html">Search &amp; Filter</a> to search by keyword and narrow the results by
+                category, location and date. You can also browse all reports from the <a href="browse.html">Main</a>
+                page.</p>
             </details>
 
             <details class="faq-item" data-category="finding">
               <summary>Someone found my item. How do I get it back?</summary>
-              <p>Open the report to see its details. It shows either the finder's email address or the location where you can collect the item.</p>
+              <p>Open the report to see its details. It shows either the finder's email address or the location where
+                you can collect the item.</p>
             </details>
 
             <details class="faq-item" data-category="managing">
               <summary>How do I edit my report?</summary>
-              <p>Open <a href="my-reports.html">My Reports</a> and select Edit on the report. Only active reports can be edited.</p>
+              <p>Open <a href="my-reports.html">My Reports</a> and select Edit on the report. Only active reports can be
+                edited.</p>
             </details>
 
             <details class="faq-item" data-category="managing">
               <summary>My item has been returned. What should I do?</summary>
-              <p>Open <a href="my-reports.html">My Reports</a> and mark the report as resolved. It will no longer appear in Browse or Search.</p>
+              <p>Open <a href="my-reports.html">My Reports</a> and mark the report as resolved. It will no longer appear
+                in Browse or Search.</p>
             </details>
 
             <details class="faq-item" data-category="other">
@@ -121,7 +136,8 @@
             </details>
           </div>
 
-          <p id="faq-empty" class="help-empty" role="status" aria-live="polite" hidden>No questions match your search. Try another word or ask us below.</p>
+          <p id="faq-empty" class="help-empty" role="status" aria-live="polite" hidden>No questions match your search.
+            Try another word or ask us below.</p>
         </section>
 
         <!-- Ask a question: sends to POST /api/help/questions (logged-in users only). -->
@@ -131,7 +147,8 @@
           <form id="help-question-form" class="box-strong p-3 help-form" novalidate>
             <p class="help-notice" role="note">Can't find your answer in the FAQ? Send us your question</p>
 
-            <p id="help-login-prompt" class="help-notice" hidden>Please <a href="index.html">log in</a> to ask a question and see your questions.</p>
+            <p id="help-login-prompt" class="help-notice" hidden>Please <a href="index.html">log in</a> to ask a
+              question and see your questions.</p>
             <p id="help-form-message" class="help-message" role="status" aria-live="polite" hidden></p>
 
             <!-- Enabled by js/help.js once the user is logged in. -->
@@ -151,13 +168,15 @@
 
               <div class="field-wf mb-2">
                 <label for="question-title">Title</label>
-                <input id="question-title" name="title" class="input-wf-real" type="text" minlength="5" maxlength="150" placeholder="Summarise your question" required>
+                <input id="question-title" name="title" class="input-wf-real" type="text" minlength="5" maxlength="150"
+                  placeholder="Summarise your question" required>
                 <p id="question-title-error" class="help-field-error" hidden></p>
               </div>
 
               <div class="field-wf mb-3">
                 <label for="question-body">Question</label>
-                <textarea id="question-body" name="body" class="input-wf-real" rows="4" minlength="10" maxlength="2000" placeholder="Describe what you need help with" required></textarea>
+                <textarea id="question-body" name="body" class="input-wf-real" rows="4" minlength="10" maxlength="2000"
+                  placeholder="Describe what you need help with" required></textarea>
                 <p id="question-body-error" class="help-field-error" hidden></p>
               </div>
 
@@ -171,7 +190,12 @@
         <!-- My questions (students) or All questions (admins): loaded from GET /api/help/questions. -->
         <section class="help-mine mt-4" aria-labelledby="mine-heading">
           <h2 id="mine-heading" class="kicker mono mb-2">My questions</h2>
-          <p id="my-questions-message" class="box help-mine-empty p-3 m-0" role="status" aria-live="polite">Loading your questions…</p>
+          <!-- Loading, empty and error states come from js/ui-state.js (card #77). -->
+          <div id="my-questions-message">
+            <div class="ui-state ui-state-loading" role="status" aria-live="polite" aria-busy="true">
+              <p class="ui-state-title">Loading your questions…</p>
+            </div>
+          </div>
           <div id="my-questions" class="help-mine-list"></div>
         </section>
       </main>
@@ -179,6 +203,8 @@
   </div>
 
   <script src="js/api.js"></script>
+  <script src="js/ui-state.js"></script>
+  <script src="js/nav-admin.js"></script>
   <script src="js/help.js"></script>
   <script src="js/mobile-menu.js"></script>
 </body>
