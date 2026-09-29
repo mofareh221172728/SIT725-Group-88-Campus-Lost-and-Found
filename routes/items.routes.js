@@ -87,7 +87,21 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", requireAuth, uploadPhotos.array("photos", 3), async (req, res) => {
+router.post(
+  "/",
+  requireAuth,
+  (req, res, next) => {
+    uploadPhotos.array("photos", 3)(req, res, (error) => {
+      if (error) {
+        return res.status(400).json({
+          message: error.message,
+        });
+      }
+
+      next();
+    });
+  },
+  async (req, res) => {
   let photos = [];
 
   try {
