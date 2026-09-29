@@ -44,7 +44,10 @@ window.api = {
     }
     return { report: previewReport };
   },
-  async put() {
+  async put(url) {
+    if (url.includes('/status')) {
+      return { message: 'Preview only: report marked as resolved.' };
+    }
     return { message: 'Validation passed. Preview only: changes have not been saved.' };
   }
 };

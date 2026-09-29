@@ -36,6 +36,10 @@
           const saved = await apiClient.put(`/api/items/${type}/${id}`, changes);
           return { saved: true, message: saved.message };
         },
+        onResolve: async ({ id, type }) => {
+          const res = await apiClient.put(`/api/items/${type}/${id}/status`, { status: 'resolved' });
+          return { resolved: true, message: res.message };
+        },
       });
     } catch (error) {
       view.setError(error.message || 'Unable to load this report.');

@@ -23,6 +23,7 @@
         <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
         <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
         <li><a class="nav-link active" href="my-reports.html">My Reports</a></li>
+        <li data-admin-only hidden><a class="nav-link" href="admin.html">Admin</a></li>
       </ul>
     </div>
   </nav>
@@ -146,6 +147,7 @@
 
             <div class="row form-actions edit-actions">
               <button class="btn-flat waves-effect" type="button" id="reset-edit">Reset Changes</button>
+              <button class="btn-flat waves-effect" type="button" id="resolve-edit" disabled>Mark as Resolved</button>
               <button class="btn waves-effect waves-light" type="submit" id="save-edit" disabled>Save Changes</button>
             </div>
           </fieldset>
@@ -157,6 +159,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/nav-admin.js"></script>
   <script src="js/report-validation.js"></script>
   <script src="js/form-feedback.js"></script>
   <script src="js/edit-report-form.js"></script>

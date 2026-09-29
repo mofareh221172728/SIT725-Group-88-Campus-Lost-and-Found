@@ -79,8 +79,10 @@
   const fieldset = document.getElementById('edit-fields');
   const alert = document.getElementById('form-alert');
   const saveButton = document.getElementById('save-edit');
+  const resolveButton = document.getElementById('resolve-edit');
   let report = null;
   let saveHandler = null;
+  let resolveHandler = null;
   let saving = false;
   let generation = 0;
 
@@ -153,10 +155,15 @@
     generation += 1;
     report = null;
     saveHandler = null;
+    resolveHandler = null;
     saving = false;
     fieldset.disabled = true;
     saveButton.disabled = true;
     saveButton.textContent = 'Save changes';
+    if (resolveButton) {
+      resolveButton.disabled = true;
+      resolveButton.textContent = 'Mark as Resolved';
+    }
     form.setAttribute('aria-busy', 'false');
     form.reset();
     fields.category.querySelectorAll('[data-current-category]').forEach(option => option.remove());
@@ -167,11 +174,12 @@
   }
 
   root.editReportForm = {
-    mount({ report: source, currentUserId, onSave } = {}) {
+    mount({ report: source, currentUserId, onSave, onResolve } = {}) {
       clearReport();
       try { report = prepareReport(source, currentUserId); }
       catch (error) { showFormAlert(alert, 'error', error.message); return false; }
       saveHandler = typeof onSave === 'function' ? onSave : null;
+      resolveHandler = typeof onResolve === 'function' ? onResolve : null;
       showReportType(report.type);
       document.getElementById('edit-date-label').textContent = report.type === 'found' ? 'Date found *' : 'Date lost *';
       fillFields();
@@ -179,6 +187,7 @@
       fieldset.disabled = false;
       refreshMaterializeFields();
       saveButton.disabled = !saveHandler;
+      if (resolveButton) resolveButton.disabled = !resolveHandler;
       if (!saveHandler) showFormAlert(alert, 'info', 'Saving is currently unavailable. Please try again later.');
       return true;
     },
@@ -202,6 +211,30 @@
     if (!saveHandler) showFormAlert(alert, 'info', 'Saving is currently unavailable. Please try again later.');
   });
 
+  if (resolveButton) {
+    resolveButton.addEventListener('click', async () => {
+      if (!report || !resolveHandler || saving) return;
+      const title = fields.title.value.trim() || report.data.title || 'this report';
+      if (!root.confirm(`Mark "${title}" as resolved?`)) return;
+
+      resolveButton.disabled = true;
+      saveButton.disabled = true;
+      fieldset.disabled = true;
+      clearAllErrors(form, alert);
+
+      try {
+        const result = await resolveHandler({ id: report.id, type: report.type });
+        document.getElementById('edit-report-status').value = 'Resolved';
+        showFormAlert(alert, 'success', result?.message || 'Report marked as resolved.');
+      } catch (error) {
+        resolveButton.disabled = false;
+        saveButton.disabled = false;
+        fieldset.disabled = false;
+        showFormAlert(alert, 'error', error.message || 'Unable to resolve this report.');
+      }
+    });
+  }
+
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (!report || !saveHandler || saving) return;
@@ -218,6 +251,8 @@
     saving = true;
     fieldset.disabled = true;
     saveButton.textContent = 'Saving…';
+    saveButton.disabled = true;
+    if (resolveButton) resolveButton.disabled = true;
     form.setAttribute('aria-busy', 'true');
     try {
       const result = await saveHandler({ id: report.id, type: report.type, changes: validation.data });
@@ -238,6 +273,8 @@
         fieldset.disabled = false;
         refreshMaterializeFields();
         saveButton.textContent = 'Save changes';
+        saveButton.disabled = false;
+        if (resolveButton) resolveButton.disabled = !resolveHandler;
         form.setAttribute('aria-busy', 'false');
         alert.focus();
       }
