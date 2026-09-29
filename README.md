@@ -4,20 +4,81 @@
 
 The **Campus Lost and Found System** is a web application developed for Deakin University students and staff to report, track, search, and recover lost property across campus.
 
-This project was built for **SIT725 Applied Software Engineering** by **Group 88**. Full requirements, user stories, use cases, and system specifications are documented in the Software Requirements Specification (SRS) document.
+This project was built for **SIT725 Applied Software Engineering** by **Group 88**. Full requirements, user stories, use cases, and system specifications are documented in the SRS file.
 
 - **Trello Board**: [Public Trello Board](https://trello.com/b/KD93aCEN/sit725-group-88-project)
 
-## Team Members and Roles
 
-| Team Member | Primary Roles | Sprint 2 Focus Areas |
-| :--- | :--- | :--- |
-| **Max Andres Guzman Aceituno** | Scrum Master & Frontend Developer (Forms) | Sprint coordination, date sorting & pagination (PR #72), photo dropzone (PR #73), photo lightbox viewer (PR #74), duplicate report warnings (PR #86), mark item as resolved toggle (PR #84), final README documentation (Card #39) |
-| **Mofareh Mubarak M Almakhalas** | SRS, Documentation & Backend Developer | Search & filter API (PR #58) & UI (PR #61, PR #70), edit item form preview (PR #62), owner resolve API (PR #63), My Reports dashboard (PR #69) |
-| **Reza Tisa Adi Pratama** | UI/UX Designer & Frontend Developer | Help UI & FAQ (PR #75, PR #81), Help database schema (PR #76), Help CRUD API & authorization (PR #79, PR #80), reusable UI fallback states & 404 page (PR #82), Help CRUD integration tests (PR #83) |
-| **Gulireba Maierdan** | Frontend & API Integration Engineer | Report update API (PR #67), frontend API client methods, report creation and active listing integration, input validation checks |
-| **Kuan-Ting Chen** | Backend & Database Engineer | Item details page & API (PR #64), owner-authorized report updates (PR #67), photo storage service & binary routes (PR #71), Playwright E2E automated test suite (PR #90) |
-| **Yuen Yi Cheng (Betty)** | Test & Quality Assurance Engineer | User model role field & seed updates (PR #59), `requireAdmin` middleware & unit tests (PR #60, PR #66), admin panel layout (PR #65), admin stale-count and bulk-action endpoints & tests (PR #68), role-based navigation guards (PR #88), admin endpoint documentation (PR #89) |
+## Team Members
+
+| Team member | Main role |
+| --- | --- |
+| Max Andres Guzman Aceituno | Scrum Master and Frontend Developer (Forms) |
+| Mofareh Mubarak M Almakhalas | SRS, Documentation and Backend Developer (Search and Filtering APIs) |
+| Reza Tisa Adi Pratama | UI/UX Designer and Frontend Developer |
+| Gulireba Maierdan | Frontend and API Integration Engineer |
+| Kuan-Ting Chen | Backend and Database |
+| Yuen Yi Cheng (Betty) | Test and Quality Assurance |
+
+## Technologies Used
+
+- HTML5 and CSS3
+- JavaScript
+- Node.js
+- Express
+- MongoDB and Mongoose
+- dotenv for environment variables
+- express-session for mock login sessions
+- Mocha, Chai and Supertest for testing, with nyc for coverage
+- Playwright for end-to-end browser testing
+- Git and GitHub for version control
+- Trello for Sprint planning
+
+## Sprint 1 Features
+
+- Express server connecting to MongoDB and serving static frontend files from `public/`.
+- User, Found Item, and Lost Item models with MongoDB persistence across server restarts.
+- Mock email login using Express session cookies.
+- Create Report form with required-field, date, and input validation.
+- Found-item handover choices for direct email contact or campus drop-off location.
+- Browse page with active report cards, image rendering, Found/Lost/All tabs, counts, and pagination.
+- API endpoints supporting report type filtering and newest-first date sorting.
+- Automated model validation, session authentication, and item API tests.
+
+## Sprint 2 Features
+
+- Multi-criteria search and filter interface and API supporting keyword text queries, category, campus location, date range (`fromDate` to `toDate`), and pagination.
+- Dedicated Item Detail page (`item-detail.html`) showing complete descriptions, campus/building/room locations, contact disclosure, and a photo lightbox viewer.
+- My Reports dashboard (`my-reports.html`) displaying the authenticated user's active and resolved reports.
+- Owner-verified report editing (`edit-report.html`) with prefilled forms and input validation.
+- Report resolution workflow allowing the owner of an active report to mark it as resolved via `PUT /api/items/:type/:id/status`.
+- Proactive duplicate report warning with real-time debouncing on the report creation form.
+- Potential matches widget on the item detail page suggesting opposite-type active reports with matching category and campus.
+- Role-based administration (`requireAdmin` middleware) with an Admin panel (`admin.html`) tracking stale reports older than 90 days and enabling bulk resolution.
+- Role-gated navigation (`nav-admin.js`) revealing the Admin link only to verified administrator sessions.
+- Interactive Help Desk (`help.html`) with expandable FAQ accordion, authenticated student question CRUD, and administrator reply threads.
+- Internal binary photo storage service and retrieval API (`/api/photos/:id`).
+- Centralized UI state component (`ui-state.js` and `ui-state.css`) providing standardized loading spinners, empty states, and error alerts.
+- Custom 404 page (`404.html`) and structured JSON error responses for unknown API endpoints.
+- Playwright end-to-end browser automation suite covering mock login and the complete active-to-resolved report lifecycle.
+- Expansion of automated test suite to 293 unit and integration tests with >91% statement coverage.
+
+## Project Structure
+
+```text
+public/             Frontend HTML, CSS and JavaScript
+models/             Mongoose database models
+routes/             Authentication, item, photo, admin and help API routes
+services/           Authentication, items, admin, help and photo business logic
+middleware/         Session authentication and admin authorization checks
+scripts/            Development seed scripts
+data/               Sample image URLs and assets used by the seed script
+test/               Automated unit, integration, and E2E Playwright tests
+docs/               Test specifications and project documentation
+server.js           Express setup, sessions and MongoDB startup
+preflight-check.js  Environment, database and seed-data checks
+playwright.config.js Playwright E2E configuration
+```
 
 ## System Architecture
 
@@ -26,68 +87,6 @@ The application implements a classic **three-tier architecture** with separation
 1. **Presentation Layer (`public/`)**: Built with responsive semantic HTML5, custom vanilla CSS design tokens, and modular vanilla JavaScript. Pages communicate with backend APIs via a unified fetch client (`api.js`) that automatically transmits HTTP-only session cookies and parses JSON payloads and errors.
 2. **Application Layer (`routes/`, `services/`, `middleware/`)**: Built on Node.js and Express. HTTP request handling and route definitions are decoupled from domain business logic through dedicated service modules. Access is secured using role-based session middleware (`requireAuth` and `requireAdmin`).
 3. **Persistence Layer (`models/`)**: Structured MongoDB document storage using Mongoose schemas. Distinct schemas for `FoundItem` and `LostItem` provide strict validation for report-type specific rules (such as drop-off collection locations vs. direct email contact) while exposing uniform data models to the frontend.
-
-## Project Structure
-
-```text
-├── public/                     # Frontend client pages, scripts, and styles
-│   ├── 404.html                # Friendly custom 404 not found page
-│   ├── admin.html              # Administrator stale reports & bulk resolution panel
-│   ├── browse.html             # Main report browsing grid with tabs and sorting
-│   ├── edit-report.html        # Owner report editing and resolution interface
-│   ├── help.html               # Help desk, FAQ, and question/reply threads
-│   ├── index.html              # Mock login landing page
-│   ├── item-detail.html        # Detailed report view with photo lightbox & matches
-│   ├── my-reports.html         # User dashboard displaying owned reports
-│   ├── report.html             # Report submission form with duplicate warning
-│   ├── search-filter.html      # Multi-criteria search and filter interface
-│   ├── css/                    # Modular stylesheets (style, report, help, ui-state, etc.)
-│   └── js/                     # Client scripts (api, browse, report-form, help, ui-state, etc.)
-├── models/                     # Mongoose database models
-│   ├── foundItem.model.js      # Schema for found property reports
-│   ├── helpQuestion.model.js   # Schema for help desk questions
-│   ├── helpReply.model.js      # Schema for question replies
-│   ├── lostItem.model.js       # Schema for lost property reports
-│   ├── photo.model.js          # Schema for binary photo data and mime types
-│   └── user.model.js           # Schema for user accounts and roles
-├── routes/                     # Express REST API routes
-│   ├── admin.routes.js         # Stale count, stale listing, and bulk-resolve endpoints
-│   ├── auth.routes.js          # Login, current session user, and logout endpoints
-│   ├── help.routes.js          # Help question and reply CRUD endpoints
-│   ├── items.routes.js         # Item reporting, filtering, pagination, edit, and status
-│   └── photos.routes.js        # Binary image retrieval endpoint
-├── services/                   # Business and domain logic layer
-│   ├── admin.service.js        # Stale report calculations and bulk resolution
-│   ├── auth.service.js         # Authentication helpers
-│   ├── help.service.js         # Help question and reply access rules and actions
-│   ├── items.service.js        # Item queries, search filters, pagination, and updates
-│   ├── photos.service.js       # Photo storage, retrieval, and deletion
-│   └── report-status.service.js# Owner-only report resolution logic
-├── middleware/                 # Express middleware
-│   ├── auth.middleware.js      # Requires an active user session (HTTP 401)
-│   └── requireAdmin.middleware.js # Requires an admin role (HTTP 403)
-├── scripts/                    # Automation and seed scripts
-│   ├── seed.js                 # Database seed script for development and testing
-│   └── seed-sample-items.js    # Fixture generator for sample reports
-├── data/                       # Static assets and sample image lists
-├── test/                       # Comprehensive automated test suite
-│   ├── e2e/                    # Playwright end-to-end browser tests
-│   ├── helpers/                # Test database connection and cleanup utilities
-│   ├── integration/            # Supertest API and database integration tests
-│   ├── middleware/             # Unit tests for middleware
-│   ├── models/                 # Unit tests for Mongoose schema validation
-│   ├── public/                 # Headless unit tests for client-side JavaScript
-│   ├── routes/                 # Supertest route behavior and failure tests
-│   └── services/               # Unit tests for business logic services
-├── docs/                       # Project specifications and QA documentation
-│   ├── test-cases.md           # Formal test case catalog
-│   ├── e2e-test-results.md     # Recorded Playwright E2E execution log
-│   └── sprint2-features-vs-sprint1.md # Slide-ready comparison against Sprint 1
-├── server.js                   # Main application entry point and Express configuration
-├── preflight-check.js          # Environment, database, and seed integrity validator
-├── playwright.config.js        # Playwright E2E test runner configuration
-└── package.json                # Project dependencies, scripts, and engine metadata
-```
 
 ## Environment Variables
 
@@ -328,7 +327,7 @@ npm run test:full
 
 For detailed test case breakdowns and taxonomies, see [`docs/test-cases.md`](docs/test-cases.md). For the latest logged E2E execution results, see [`docs/e2e-test-results.md`](docs/e2e-test-results.md).
 
-## Feature List
+## Complete Feature List
 
 The system delivers a comprehensive lost and found management platform tailored for campus environments:
 
