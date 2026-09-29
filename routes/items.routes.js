@@ -7,6 +7,18 @@ const photosService = require("../services/photos.service");
 
 const router = express.Router();
 
+function parseUploadedPhotos(req, res, next) {
+  uploadPhotos.array("photos", 3)(req, res, (error) => {
+    if (!error) {
+      return next();
+    }
+
+    return res.status(400).json({
+      message: error.message || "Invalid photo upload.",
+    });
+  });
+}
+
 router.get("/counts", async (req, res) => {
   try {
     return res.json(await itemsService.getItemCounts());
@@ -87,7 +99,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", requireAuth, uploadPhotos.array("photos", 3), async (req, res) => {
+router.post("/", requireAuth, parseUploadedPhotos, async (req, res) => {
   let photos = [];
 
   try {
