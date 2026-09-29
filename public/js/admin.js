@@ -54,7 +54,7 @@ function createReportRow(report) {
   const details = document.createElement("span");
   details.className = "mono";
   details.style.cssText =
-    "display:block; font-size:.65rem; color:#9a9a95; overflow-wrap:anywhere;";
+    "display:block; font-size:.65rem; color:var(--wf-text-muted); overflow-wrap:anywhere;";
   details.textContent = [
     report.type === "lost" ? "Lost" : "Found",
     report.category,
