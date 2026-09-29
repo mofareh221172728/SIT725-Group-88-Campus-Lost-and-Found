@@ -94,7 +94,7 @@ router.post("/", requireAuth, uploadPhotos.array("photos", 3), async (req, res) 
     photos = await photosService.createPhotos(req.files || []);
 
     if (req.files && req.files.length > 0) {
-       req.body.photos = photos.map((photo) => photo._id.toString());
+      req.body.photos = photos.map((photo) => `/api/photos/${photo._id}`);
     }
 
     const report = await itemsService.createReport(req.session.userId, req.body);
