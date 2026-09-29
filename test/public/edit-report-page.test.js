@@ -74,6 +74,60 @@ describe('Edit report page connector', () => {
     ]);
   });
 
+  it('returns confirmation feedback after a successful report update', async () => {
+  const report = {
+    id: reportId,
+    ownerId: 'owner-1',
+    type: 'found',
+  };
+
+  const client = {
+    async get(url) {
+      if (url === '/api/auth/me') {
+        return { user: { id: 'owner-1' } };
+      }
+
+      return { report };
+    },
+
+    async put() {
+      return { message: 'Report updated successfully.' };
+    },
+  };
+
+  let mounted;
+
+  const formView = {
+    setLoading() {},
+    setError() {
+      assert.fail('setError should not be called');
+    },
+    mount(options) {
+      mounted = options;
+      return true;
+    },
+  };
+
+  await loadEditPage({
+    search: `?type=found&id=${reportId}`,
+    client,
+    formView,
+  });
+
+  const result = await mounted.onSave({
+    id: reportId,
+    type: 'found',
+    changes: {
+      title: 'Updated title',
+      description: 'Updated description',
+    },
+  });
+
+  assert.deepEqual(result, {
+    saved: true,
+    message: 'Report updated successfully.',
+  });
+});
 
   it('returns an appropriate error when the report update fails', async () => {
   const report = {
