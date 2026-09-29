@@ -160,6 +160,89 @@ function renderFoundContact(report) {
   copy.append(link);
 }
 
+let currentReport = null;
+let isFavourite = false;
+
+function updateFavouriteButton() {
+  const button = document.getElementById('favourite-toggle');
+  if (!button) return;
+
+  button.hidden = false;
+  button.setAttribute('aria-pressed', String(isFavourite));
+  button.textContent = isFavourite
+    ? '♥ Remove from favourites'
+    : '♡ Save to favourites';
+}
+
+async function loadFavouriteState(report) {
+  const button = document.getElementById('favourite-toggle');
+  if (!button || !report) return;
+
+  currentReport = report;
+
+  try {
+    const data = await api.get('/api/favourites');
+    const favourites = Array.isArray(data) ? data : (data.favourites || []);
+
+    isFavourite = favourites.some((favourite) => {
+      const itemId = favourite.itemId?._id || favourite.itemId;
+      return String(itemId) === String(report.id || report._id);
+    });
+
+    updateFavouriteButton();
+  } catch (error) {
+    // User may not be logged in, so keep the control hidden.
+    button.hidden = true;
+  }
+}
+
+async function toggleFavourite() {
+  const button = document.getElementById('favourite-toggle');
+  const message = document.getElementById('favourite-message');
+
+  if (!button || !currentReport) return;
+
+  const itemId = currentReport.id || currentReport._id;
+  const type = currentReport.type;
+
+  button.disabled = true;
+
+  try {
+    if (isFavourite) {
+      await api.delete(
+         `/api/favourites/${encodeURIComponent(type)}/${encodeURIComponent(itemId)}`,
+      );
+      isFavourite = false;
+
+      if (message) {
+        message.textContent = 'Removed from favourites.';
+        message.hidden = false;
+      }
+    } else {
+      await api.post('/api/favourites', {
+        itemId,
+        itemType: type,
+      });
+
+      isFavourite = true;
+
+      if (message) {
+        message.textContent = 'Saved to favourites.';
+        message.hidden = false;
+      }
+    }
+
+    updateFavouriteButton();
+  } catch (error) {
+    if (message) {
+      message.textContent = error.message || 'Unable to update favourites.';
+      message.hidden = false;
+    }
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function renderItemDetail(report) {
   const type = report.type === 'lost' ? 'lost' : 'found';
   const status = String(report.status || 'active');
@@ -181,6 +264,7 @@ function renderItemDetail(report) {
 
   renderItemPhotos(report.photos, report.title);
   renderFoundContact(report);
+  loadFavouriteState(report);
 }
 
 const campuses = ['Burwood', 'Waurn Ponds', 'Waterfront', 'Warrnambool'];
@@ -259,9 +343,16 @@ async function loadItemDetail() {
 
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
-    initPhotoModal();
-    loadItemDetail();
-  });
+  initPhotoModal();
+
+  const favouriteButton = document.getElementById('favourite-toggle');
+
+  if (favouriteButton) {
+    favouriteButton.addEventListener('click', toggleFavourite);
+  }
+
+  loadItemDetail();
+ });
 }
 
 if (typeof module !== 'undefined' && module.exports) {
