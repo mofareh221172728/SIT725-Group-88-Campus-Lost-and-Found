@@ -2,14 +2,12 @@
 
 | Field | Value |
 | --- | --- |
-| Run date | 2026-09-29 |
-| Environment | Chromium, Node.js 20.20.2, `.env.test` MongoDB |
-| Run date | 2026-09-29 |
+| Run date | 2026-09-30 |
 | Environment | Chromium, Node.js 20.20.2, `.env.test` MongoDB |
 | E2E command | `npm run test:e2e` |
 | Existing suite command | `npm test` |
-| E2E result | 4 passed in 8.1s |
-| Existing suite result | 300 passing in 7s |
+| E2E result | 6 passed in 9.5s |
+| Existing suite result | 359 passing in 11s |
 
 ## Flow results
 
