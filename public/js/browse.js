@@ -186,6 +186,7 @@ function updateTabBadges(counts) {
 
 // Loads overall active item counts by type from GET /api/items/counts
 async function loadTabCounts() {
+  if (!document.querySelector('[data-toggle-group="browse-tab"]')) return;
   try {
     const counts = await api.get('/api/items/counts');
     updateTabBadges(counts);

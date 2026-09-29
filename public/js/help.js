@@ -290,27 +290,55 @@ async function initQuestions() {
     });
   }
 
-  function setListMessage(text) {
-    listMessage.textContent = text;
-    listMessage.hidden = !text;
+  // Loading, empty and error states for the list use the shared
+  // fallback component (js/ui-state.js); plain text is the fallback.
+  function setListState(options) {
+    if (!options) {
+      clearUiStateSafe(listMessage);
+      return;
+    }
+    if (typeof showUiState === 'function') {
+      showUiState(listMessage, options);
+    } else {
+      listMessage.textContent = options.title;
+      listMessage.hidden = false;
+    }
+  }
+
+  function clearUiStateSafe(container) {
+    if (typeof clearUiState === 'function') {
+      clearUiState(container);
+    } else {
+      container.textContent = '';
+      container.hidden = true;
+    }
+  }
+
+  function emptyListState() {
+    return isAdmin()
+      ? { type: 'empty', title: 'No students have asked a question yet.', message: 'New questions will appear here.' }
+      : { type: 'empty', title: 'You have not asked any questions yet.', message: 'Questions you ask above will appear here.' };
   }
 
   async function loadQuestions() {
     const url = isAdmin() ? '/api/help/questions?scope=all' : '/api/help/questions';
+    setListState({ type: 'loading', title: isAdmin() ? 'Loading questions…' : 'Loading your questions…' });
     try {
       const data = await api.get(url);
       const questions = data.questions || [];
       questionsById.clear();
       questions.forEach((q) => questionsById.set(q.id, q));
       list.innerHTML = questions.map((q) => questionItemHTML(q, { isAdmin: isAdmin() })).join('');
-      if (questions.length === 0) {
-        setListMessage(isAdmin() ? 'No students have asked a question yet.' : 'You have not asked any questions yet.');
-      } else {
-        setListMessage('');
-      }
+      setListState(questions.length === 0 ? emptyListState() : null);
     } catch (error) {
       list.innerHTML = '';
-      setListMessage('Unable to load questions. Please try again.');
+      setListState({
+        type: 'error',
+        title: 'Unable to load questions',
+        message: 'Please check your connection and try again.',
+        actionLabel: 'Try again',
+        onAction: loadQuestions,
+      });
     }
   }
 
@@ -321,7 +349,17 @@ async function initQuestions() {
       repliesBox.innerHTML = replyListHTML(data.question.replies, viewer.id, item.dataset.ownerId);
       item.dataset.loaded = 'true';
     } catch (error) {
-      repliesBox.innerHTML = '<p class="help-replies-empty">Unable to load replies. Close and open this question to try again.</p>';
+      if (typeof showUiState === 'function') {
+        showUiState(repliesBox, {
+          type: 'error',
+          title: 'Unable to load replies',
+          message: '',
+          actionLabel: 'Try again',
+          onAction: () => loadReplies(item),
+        });
+      } else {
+        repliesBox.innerHTML = '<p class="help-replies-empty">Unable to load replies. Close and open this question to try again.</p>';
+      }
     }
   }
 
@@ -335,7 +373,7 @@ async function initQuestions() {
 
   function showEmptyListIfNeeded() {
     if (!list.querySelector('.help-question')) {
-      setListMessage(isAdmin() ? 'No students have asked a question yet.' : 'You have not asked any questions yet.');
+      setListState(emptyListState());
     }
   }
 
@@ -497,10 +535,23 @@ async function initQuestions() {
     viewer = { id: String(me.user.id), role: me.user.role };
   } catch (error) {
     fields.disabled = true;
-    loginPrompt.hidden = false;
-    setListMessage(error.status === 401
-      ? 'Log in to see your questions.'
-      : 'Unable to check your login. Please refresh the page.');
+    if (error.status === 401) {
+      loginPrompt.hidden = false;
+      setListState({
+        type: 'empty',
+        title: 'Log in to see your questions.',
+        message: 'Your questions and replies from admins appear here.',
+        links: [{ href: 'index.html', label: 'Log in' }],
+      });
+    } else {
+      setListState({
+        type: 'error',
+        title: 'Unable to check your login',
+        message: 'Please check your connection and try again.',
+        actionLabel: 'Try again',
+        onAction: () => window.location.reload(),
+      });
+    }
     return;
   }
 

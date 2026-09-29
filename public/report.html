@@ -33,6 +33,7 @@
                 <li><a class="nav-link" href="item-detail.html">Item Detail</a></li>
                 <li><a class="nav-link" href="search-filter.html">Search &amp; Filter</a></li>
                 <li><a class="nav-link" href="my-reports.html">My Reports</a></li>
+                <li><a class="nav-link" href="help.html">Help</a></li>
                 <li data-admin-only hidden><a class="nav-link" href="admin.html">Admin</a></li>
             </ul>
 
@@ -79,6 +80,9 @@
 
                 <!-- Dynamic UI Feedback Alert -->
                 <div id="form-alert" class="form-alert d-none" role="alert"></div>
+
+                <!-- Duplicate Items Warning -->
+                <div id="duplicate-warning" class="form-alert alert-warning d-none" role="status" aria-live="polite"></div>
 
                 <form id="report-item-form" novalidate>
                     <input type="hidden" id="report-type" name="type" value="found">
