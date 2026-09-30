@@ -440,7 +440,7 @@ The system delivers a comprehensive lost and found management platform tailored 
 
 ## Team contributions
 
-Mofareh writes and maintains the project README, bringing together the work completed by the team. The following sections credit each member for their work, with links to public GitHub evidence.
+Mofareh and Max write and maintain the project README, bringing together the work completed by the team. The following sections credit each member for their work, with links to public GitHub evidence.
 
 ### Requirements planning
 
@@ -480,7 +480,7 @@ The linked pull requests below represent merged Sprint 2 contributions across fe
 
 ### README maintenance
 
-Mofareh prepared the project overview, team roles, setup instructions, API notes and limitations in [PR #19](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/19). He maintains the README as the project changes and documents each member's work in the relevant project area.
+Mofareh prepared the project overview, team roles, setup instructions, API notes and limitations in [PR #19](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/19). He maintains the README as the project changes and documents each member's work in the relevant project area. Max also contributes to the maintenance of the README as the project changes and documents each member's work in the relevant project area.
 
 Betty added testing and coverage instructions and linked the detailed test specification in [PR #53](https://github.com/mofareh221172728/SIT725-Group-88-Campus-Lost-and-Found/pull/53).
 
@@ -490,6 +490,16 @@ Max and Mofareh maintained and expanded the documentation for Sprint 2 ([PR #97]
 
 ## Project planning
 
-The SRS requirements are unchanged. This README describes the current implementation and setup.
+The SRS has changed since Task 9.2P. Appendix A includes the updated requirements, with the original core flows retained: reporting, browsing, searching, item details, My Reports, editing and resolving reports. Real Deakin SSO, item claims and report deletion remain outside the MVP.
+
+Sprint 2 adds administrator bulk actions, Help questions and replies, duplicate warnings, potential matches and favourites. The table below summarises these changes.
+
+| Change since Task 9.2P | Scope and implementation status |
+| --- | --- |
+| Administrator bulk actions | US-13 and Cards #101–114 add administrator roles and bulk resolution of Active reports older than 90 days by submission date. The SRS now includes this explicit exception to owner-only status changes. The application screenshot shows the admin bulk-action interface with six selected reports older than 90 days. It demonstrates listing and selection; execution success is not shown. |
+| Help questions and replies | Cards #115–120 are Done. PRs #75–77 and #79–81 provide the Help page, models, CRUD API and access rules. Automated flow tests are merged in PR #83. |
+| Duplicate warnings and potential matches | Cards #121–122 add non-blocking same-type duplicate warnings and up to three opposite-type potential matches. The screenshots show the duplicate warning and potential matches in the running application. The implementation is merged in PRs #86 and #93. |
+| Favourites | Cards #123–128 are Done. Favourite storage, authenticated APIs, the UI toggle, dashboard filter and tests are merged in PRs #100, #101, #103, #105, #106 and #107. The screenshot shows one saved Television in the Favourites tab. Figure B13 documents the saved-item view. |
+| Photos and cancelled scope | The three-photo requirement remains. Storage, dropzone and lightbox changes are merged; the application evidence also shows a selected photo, successful report creation and the saved photo on the item-detail page. Card #74 was cancelled because photo upload and validation were completed under Cards #66, #87 and #88. Cancelling that task does not cancel US-01. Report deletion and claims remain excluded. |
 
 See the [Group 88 Trello board](https://trello.com/b/KD93aCEN/sit725-group-88-project) for Sprint tasks and the remaining work.
