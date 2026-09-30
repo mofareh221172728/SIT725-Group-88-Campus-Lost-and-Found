@@ -37,6 +37,17 @@ describe("Photo Model Schema Validation", () => {
     expect(await getValidationError(photo)).to.be.undefined;
   });
 
+  it("accepts valid WebP binary data", async () => {
+    const photo = new Photo({
+      data: Buffer.from("webp"),
+      contentType: "image/webp",
+      originalName: "item.webp",
+      size: 4,
+    });
+
+    expect(await getValidationError(photo)).to.be.undefined;
+  });
+
   it("requires binary data and metadata", async () => {
     const error = await getValidationError(new Photo({}));
 
@@ -49,8 +60,8 @@ describe("Photo Model Schema Validation", () => {
   it("rejects unsupported content types", async () => {
     const photo = new Photo({
       data: Buffer.from("not-an-image"),
-      contentType: "image/webp",
-      originalName: "item.webp",
+      contentType: "image/gif",
+      originalName: "item.gif",
       size: 12,
     });
     const error = await getValidationError(photo);

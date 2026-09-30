@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const FoundItem = require("../models/foundItem.model");
 const LostItem = require("../models/lostItem.model");
 const { activeReportFilter } = require("./items.service");
@@ -10,8 +11,7 @@ function validationError(message) {
   return error;
 }
 
-// createdAt is used to check if a report is stale (cut off after 90 days).
-// This is used to determine if a report is considered stale and should be counted in the stale report count.
+// A report is stale when it is active and was created more than 90 days ago.
 function getStaleReportFilter() {
   const cutoff = new Date(Date.now() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000);
 
@@ -28,24 +28,48 @@ async function getStaleReportCount() {
   return { count: lost + found };
 }
 
-// uses the same filter with getStaleReportCount.
-// update the status of all stale reports to "resolved" and return the count of updated reports.
-async function resolveStaleReports() {
+// Returns the selected ids by type, or null when no selection was sent.
+function parseSelectedReports(reports) {
+  if (reports === undefined) {
+    return null;
+  }
+
+  const isValid =
+    Array.isArray(reports) &&
+    reports.every(
+      (report) =>
+        ["lost", "found"].includes(report?.type) &&
+        mongoose.Types.ObjectId.isValid(report?.id),
+    );
+
+  if (!isValid) {
+    throw validationError("reports must be a list of { type, id } with type lost or found.");
+  }
+
+  const idsOf = (type) => reports.filter((r) => r.type === type).map((r) => r.id);
+  return { lost: idsOf("lost"), found: idsOf("found") };
+}
+
+// Resolves stale reports (only the selected ones, if given) and returns how many changed.
+async function resolveStaleReports(reports) {
+  const selected = parseSelectedReports(reports);
   const filter = getStaleReportFilter();
+  const filterFor = (type) =>
+    selected ? { ...filter, _id: { $in: selected[type] } } : filter;
   const update = { $set: { status: "resolved" } };
   const [lost, found] = await Promise.all([
-    LostItem.updateMany(filter, update),
-    FoundItem.updateMany(filter, update),
+    LostItem.updateMany(filterFor("lost"), update),
+    FoundItem.updateMany(filterFor("found"), update),
   ]);
 
   return { count: lost.modifiedCount + found.modifiedCount };
 }
 
-// add bulk actions service, currently only supports resolving stale reports
-async function runBulkAction(action) {
+// Only "resolve-stale" is supported for now.
+async function runBulkAction(action, params = {}) {
   switch (action) {
     case "resolve-stale":
-      return resolveStaleReports();
+      return resolveStaleReports(params.reports);
     default:
       throw validationError("Unknown bulk action. Supported actions: resolve-stale.");
   }
