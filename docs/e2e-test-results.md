@@ -6,8 +6,8 @@
 | Environment | Chromium, Node.js 20.20.2, `.env.test` MongoDB |
 | E2E command | `npm run test:e2e` |
 | Existing suite command | `npm test` |
-| E2E result | 6 passed in 9.5s |
-| Existing suite result | 359 passing in 11s |
+| E2E result | 6 passed in 10.2s |
+| Existing suite result | 392 passing in 11s |
 
 ## Flow results
 
