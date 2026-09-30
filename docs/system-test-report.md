@@ -1,9 +1,8 @@
 # System Test Report
 
 **Card:** #38 Test complete application  
-**Date:** 29/09/2026  
-**Time:** 11:00 PM  
-**Code tested:** `main`  
+**Date:** 30/09/2026  
+**Code tested:** `main`, after PR #104 (E2E report flows) and PR #110 (admin tests) were merged  
 **Environment:** Microsoft Edge on Windows, app running locally (`npm run seed`, `npm run start`)
 
 Test accounts:
@@ -17,8 +16,10 @@ Result: **Pass** / **Fail**.
 
 | Test suite                  | Command      | Expected      | Actual             | Result |
 |---------------------------------|------------------|-------------------|------------------------|------------|
-| Unit, API and integration tests | `npm test`         | All tests passing | 303 passing, 0 failing | Pass       |
-| End-to-end tests (Playwright)   | `npm run test:e2e` | All tests passing | 2 passed, 0 failed     | Pass       |
+| Unit, API and integration tests | `npm test`         | All tests passing | 392 passing, 0 failing | Pass       |
+| End-to-end tests (Playwright)   | `npm run test:e2e` | All tests passing | 6 passed, 0 failed     | Pass       |
+
+The re-run includes the tests added since the first run: admin stale-count, bulk-action and access-control tests (#110), search and filter edge cases, session-gated report actions, photo upload validation, Favourites API, service and UI tests, and four new E2E tests for sign-out, create-and-view, edit-and-resolve, and search filters (#104).
 
 ## 2. Manual tests
 
@@ -107,11 +108,19 @@ Result: **Pass** / **Fail**.
 | ST-39  | Unknown API route | Open `/api/abc`                                          | JSON message "API route was not found."              | JSON message "API route was not found."              | Pass       |
 | ST-40  | Server stopped    | Open Browse, stop the server (Ctrl+C), reload the list | Friendly error message with Try again, no blank page | Friendly error message with Try again, no blank page | Pass       |
 
+### 2.10 Favourites
+
+| ID | Test | Steps | Expected | Actual | Result |
+|--------|------|-------|----------|--------|------------|
+| ST-41  | Add a favourite    | Log in, open a report, click the favourite toggle | Toggle shows the item as a favourite | Toggle shows the item as a favourite | Pass |
+| ST-42  | Favourite filter   | Open the dashboard and choose the Favourite filter | Only favourited reports are listed | Only favourited reports are listed | Pass |
+| ST-43  | Remove a favourite | Click the toggle again, then reload the page | Item is no longer a favourite after reload | Item is no longer a favourite after reload | Pass |
+
 ## 3. Summary
 
 | Item         | Count |
 |------------------|-----------|
-| Manual tests run | 40        |
-| Passed           | 40        |
+| Manual tests run | 43        |
+| Passed           | 43        |
 | Failed           | 0         |
 | Defects found    | 0         |
