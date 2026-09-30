@@ -39,11 +39,14 @@
   - [2.2. Create Report](#api-create-report)
   - [2.3. Browse / Get Reports](#api-get-reports)
   - [2.4. Admin Authorization](#admin-authorization)
-  - [2.5. Help Page API](#help-api)
+  - [2.5. Admin Reports API](#admin-reports-api)
+  - [2.6. Admin Nav Link Visibility](#admin-nav-link)
+  - [2.7. Help Page API](#help-api)
 - [3. Integration & UI Test Cases](#integration-ui-test-cases)
   - [3.1. Help Page CRUD Flows](#help-integration)
-  - [3.2. Session-Gated Report Actions](#session-gated-integration)
-  - [3.3. Search & Filter Edge Cases](#search-filter-integration)
+  - [3.2. Admin Bulk Actions Flow](#admin-integration)
+  - [3.3. Session-Gated Report Actions](#session-gated-integration)
+  - [3.4. Search & Filter Edge Cases](#search-filter-integration)
 - [4. Summary](#summary)
 - [5. Running the Tests](#running-the-tests)
 
@@ -447,8 +450,100 @@
 
 ---
 
+<a id="admin-reports-api"></a>
+### 2.5. Admin Reports API
+
+**Test File:** `test/routes/admin.routes.test.js`
+**Route File:** `routes/admin.routes.js` (service: `services/admin.service.js`)
+**Scope:** Supertest API tests for `GET /api/admin/reports/stale-count`, `GET /api/admin/reports/stale` and `POST /api/admin/reports/bulk-actions` (cards #110–#113). Each test seeds `seed.seedUsers()` + `seed.seedStaleReports()`: 2 stale active reports (`Stale Found Umbrella`, 100 days; `Stale Lost Laptop Sleeve`, 200 days), 1 stale resolved report, and 2 fresh active reports. A report is stale when it is active and its `createdAt` is more than 90 days ago.
+
+**[SECURITY] Access Control** (card #113)
+
+`SEC-01`–`03` run once per admin route (stale-count, stale, bulk-actions), 9 tests in total.
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-SEC-01 | Unauthenticated request to each `/api/admin/*` route | 401 |
+| TC-ADMIN-SEC-02 | Non-admin session (`alice.student`) calls each `/api/admin/*` route | 403, `"Admin access is required."` |
+| TC-ADMIN-SEC-03 | Admin session (`admin.test`) calls each `/api/admin/*` route | ✅ 200 |
+| TC-ADMIN-SEC-04 | Non-admin runs `resolve-stale` | 403, stale reports stay `active` |
+| TC-ADMIN-SEC-05 | Admin logs out, then calls stale-count again | 401 on the next request |
+
+**[POSITIVE] Stale Count — `GET /api/admin/reports/stale-count`** (card #110)
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-COUNT-01 | Seeded data | ✅ 200, `{ count: 2 }` (resolved and fresh reports excluded) |
+| TC-ADMIN-COUNT-02 | No reports in the database | ✅ 200, `{ count: 0 }` |
+| TC-ADMIN-COUNT-03 | `[BOUNDARY]` Extra active reports created 89 and 91 days ago | ✅ `{ count: 3 }` (91 days counted, 89 not) |
+| TC-ADMIN-COUNT-04 | Extra 120-day-old report with no `status` field | ✅ `{ count: 3 }` (missing status treated as active) |
+
+**[POSITIVE] Stale Report List — `GET /api/admin/reports/stale`** (card #112)
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-LIST-01 | Seeded data | ✅ 200, `reports` oldest first (`Stale Lost Laptop Sleeve`, `Stale Found Umbrella`), each with `id, type, title, category, location, createdAt` |
+
+**[POSITIVE] Bulk Resolve — `POST /api/admin/reports/bulk-actions`** (cards #111, #112)
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-BULK-01 | `{ action: "resolve-stale" }` | ✅ 200, `{ count: 2 }`; only the 2 stale active reports become `resolved`, fresh and already-resolved reports unchanged |
+| TC-ADMIN-BULK-02 | Preview stale-count, run, then stale-count again | ✅ Run count equals preview count; stale-count afterwards is `{ count: 0 }` |
+| TC-ADMIN-BULK-05 | Run, then fetch the stale list and `GET /api/items` | ✅ Stale list is `{ reports: [] }`; resolved reports are gone from the browse feed, fresh reports still listed |
+
+**[BOUNDARY] Idempotency & Empty Runs**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-BULK-03 | Run `resolve-stale` twice | ✅ First `{ count: 2 }`, second 200 `{ count: 0 }` |
+| TC-ADMIN-BULK-06 | Run with no reports in the database | ✅ 200, `{ count: 0 }` |
+
+**[TYPE & ENUM] Invalid Action**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-BULK-04 | `{ action: "delete-everything" }` | 400, `"Unknown bulk action. Supported actions: resolve-stale."`; no report changed |
+| TC-ADMIN-BULK-07 | `{}` (missing `action`) | 400, same message |
+| TC-ADMIN-BULK-08 | `{ action: ["resolve-stale"] }` (non-string) | 400; no report changed |
+
+**[CONDITIONAL] Selected Reports Only** — optional `reports: [{ type, id }]` from the admin panel's checkboxes
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-BULK-09 | Select only `Stale Found Umbrella` | ✅ `{ count: 1 }`; `Stale Lost Laptop Sleeve` stays `active` |
+| TC-ADMIN-BULK-10 | Select a fresh (not stale) report | ✅ `{ count: 0 }`; report stays `active` |
+| TC-ADMIN-BULK-11 | `reports: []` | ✅ `{ count: 0 }`; nothing changed |
+| TC-ADMIN-BULK-12 | `reports` is not a list, has an unknown `type`, or an invalid `id` (3 tests) | 400, `"reports must be a list of { type, id } with type lost or found."`; nothing changed |
+
+**[ERROR HANDLING] Database Failures**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| TC-ADMIN-ERR-01 | The service throws for stale-count, stale list or bulk-actions (3 tests) | 500 with a safe message, e.g. `"Unable to run the bulk action."`; no database details |
+
+---
+
+<a id="admin-nav-link"></a>
+### 2.6. Admin Nav Link Visibility
+
+**Test File:** `test/public/nav-admin.test.js`
+**Script File:** `public/js/nav-auth.js`
+**Scope:** Frontend unit tests for the Admin nav link (card #113, feature from card #108). `NAV-ADMIN-01` reads the page HTML from disk; `02`–`04` run `nav-auth.js` in a Node `vm` sandbox with a fake `document` and a stubbed `api.get("/api/auth/me")` (no browser or database needed).
+
+**[SECURITY] Admin Link Hidden by Default**
+
+| # | Test Description | Expected Result |
+|---|-----------------|-----------------|
+| NAV-ADMIN-01 | Nav pages (`browse`, `edit-report`, `help`, `item-detail`, `my-reports`, `report`, `search-filter`) | ✅ Each has a `<li data-admin-only hidden>` Admin item and loads `js/nav-auth.js` |
+| NAV-ADMIN-02 | `/me` returns `role: "admin"` | ✅ `hidden` removed, Admin link shown |
+| NAV-ADMIN-03 | `/me` returns `role: "user"` | Admin link stays hidden |
+| NAV-ADMIN-04 | `/me` throws (logged out / 401 / network error) | Admin link stays hidden |
+
+---
+
 <a id="help-api"></a>
-### 2.5. Help Page API
+### 2.7. Help Page API
 
 **Test Files:** `test/routes/help.routes.test.js`, `test/routes/help-auth.routes.test.js`
 **Route / Service Files:** `routes/help.routes.js`, `services/help.service.js`
@@ -530,10 +625,24 @@
 
 > TC-HELP-UI-02 to 08 need the Help page to be connected to the API (Help connect PR). Fill in **Actual Results** and **Pass/Fail** when running them.
 
+
+<a id="admin-integration"></a>
+### 3.2. Admin Bulk Actions Flow
+
+**Manual — Admin panel UI** (`/admin.html`, card #112, run with `npm run seed` and `npm run start`)
+
+| ID | Test Name | SIT725 Category | Objective | Preconditions | Steps | Expected Results | Actual Results | Pass/Fail |
+|:---|:---|:---|:---|:---|:---|:---|:---|:---:|
+| **TC-ADMIN-UI-01** | Preview and resolve stale reports | `INTEGRATION` | Verify an admin can review and resolve stale reports. | Logged in as `admin.mock@deakin.edu.au`. | 1. Open `/admin.html`.<br>2. Click **Resolve selected**, then **Confirm**.<br>3. Open `/browse.html`. | 1. "X of Y active reports are older than 90 days"; X matches the listed reports, all ticked.<br>2. "X reports resolved."; the list shows "No reports older than 90 days."<br>3. Resolved reports are no longer listed. | Preview count matched the seeded stale reports, all ticked; after **Confirm** the resolved reports disappeared from the list. | Pass |
+| **TC-ADMIN-UI-02** | Cancel confirmation | `UI` | Verify nothing changes when the admin cancels. | Stale reports exist. | Click **Resolve selected**, then **Cancel**. | Confirm panel closes; list and counts unchanged. | **Cancel** closed the confirm panel; the selection could be edited again and nothing was resolved. | Pass |
+| **TC-ADMIN-UI-03** | Selection controls | `UI` | Verify ticking controls the Resolve button. | Stale reports exist. | 1. Untick **Select all**.<br>2. Tick one report. | 1. "0 selected"; **Resolve selected** disabled.<br>2. "1 selected"; button enabled. | With no report selected, **Resolve selected** was disabled. | Pass |
+| **TC-ADMIN-UI-04** | Non-admin and logged-out access | `SECURITY` | Verify only admins can use the panel. | — | 1. Log in as `mock.user@deakin.edu.au`, open `/admin.html`.<br>2. Log out, open `/admin.html`. | 1. "You are not authorized to view this page."; no Admin link on other pages.<br>2. Log-in message, then redirect to the login page. | 1. `/api/auth/me` returned `role: "user"`; the page showed "You are not authorized to view this page."<br>2. `/api/auth/me` returned 401; the page showed "Please log in to view this page. Redirecting to login…". | Pass |
+| **TC-ADMIN-UI-05** | Unticked reports are kept | `CONDITIONAL` | Verify only the selected reports are resolved. | At least 2 stale reports. | 1. Untick one report.<br>2. Click **Resolve selected**, then **Confirm**. | 1. Confirm message counts one fewer report.<br>2. "N reports resolved." matches the selection; the unticked report is still listed and Active. | Resolved 1 of 3 stale reports with the other 2 unticked: "1 report resolved."; the list reloaded showing "2 of 197 active reports are older than 90 days" with Old Calculator and Old Black Backpack still listed. | Pass |
+
 ---
 
 <a id="session-gated-integration"></a>
-### 3.2. Session-Gated Report Actions
+### 3.3. Session-Gated Report Actions
 
 **Test File:** `test/integration/session-gated.integration.test.js`
 **Route File:** `routes/items.routes.js`
@@ -563,7 +672,7 @@
 ---
 
 <a id="search-filter-integration"></a>
-### 3.3. Search & Filter Edge Cases
+### 3.4. Search & Filter Edge Cases
 
 **Test File:** `test/integration/search-filter.integration.test.js`
 **Route File:** `routes/items.routes.js`
@@ -626,12 +735,14 @@
 > - `test/routes/auth.routes.test.js` adds 10 automated API/session tests (`TC-AUTH-04`–`TC-AUTH-12`, see [§2.1](#login-flow-api), requires a local MongoDB).
 > - `test/routes/items.routes.test.js` adds 14 automated API tests (`TC-API-GET-01`–`14`, `TC-API-COUNTS-01`–`02`, see [§2.3](#api-get-reports), requires a local MongoDB) for the Mongo-backed `GET /api/items`/`GET /api/items/counts` endpoints (card #22). The `TC-API-CREATE-01`–`12` tests (see [§2.2](#api-create-report)) for `POST /api/items` are on the still-open card #49 branch and are not yet part of this count.
 > - `test/middleware/requireAdmin.middleware.test.js` adds 3 automated unit tests (`TC-SEC-01`–`03`, see [§2.4](#admin-authorization), requires a local MongoDB) for the `requireAdmin` middleware (card #109).
-> - `test/integration/session-gated.integration.test.js` adds 9 integration tests (`TC-SESSION-01`–`06`, see [§3.2](#session-gated-integration), requires a local MongoDB) for owner-only report actions and sign-out (card #56).
-> - `test/integration/search-filter.integration.test.js` adds 14 integration tests (`TC-SEARCH-EDGE-01`–`14`, see [§3.3](#search-filter-integration), requires a local MongoDB) for search and filter edge cases (card #79). The Search & Filter page is covered by Playwright `E2E-08`–`10`.
-> - `TC-CV-12`–`14` ([§3](#integration-ui-test-cases)) are manual/browser-only and have no automated count.
-> - Help page (cards #117–#120): 22 model tests (`HQ`, `HR`, [§1.4](#help-models)), 25 API tests (`HELP`, `HELP-AUTH`, [§2.5](#help-api)) and 3 integration tests (`HELP-INT`, [§3.1](#help-integration)). `TC-HELP-UI-01`–`08` are manual.
+> - `test/integration/session-gated.integration.test.js` adds 9 integration tests (`TC-SESSION-01`–`06`, see [§3.3](#session-gated-integration), requires a local MongoDB) for owner-only report actions and sign-out (card #56).
+> - `test/integration/search-filter.integration.test.js` adds 14 integration tests (`TC-SEARCH-EDGE-01`–`14`, see [§3.4](#search-filter-integration), requires a local MongoDB) for search and filter edge cases (card #79). The Search & Filter page is covered by Playwright `E2E-08`–`10`.
+> - `test/routes/admin.routes.test.js` adds 33 automated API tests (`TC-ADMIN-SEC-01`–`05`, `TC-ADMIN-COUNT-01`–`04`, `TC-ADMIN-LIST-01`, `TC-ADMIN-BULK-01`–`12`, `TC-ADMIN-ERR-01`, see [§2.5](#admin-reports-api), requires a local MongoDB) for the admin reports endpoints (cards #110–#113). `SEC-01`–`03` and `ERR-01` run once per admin route; `BULK-12` runs 3 invalid selections.
+> - `test/public/nav-admin.test.js` adds 4 automated frontend tests (`NAV-ADMIN-01`–`04`, see [§2.6](#admin-nav-link), no database needed) for the hidden-by-default Admin nav link (cards #108, #113).
+> - `TC-CV-12`–`14` ([§3](#integration-ui-test-cases)) and `TC-ADMIN-UI-01`–`05` ([§3.2](#admin-integration)) are manual/browser-only and have no automated count.
+> - Help page (cards #117–#120): 22 model tests (`HQ`, `HR`, [§1.4](#help-models)), 25 API tests (`HELP`, `HELP-AUTH`, [§2.7](#help-api)) and 3 integration tests (`HELP-INT`, [§3.1](#help-integration)). `TC-HELP-UI-01`–`08` are manual.
 >
-> Total: 323 automated tests when every suite under `test/` runs together (`npm test`): models 68, routes 154, integration 39, middleware 3, public 54, services 5. Browser end-to-end tests run separately with Playwright (`npm run test:e2e`). There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
+> Total: 392 automated tests when every suite under `test/` runs together (`npm test`): models 69, routes 197, integration 39, middleware 3, public 74, services 10. Browser end-to-end tests run separately with Playwright (`npm run test:e2e`, see [e2e-test-results.md](e2e-test-results.md)). There is currently no CI workflow running `npm test` — see [§5 Running the Tests](#running-the-tests) for local setup.
 
 ---
 
